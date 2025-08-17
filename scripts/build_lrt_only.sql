@@ -28,7 +28,7 @@ DROP TABLE IF EXISTS slim.shapes;
 CREATE TEMP TABLE keep_routes AS
 SELECT route_id, agency_id
 FROM main.routes
-WHERE route_type = 0;
+WHERE route_type IN (0, 2, 109);  -- 0=Tram/Light Rail, 2=Rail, 109=Light Rail (extended)
 
 CREATE TEMP TABLE keep_trips AS
 SELECT trip_id, route_id, service_id, shape_id
@@ -145,4 +145,4 @@ WHERE s.stop_id IS NULL;
 VACUUM slim;
 ANALYZE slim;
 
-.print \n=== Done. New file at src/database/gtfs_lrt_only.db?mode=rwc ===\n
+.print \n=== Done. New file at data/gtfs_lrt_only.db?mode=rwc ===\n
