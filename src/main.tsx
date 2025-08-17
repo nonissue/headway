@@ -3,12 +3,8 @@ import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './style.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
-import {
-    DEFAULT_STOP_COUNT_LIMIT,
-    TEST_COORDS,
-    TEST_COORDS_SG,
-} from './config.js';
-import { ComboboxDemo } from './components/combobox';
+import { DEFAULT_STOP_COUNT_LIMIT, TEST_COORDS } from './config.js';
+import CreatorInfo from './components/features/InfoFooter';
 
 interface Departure {
     stop_id: string;
@@ -82,30 +78,15 @@ const App = () => {
     return (
         <main className="flex min-h-dvh w-full flex-col items-center justify-center overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto sm:py-10">
             <div className="w-full max-w-xl px-4 sm:my-auto">
-                {/* <h1 className="text-4xl text-center font-bold tracking-widest text-orange-400 mb-6">
-                    Departures Board
-                </h1> */}
-                {/* 
-                {status && false && (
-                    <div className="text-center text-base text-orange-300 mb-4">
-                        {status}
-                    </div>
-                )} */}
-
-                <div
-                    className={`px-2 py-4 sm:px-8 ${loading && 'animate-pulse'}`}
-                >
-                    {/* bg-radial-[at_25%_100%] from-amber-700/10 via-orange-500/10 to-zinc-700/20 to-200% */}
-                    {/* <div className="border-2 border-b-0 border-dotted border-neutral-500/25 bg-radial-[at_50%_150%] from-neutral-900/50 to-neutral-400/10 rounded-t-sm  p-4 "> */}
-                    <div className="p-0">
-                        <div className="flex flex-col items-center justify-around sm:gap-y-1">
-                            <span className="relative inline-flex bg-gradient-to-r from-gray-700/0 via-zinc-700/0 to-gray-800/0 text-sm tracking-widest text-orange-300 uppercase">
+                <div className={`${loading && 'animate-pulse'}`}>
+                    <div className="mb-4 rounded-xs border border-zinc-800 bg-zinc-900/70 p-4">
+                        <div className="flex flex-col justify-around sm:gap-y-1">
+                            <span className="relative hidden bg-gradient-to-r from-gray-700/0 via-zinc-700/0 to-gray-800/0 text-sm tracking-widest text-orange-300 uppercase">
                                 {stationName ? 'Closest Station: ' : 'Loading'}
                             </span>
 
-                            <div className="font-sans text-2xl font-bold tracking-normal text-orange-200 uppercase drop-shadow-lg sm:text-2xl">
+                            <div className="text-center font-mono text-xl font-semibold tracking-wider text-orange-200 uppercase drop-shadow-lg sm:text-xl">
                                 {stationName ? stationName : 'Loading'}
-                                {/* <ComboboxDemo /> */}
                             </div>
                         </div>
                     </div>
@@ -258,6 +239,14 @@ const App = () => {
                         </div>
                     </div>
                 )}
+                <CreatorInfo
+                    name="Andy Williams"
+                    email="andy@nonissue.org"
+                    website="https://andy.ws"
+                    github="https://github.com/nonissue"
+                    note="Built with GTFS data; times are estimates and may change."
+                    startYear={2025}
+                />
             </div>
         </main>
     );
