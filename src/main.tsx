@@ -80,8 +80,8 @@ const App = () => {
     }, []);
 
     return (
-        <main className="min-h-dvh overflow-y-auto overscroll-none w-full flex flex-col items-center justify-center px-4 bg-gradient-to-l from-black via-black to-black text-white font-mono sm:py-10  sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
-            <div className=" w-full px-4 max-w-xl  sm:my-auto ">
+        <main className="flex min-h-dvh w-full flex-col items-center justify-center overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto sm:py-10">
+            <div className="w-full max-w-xl px-4 sm:my-auto">
                 {/* <h1 className="text-4xl text-center font-bold tracking-widest text-orange-400 mb-6">
                     Departures Board
                 </h1> */}
@@ -98,12 +98,12 @@ const App = () => {
                     {/* bg-radial-[at_25%_100%] from-amber-700/10 via-orange-500/10 to-zinc-700/20 to-200% */}
                     {/* <div className="border-2 border-b-0 border-dotted border-neutral-500/25 bg-radial-[at_50%_150%] from-neutral-900/50 to-neutral-400/10 rounded-t-sm  p-4 "> */}
                     <div className="p-0">
-                        <div className="flex flex-col sm:gap-y-2 items-center justify-around">
-                            <span className="relative text-sm inline-flex text-orange-300 bg-gradient-to-r from-gray-700/0 via-slate-700/0 to-gray-800/0  uppercase tracking-widest">
+                        <div className="flex flex-col items-center justify-around sm:gap-y-1">
+                            <span className="relative inline-flex bg-gradient-to-r from-gray-700/0 via-zinc-700/0 to-gray-800/0 text-sm tracking-widest text-orange-300 uppercase">
                                 {stationName ? 'Closest Station: ' : 'Loading'}
                             </span>
 
-                            <div className="text-2xl sm:text-2xl font-sans font-bold tracking-normal text-orange-200 drop-shadow-lg uppercase">
+                            <div className="font-sans text-2xl font-bold tracking-normal text-orange-200 uppercase drop-shadow-lg sm:text-2xl">
                                 {stationName ? stationName : 'Loading'}
                                 {/* <ComboboxDemo /> */}
                             </div>
@@ -112,19 +112,19 @@ const App = () => {
                 </div>
                 {loading ? (
                     <div className="animate-pulse">
-                        <div className="space-y-0 border-2 border-orange-400/50 divide-orange-400/50 divide-y-2 bg-orange-100/10 ">
+                        <div className="space-y-0 divide-y-2 divide-orange-400/50 border-2 border-orange-400/50 bg-orange-100/10">
                             {[...Array(2)].map((_, i) => (
                                 <div
                                     key={i}
-                                    className=" divide-y w-full  divide-dotted divide-orange-300/30 flex items-stretch"
+                                    className="flex w-full items-stretch divide-y divide-dotted divide-orange-300/30"
                                 >
-                                    <div className="flex flex-col justify-center items-center border-r w-8 border-solid border-b-0 border-zinc-800 relative min-h-40">
-                                        <span className="rotate-[-90deg] font-light text-xs sm:text-md uppercase tracking-widest text-amber-100/90 whitespace-nowrap">
+                                    <div className="relative flex min-h-40 w-8 flex-col items-center justify-center border-r border-b-0 border-solid border-zinc-800">
+                                        <span className="sm:text-md rotate-[-90deg] text-xs font-light tracking-widest whitespace-nowrap text-amber-100/90 uppercase">
                                             Platform {i + 1}
                                         </span>
                                     </div>
-                                    <div className="bg-zinc-950/70 text-orange-300 divide-y divide-orange-100/20 divide-dotted flex-1">
-                                        <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs sm:text-sm uppercase text-orange-300">
+                                    <div className="flex-1 divide-y divide-dotted divide-orange-100/20 bg-zinc-950/70 text-orange-300">
+                                        <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs text-orange-300 uppercase sm:text-sm">
                                             <span>Time</span>
                                             <span className="col-span-2">
                                                 Destination
@@ -135,24 +135,24 @@ const App = () => {
                                         ].map((_, n) => (
                                             <div
                                                 key={`${n}-${n}`}
-                                                className="grid grid-cols-3 gap-1 px-4 py-1 sm:py-2 text-sm sm:text-sm transition-all duration-150 ease-in-out hover:bg-zinc-900 hover:cursor-pointer hover:text-black"
+                                                className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-zinc-900 hover:text-black sm:py-2 sm:text-sm"
                                             >
-                                                <div className="font-mono my-auto text-orange-100 tracking-wide h-5 bg-neutral-700/50"></div>
-                                                <div className="col-span-2 truncate font-normal uppercase text-orange-100 tracking-wide h-5 bg-neutral-700/50"></div>
+                                                <div className="my-auto h-5 bg-zinc-700/50 font-mono tracking-wide text-orange-100"></div>
+                                                <div className="col-span-2 h-5 truncate bg-zinc-700/50 font-normal tracking-wide text-orange-100 uppercase"></div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             ))}
                         </div>
-                        <div className="px-0 sm:px-0 ">
-                            <div className="flex justify-between items-center  text-orange-100/90 rounded-b-xs border-2 border-neutral-700 border-t-0 bg-neutral-900">
-                                <span className="text-xs sm:text-sm w-full text-center sm:text-left sm:px-4 uppercase font-semibold">
-                                    <div className="font-normal text-orange-100/70 h-5 bg-neutral-600/50"></div>
+                        <div className="px-0 sm:px-0">
+                            <div className="flex items-center justify-between rounded-b-xs border-2 border-t-0 border-zinc-700 bg-zinc-900 text-orange-100/90">
+                                <span className="w-full text-center text-xs font-semibold uppercase sm:px-4 sm:text-left sm:text-sm">
+                                    <div className="h-5 bg-zinc-600/50 font-normal text-orange-100/70"></div>
                                 </span>
                                 <button
                                     onClick={getUserLocationAndFetch}
-                                    className="border-l-0 border-neutral-700 flex text-xs items-center px-4 gap-x-3 py-2 sm:py-3 uppercase tracking-wide sm:text-base   text-orange-300 bg-neutral-800  hover:bg-orange-500 hover:cursor-pointer hover:text-black transition"
+                                    className="flex items-center gap-x-3 border-l-0 border-zinc-700 bg-zinc-800 px-4 py-2 text-xs tracking-wide text-orange-300 uppercase transition hover:cursor-pointer hover:bg-orange-500 hover:text-black sm:py-3 sm:text-base"
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -160,7 +160,7 @@ const App = () => {
                                         viewBox="0 0 24 24"
                                         strokeWidth={1.5}
                                         stroke="currentColor"
-                                        className="size-4 sm:size-5 "
+                                        className="size-4 sm:size-5"
                                     >
                                         <path
                                             strokeLinecap="round"
@@ -177,25 +177,25 @@ const App = () => {
                     </div>
                 ) : (
                     <div className="animate-in fade-in-5 duration-[0.1s]">
-                        <div className="space-y-0 border-2 border-orange-400/50 divide-orange-400/50 divide-y-2 bg-orange-100/10  ">
+                        <div className="space-y-0 divide-y-2 divide-orange-400/50 border-2 border-orange-400/50 bg-orange-100/10">
                             {departures.map((group, idx) =>
                                 group.length == 0 ? (
                                     <></>
                                 ) : (
                                     <div
                                         key={idx}
-                                        className=" divide-y w-full  divide-dotted divide-orange-300/30 flex items-stretch"
+                                        className="flex w-full items-stretch divide-y divide-dotted divide-orange-300/30"
                                     >
                                         {/* Label column */}
-                                        <div className="flex flex-col justify-center items-center border-r w-8 border-solid border-b-0 border-zinc-800 relative min-h-40">
-                                            <span className="rotate-[-90deg] font-light text-xs sm:text-md uppercase tracking-widest text-amber-100/90 whitespace-nowrap">
+                                        <div className="relative flex min-h-40 w-8 flex-col items-center justify-center border-r border-b-0 border-solid border-zinc-800">
+                                            <span className="sm:text-md rotate-[-90deg] text-xs font-light tracking-widest whitespace-nowrap text-amber-100/90 uppercase">
                                                 Platform {idx + 1}
                                             </span>
                                         </div>
 
                                         {/* Content column */}
-                                        <div className="bg-zinc-950/70 text-orange-300 divide-y divide-orange-100/20 divide-dotted flex-1">
-                                            <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs sm:text-sm uppercase text-orange-300">
+                                        <div className="flex-1 divide-y divide-dotted divide-orange-100/20 bg-zinc-950/70 text-orange-300">
+                                            <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs text-orange-300 uppercase sm:text-sm">
                                                 <span>Time</span>
                                                 <span className="col-span-2">
                                                     Destination
@@ -204,14 +204,14 @@ const App = () => {
                                             {group.map((dep, i) => (
                                                 <div
                                                     key={`${idx}-${i}`}
-                                                    className="grid grid-cols-3 gap-1 px-4 py-1 sm:py-2 text-sm sm:text-sm transition-all duration-150 ease-in-out hover:bg-zinc-900 hover:cursor-pointer hover:text-black"
+                                                    className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-zinc-900 hover:text-black sm:py-2 sm:text-sm"
                                                 >
-                                                    <div className="font-mono my-auto text-orange-100 tracking-wide">
+                                                    <div className="my-auto font-mono tracking-wide text-orange-100">
                                                         {convertServiceTimeToClockTime(
                                                             dep.departure_time
                                                         )}
                                                     </div>
-                                                    <div className="col-span-2 truncate font-normal uppercase text-orange-100 tracking-wide">
+                                                    <div className="col-span-2 truncate font-normal tracking-wide text-orange-100 uppercase">
                                                         {dep.stop_headsign}
                                                     </div>
                                                 </div>
@@ -224,8 +224,8 @@ const App = () => {
 
                         <div className="px-0 sm:px-0">
                             {lastUpdated && (
-                                <div className="flex justify-between items-center  text-orange-100/90 rounded-b-xs border-2 border-neutral-700 border-t-0 bg-neutral-900">
-                                    <span className="text-xs sm:text-sm w-full text-center sm:text-left sm:px-4 uppercase font-semibold">
+                                <div className="flex items-center justify-between rounded-b-xs border-2 border-t-0 border-zinc-700 bg-zinc-900 text-orange-100/90">
+                                    <span className="w-full text-center text-xs font-semibold uppercase sm:px-4 sm:text-left sm:text-sm">
                                         <span className="font-normal text-orange-100/70">
                                             Updated at{' '}
                                         </span>
@@ -233,7 +233,7 @@ const App = () => {
                                     </span>
                                     <button
                                         onClick={getUserLocationAndFetch}
-                                        className="border-l-0 border-neutral-700 flex text-xs items-center px-4 gap-x-3 py-2 sm:py-3 uppercase tracking-wide sm:text-base   text-orange-300 bg-neutral-800  hover:bg-orange-500 hover:cursor-pointer hover:text-black transition"
+                                        className="flex items-center gap-x-3 border-l-0 border-zinc-700 bg-zinc-800 px-4 py-2 text-xs tracking-wide text-orange-300 uppercase transition hover:cursor-pointer hover:bg-orange-500 hover:text-black sm:py-3 sm:text-base"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
@@ -241,7 +241,7 @@ const App = () => {
                                             viewBox="0 0 24 24"
                                             strokeWidth={1.5}
                                             stroke="currentColor"
-                                            className="size-4 sm:size-5 "
+                                            className="size-4 sm:size-5"
                                         >
                                             <path
                                                 strokeLinecap="round"
