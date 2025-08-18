@@ -78,6 +78,14 @@ const App = () => {
 
     return (
         <main className="flex min-h-dvh w-full flex-col items-center justify-center overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto sm:py-10">
+            <CreatorBadge
+                name="Andy Williams"
+                email="andy@nonissue.org"
+                website="https://andy.ws"
+                github="https://github.com/nonissue"
+                note="Built with GTFS data; times are estimates and may change."
+                startYear={2025}
+            />
             <div className="w-full max-w-xl px-4 sm:my-auto">
                 <div className={`${loading && 'animate-pulse'}`}>
                     <div className="mb-4 rounded-xs border border-zinc-800 bg-zinc-900/70 p-4">
@@ -240,14 +248,6 @@ const App = () => {
                         </div>
                     </div>
                 )}
-                <CreatorBadge
-                    name="Andy Williams"
-                    email="andy@nonissue.org"
-                    website="https://andy.ws"
-                    github="https://github.com/nonissue"
-                    note="Built with GTFS data; times are estimates and may change."
-                    startYear={2025}
-                />
             </div>
         </main>
     );
