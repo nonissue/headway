@@ -81,8 +81,8 @@ export default function CreatorBadge({
                         open ? 'Hide creator info' : 'Show creator info'
                     }
                 >
-                    <Info className="h-4 w-4 text-amber-300" />
-                    <span className="hidden sm:inline">About</span>
+                    <Info className="h-3.5 w-3.5 text-amber-300" />
+                    <span className="hidden text-[11px] sm:inline">About</span>
                     <ChevronUp
                         className={cn(
                             'ml-0.5 h-3.5 w-3.5 transition-transform duration-200',
