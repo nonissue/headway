@@ -33,7 +33,8 @@
         "lucide-react": "^0.536.0",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
-        "tailwind-merge": "^3.3.1"
+        "tailwind-merge": "^3.3.1",
+        "vite-plugin-pwa": "^1.0.2"
     },
     "devDependencies": {
         "@flydotio/dockerfile": "^0.7.10",
