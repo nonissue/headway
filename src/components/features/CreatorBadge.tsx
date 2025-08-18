@@ -73,7 +73,7 @@ export default function CreatorBadge({
                     type="button"
                     className={cn(
                         'group z-50 flex items-center gap-1.5 rounded-full border border-zinc-700/80',
-                        'bg-zinc-900/70 px-3 py-1 text-[11px] text-zinc-300 shadow-sm backdrop-blur',
+                        'bg-zinc-900/70 px-4 py-1.5 text-zinc-300 shadow-sm backdrop-blur',
                         'hover:bg-zinc-800/80 hover:text-amber-200 focus-visible:outline-none',
                         'transition-colors focus-visible:ring-2 focus-visible:ring-amber-400/60'
                     )}
@@ -81,7 +81,7 @@ export default function CreatorBadge({
                         open ? 'Hide creator info' : 'Show creator info'
                     }
                 >
-                    <Info className="h-3.5 w-3.5 text-amber-300" />
+                    <Info className="h-4 w-4 text-amber-300" />
                     <span className="hidden sm:inline">About</span>
                     <ChevronUp
                         className={cn(
@@ -109,7 +109,7 @@ export default function CreatorBadge({
             {/* Card */}
             <CollapsibleContent
                 className={cn(
-                    'animate-in fade-in-0 z-50 mt-2 mb-2 ml-auto w-[min(92vw,28rem)] overflow-hidden', // right-align
+                    'animate-in fade-in-0 z-50 mt-2 mb-4 ml-auto w-[min(92vw,28rem)] overflow-hidden', // right-align
                     '[transform-origin:top_right]',
                     // Start hidden
                     'translate-y-2 opacity-0',

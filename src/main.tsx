@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom/client';
 import './style.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
 import { DEFAULT_STOP_COUNT_LIMIT, TEST_COORDS } from './config.js';
-import CreatorInfo from './components/features/InfoFooter';
 import CreatorBadge from './components/features/CreatorBadge';
 
 interface Departure {
@@ -88,13 +87,13 @@ const App = () => {
             />
             <div className="w-full max-w-xl px-4 sm:my-auto">
                 <div className={`${loading && 'animate-pulse'}`}>
-                    <div className="mb-4 rounded-xs border border-zinc-800 bg-zinc-900/70 p-4">
-                        <div className="flex flex-col justify-around sm:gap-y-1">
-                            <span className="relative hidden bg-gradient-to-r from-gray-700/0 via-zinc-700/0 to-gray-800/0 text-sm tracking-widest text-orange-300 uppercase">
+                    <div className="rounded-xs border-2 border-b-0 border-zinc-700 bg-zinc-800/70 p-4">
+                        <div className="flex flex-col gap-y-1 text-center sm:gap-y-1">
+                            <span className="relative bg-gradient-to-r from-gray-700/0 via-zinc-700/0 to-gray-800/0 text-xs tracking-widest text-orange-300 uppercase">
                                 {stationName ? 'Closest Station: ' : 'Loading'}
                             </span>
 
-                            <div className="text-center font-mono text-xl font-semibold tracking-wider text-orange-200 uppercase drop-shadow-lg sm:text-xl">
+                            <div className="font-mono text-xl font-semibold tracking-wider text-orange-200 uppercase drop-shadow-lg sm:text-xl">
                                 {stationName ? stationName : 'Loading'}
                             </div>
                         </div>
