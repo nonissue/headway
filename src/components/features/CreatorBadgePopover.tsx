@@ -30,6 +30,15 @@ export default function CreatorBadgeInline({
     className,
 }: Props) {
     const [open, setOpen] = React.useState(false);
+
+    React.useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setOpen(false);
+        };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, []);
+
     const year = new Date().getFullYear();
     const years =
         startYear && startYear < year ? `${startYear}–${year}` : `${year}`;
