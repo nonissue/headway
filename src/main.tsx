@@ -5,6 +5,7 @@ import './style.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
 import { DEFAULT_STOP_COUNT_LIMIT, TEST_COORDS } from './config.js';
 import CreatorInfo from './components/features/InfoFooter';
+import CreatorBadge from './components/features/CreatorBadge';
 
 interface Departure {
     stop_id: string;
@@ -239,7 +240,7 @@ const App = () => {
                         </div>
                     </div>
                 )}
-                <CreatorInfo
+                <CreatorBadge
                     name="Andy Williams"
                     email="andy@nonissue.org"
                     website="https://andy.ws"
