@@ -12,6 +12,7 @@
         "build:all": "npm run build && npm run build:server",
         "preview": "npm run build:all; node dist/server.js",
         "serve": "node dist/server.js",
+        "import-db": "npx gtfs-import --configPath import-config.json; sqlite3 db/gtfs.db \".read scripts/build_lrt_only.sql\"",
         "test": "vitest",
         "test:coverage": "vitest run --coverage"
     },
