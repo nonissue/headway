@@ -16,6 +16,7 @@
     },
     "dependencies": {
         "@hono/node-server": "^1.17.1",
+        "@radix-ui/react-collapsible": "^1.1.12",
         "@radix-ui/react-dialog": "^1.1.14",
         "@radix-ui/react-popover": "^1.1.14",
         "@radix-ui/react-slot": "^1.2.3",
@@ -58,7 +59,7 @@
         "tailwindcss-animate": "^1.0.7",
         "tsconfig-paths": "^4.2.0",
         "tsx": "^4.20.3",
-        "tw-animate-css": "^1.3.6",
+        "tw-animate-css": "^1.3.7",
         "typescript": "^5.8.3",
         "vite": "^6.3.5",
         "vite-tsconfig-paths": "^5.1.4",
