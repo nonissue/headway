@@ -17,7 +17,7 @@
     "dependencies": {
         "@hono/node-server": "^1.17.1",
         "@radix-ui/react-collapsible": "^1.1.12",
-        "@radix-ui/react-dialog": "^1.1.14",
+        "@radix-ui/react-dialog": "^1.1.15",
         "@radix-ui/react-popover": "^1.1.14",
         "@radix-ui/react-slot": "^1.2.3",
         "@sentry/node": "^10.1.0",
