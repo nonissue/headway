@@ -1,10 +1,11 @@
 // src/main.tsx
 import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
+import CreatorBadgeInline from './components/features/CreatorBadgePopover';
 import './style.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
 import { DEFAULT_STOP_COUNT_LIMIT, TEST_COORDS } from './config.js';
-import CreatorBadge from './components/features/CreatorBadge';
+import { History, RefreshCw } from 'lucide-react';
 
 interface Departure {
     stop_id: string;
@@ -76,15 +77,7 @@ const App = () => {
     }, []);
 
     return (
-        <main className="flex min-h-dvh w-full flex-col items-center justify-center overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto sm:py-10">
-            <CreatorBadge
-                name="Andy Williams"
-                email="andy@nonissue.org"
-                website="https://andy.ws"
-                github="https://github.com/nonissue/next-departures"
-                note="Built with GTFS data; times are estimates and may change."
-                startYear={2025}
-            />
+        <main className="flex min-h-dvh w-full flex-col items-center justify-center overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
             <div className="w-full max-w-xl px-4 sm:my-auto">
                 <div className={`${loading && 'animate-pulse'}`}>
                     <div className="rounded-xs border-2 border-b-0 border-zinc-700 bg-zinc-800/70 p-4">
@@ -143,20 +136,7 @@ const App = () => {
                                     onClick={getUserLocationAndFetch}
                                     className="flex items-center gap-x-3 border-l-0 border-zinc-700 bg-zinc-800 px-4 py-2 text-xs tracking-wide text-orange-300 uppercase transition hover:cursor-pointer hover:bg-orange-500 hover:text-black sm:py-3 sm:text-base"
                                 >
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        strokeWidth={1.5}
-                                        stroke="currentColor"
-                                        className="size-4 sm:size-5"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-                                        />
-                                    </svg>
+                                    <RefreshCw className="h-3.5 w-3.5 text-amber-300" />
                                     <span className="text-amber-200">
                                         Refresh
                                     </span>
@@ -211,33 +191,41 @@ const App = () => {
                             )}
                         </div>
 
-                        <div className="px-0 sm:px-0">
+                        {/* LAST REFRESH TIME AND REFRESH BUTTON */}
+                        <div className="flex flex-row text-xs sm:text-sm">
                             {lastUpdated && (
-                                <div className="flex items-center justify-between rounded-b-xs border-2 border-t-0 border-zinc-700 bg-zinc-900 text-orange-100/90">
-                                    <span className="w-full text-center text-xs font-semibold uppercase sm:px-4 sm:text-left sm:text-sm">
-                                        <span className="font-normal text-orange-100/70">
-                                            Updated at{' '}
-                                        </span>
-                                        {lastUpdated.toLocaleTimeString()}{' '}
-                                    </span>
+                                <div className="flex w-full items-stretch justify-between rounded-b-xs border-2 border-t-0 border-zinc-700 bg-zinc-900 tracking-wide text-orange-100/90">
+                                    {/* About button FIRST */}
+                                    <CreatorBadgeInline
+                                        name="Andy Williams"
+                                        email="andy@nonissue.org"
+                                        website="https://andy.ws"
+                                        github="https://github.com/nonissue/next-departures"
+                                        note="Built with GTFS data; times are estimates and may change."
+                                        startYear={2025}
+                                        triggerLabel="About"
+                                        // withBackdrop
+                                    />
+
+                                    {/* Updated-at text in the middle */}
+                                    {/* Center: Updated block fills space */}
+                                    <div className="flex items-center justify-center gap-x-1.5 uppercase sm:px-4 sm:py-3">
+                                        <History className="h-3.5 w-3.5 text-zinc-400" />
+
+                                        {lastUpdated?.toLocaleTimeString([], {
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            second: '2-digit', // remove if you want HH:mm
+                                            hour12: false,
+                                        })}
+                                    </div>
+
+                                    {/* Refresh button LAST */}
                                     <button
                                         onClick={getUserLocationAndFetch}
-                                        className="flex items-center gap-x-3 border-l-0 border-zinc-700 bg-zinc-800 px-4 py-2 text-xs tracking-wide text-orange-300 uppercase transition hover:cursor-pointer hover:bg-orange-500 hover:text-black sm:py-3 sm:text-base"
+                                        className="flex items-center gap-x-3 border-l border-zinc-700 bg-zinc-800 px-4 py-2 tracking-wide text-orange-300 uppercase transition hover:bg-orange-500 hover:text-black"
                                     >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            strokeWidth={1.5}
-                                            stroke="currentColor"
-                                            className="size-4 sm:size-5"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
-                                            />
-                                        </svg>
+                                        <RefreshCw className="h-3.5 w-3.5 text-amber-100" />
                                         <span className="text-amber-200">
                                             Refresh
                                         </span>
