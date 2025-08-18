@@ -125,3 +125,16 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* for ios notch */
+@supports (padding: max(0px)) {
+    @media (display-mode: standalone) {
+        body {
+            padding: max(0px, env(safe-area-inset-top))
+                max(0px, env(safe-area-inset-right))
+                max(0px, env(safe-area-inset-bottom))
+                max(0px, env(safe-area-inset-left));
+            background: #0a0a0a;
+        }
+    }
+}
