@@ -8,6 +8,7 @@ pnpm-lock.yaml*
 coverage/
 
 dist/
+dev-dist/
 
 .env  
 .env.local  
@@ -23,3 +24,4 @@ db/
 
 # Sentry Config File
 .env.sentry-build-plugin
+
