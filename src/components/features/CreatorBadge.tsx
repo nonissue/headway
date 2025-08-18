@@ -63,7 +63,7 @@ export default function CreatorBadge({
             open={open}
             onOpenChange={setOpen}
             className={cn(
-                'fixed right-3 bottom-3 z-20 flex flex-col-reverse items-end',
+                'fixed right-3 bottom-8 z-20 flex flex-col-reverse items-end',
                 className
             )}
         >
