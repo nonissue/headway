@@ -62,18 +62,15 @@ export default function CreatorBadge({
         <Collapsible
             open={open}
             onOpenChange={setOpen}
-            className={cn(
-                'fixed right-3 bottom-8 z-20 flex flex-col-reverse items-end',
-                className
-            )}
+            className={cn('z-20 flex flex-col-reverse items-end', className)}
         >
             {/* Tiny pill trigger */}
             <CollapsibleTrigger asChild>
                 <button
                     type="button"
                     className={cn(
-                        'group z-50 flex items-center gap-1.5 rounded-full border border-zinc-700/80',
-                        'bg-zinc-900/70 px-4 py-1.5 text-zinc-300 shadow-sm backdrop-blur',
+                        'group z-50 flex items-center gap-1.5 border border-zinc-700/80',
+                        'bg-zinc-900/70 px-4 py-1.5 text-zinc-300 shadow-lg backdrop-blur',
                         'hover:bg-zinc-800/80 hover:text-amber-200 focus-visible:outline-none',
                         'transition-colors focus-visible:ring-2 focus-visible:ring-amber-400/60'
                     )}
