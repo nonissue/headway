@@ -10,6 +10,7 @@
         "build": "vite build",
         "build:server": "tsc",
         "build:all": "npm run build && npm run build:server",
+        "preview": "npm run build:all; node dist/server.js",
         "serve": "node dist/server.js",
         "test": "vitest",
         "test:coverage": "vitest run --coverage"
