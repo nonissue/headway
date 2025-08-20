@@ -1,3 +1,14 @@
+-- Should: 
+-- prune the table "stops" so it only contains (a) children (have a parent_station) and 
+-- (b) parents (are referenced by at least one child). 
+-- Delete everything else with the negation of that condition.
+-- 
+-- Then, prune the table "stop_times" so it only contains stop_times with 
+-- stop_id in the filtered stops table
+--
+-- Then, prune table trips so it contains only trips with route_type = 0
+
+
 -- ========= settings for sqlite3 CLI output (safe to leave in) =========
 .headers on
 .mode column
@@ -28,7 +39,7 @@ DROP TABLE IF EXISTS slim.shapes;
 CREATE TEMP TABLE keep_routes AS
 SELECT route_id, agency_id
 FROM main.routes
-WHERE route_type IN (0, 2, 109);  -- 0=Tram/Light Rail, 2=Rail, 109=Light Rail (extended)
+WHERE route_type IN (0, 2);  -- 0=Tram/Light Rail, 2=Rail, 109=Light Rail (extended)
 
 CREATE TEMP TABLE keep_trips AS
 SELECT trip_id, route_id, service_id, shape_id
