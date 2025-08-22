@@ -1,0 +1,772 @@
+[
+    {
+        "lrt_stop_number": "2113",
+        "lrt_stop_description": "Southgate Station",
+        "latitude": "53.48534399998489",
+        "longitude": "-113.51689200028993",
+        "location": "(53.48534399998489, -113.51689200028993)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.51689200028993, 53.48534399998489]
+        },
+        ":@computed_region_ecxu_fw7u": "19",
+        ":@computed_region_ueb5_7sqn": "9",
+        ":@computed_region_7ccj_gre3": "148"
+    },
+    {
+        "lrt_stop_number": "1754",
+        "lrt_stop_description": "Government Station",
+        "latitude": "53.53657300000059",
+        "longitude": "-113.51022400059358",
+        "location": "(53.53657300000059, -113.51022400059358)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.51022400059358, 53.53657300000059]
+        },
+        ":@computed_region_ecxu_fw7u": "24",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "182"
+    },
+    {
+        "lrt_stop_number": "7830",
+        "lrt_stop_description": "Belvedere Station",
+        "latitude": "53.58834899968461",
+        "longitude": "-113.43279999956972",
+        "location": "(53.58834899968461, -113.43279999956972)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.43279999956972, 53.58834899968461]
+        },
+        ":@computed_region_ecxu_fw7u": "42",
+        ":@computed_region_ueb5_7sqn": "2",
+        ":@computed_region_7ccj_gre3": "203"
+    },
+    {
+        "lrt_stop_number": "22993",
+        "lrt_stop_description": "Muttart Stop",
+        "latitude": "53.5362710004444",
+        "longitude": "-113.47993100047424",
+        "location": "(53.5362710004444, -113.47993100047424)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.47993100047424, 53.5362710004444]
+        },
+        ":@computed_region_ecxu_fw7u": "3",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "398"
+    },
+    {
+        "lrt_stop_number": "4982",
+        "lrt_stop_description": "Century Park Station",
+        "latitude": "53.45780499999169",
+        "longitude": "-113.51630299955886",
+        "location": "(53.45780499999169, -113.51630299955886)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.51630299955886, 53.45780499999169]
+        },
+        ":@computed_region_ecxu_fw7u": "173",
+        ":@computed_region_ueb5_7sqn": "3",
+        ":@computed_region_7ccj_gre3": "281"
+    },
+    {
+        "lrt_stop_number": "2162",
+        "lrt_stop_description": "Holyrood Stop",
+        "latitude": "53.5280450000396",
+        "longitude": "-113.45753400058122",
+        "location": "(53.5280450000396, -113.45753400058122)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.45753400058122, 53.5280450000396]
+        },
+        ":@computed_region_ecxu_fw7u": "91",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "342"
+    },
+    {
+        "lrt_stop_number": "1925",
+        "lrt_stop_description": "Government Station",
+        "latitude": "53.53588500040125",
+        "longitude": "-113.510326999277",
+        "location": "(53.53588500040125, -113.510326999277)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.510326999277, 53.53588500040125]
+        },
+        ":@computed_region_ecxu_fw7u": "24",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "182"
+    },
+    {
+        "lrt_stop_number": "3875",
+        "lrt_stop_description": "Millbourne/Woodvale Stop",
+        "latitude": "53.4753160000467",
+        "longitude": "-113.43895899957096",
+        "location": "(53.4753160000467, -113.43895899957096)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.43895899957096, 53.4753160000467]
+        },
+        ":@computed_region_ecxu_fw7u": "57",
+        ":@computed_region_ueb5_7sqn": "4",
+        ":@computed_region_7ccj_gre3": "46"
+    },
+    {
+        "lrt_stop_number": "9981",
+        "lrt_stop_description": "McKernan Belgravia Station",
+        "latitude": "53.5126029999248",
+        "longitude": "-113.5261989994793",
+        "location": "(53.5126029999248, -113.5261989994793)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.5261989994793, 53.5126029999248]
+        },
+        ":@computed_region_ecxu_fw7u": "18",
+        ":@computed_region_ueb5_7sqn": "9",
+        ":@computed_region_7ccj_gre3": "59"
+    },
+    {
+        "lrt_stop_number": "1891",
+        "lrt_stop_description": "Corona Station",
+        "latitude": "53.54097699975875",
+        "longitude": "-113.50535800069186",
+        "location": "(53.54097699975875, -113.50535800069186)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.50535800069186, 53.54097699975875]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "3606",
+        "lrt_stop_description": "Grey Nuns Stop",
+        "latitude": "53.46302000021926",
+        "longitude": "-113.43465300018562",
+        "location": "(53.46302000021926, -113.43465300018562)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.43465300018562, 53.46302000021926]
+        },
+        ":@computed_region_ecxu_fw7u": "46",
+        ":@computed_region_ueb5_7sqn": "4",
+        ":@computed_region_7ccj_gre3": "111"
+    },
+    {
+        "lrt_stop_number": "9982",
+        "lrt_stop_description": "McKernan Belgravia Station",
+        "latitude": "53.51344499972584",
+        "longitude": "-113.5261629997993",
+        "location": "(53.51344499972584, -113.5261629997993)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.5261629997993, 53.51344499972584]
+        },
+        ":@computed_region_ecxu_fw7u": "18",
+        ":@computed_region_ueb5_7sqn": "9",
+        ":@computed_region_7ccj_gre3": "59"
+    },
+    {
+        "lrt_stop_number": "7692",
+        "lrt_stop_description": "Belvedere Station",
+        "latitude": "53.58818699966993",
+        "longitude": "-113.43323899986261",
+        "location": "(53.58818699966993, -113.43323899986261)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.43323899986261, 53.58818699966993]
+        },
+        ":@computed_region_ecxu_fw7u": "42",
+        ":@computed_region_ueb5_7sqn": "2",
+        ":@computed_region_7ccj_gre3": "203"
+    },
+    {
+        "lrt_stop_number": "2969",
+        "lrt_stop_description": "University Station",
+        "latitude": "53.524939999621544",
+        "longitude": "-113.52225800047876",
+        "location": "(53.524939999621544, -113.52225800047876)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.52225800047876, 53.524939999621544]
+        },
+        ":@computed_region_ecxu_fw7u": "146",
+        ":@computed_region_ueb5_7sqn": "9",
+        ":@computed_region_7ccj_gre3": "121"
+    },
+    {
+        "lrt_stop_number": "1691",
+        "lrt_stop_description": "Churchill Station",
+        "latitude": "53.544420000053684",
+        "longitude": "-113.48904500024311",
+        "location": "(53.544420000053684, -113.48904500024311)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.48904500024311, 53.544420000053684]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "22990",
+        "lrt_stop_description": "Strathearn Stop",
+        "latitude": "53.53168999978526",
+        "longitude": "-113.46246200026941",
+        "location": "(53.53168999978526, -113.46246200026941)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.46246200026941, 53.53168999978526]
+        },
+        ":@computed_region_ecxu_fw7u": "126",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "342"
+    },
+    {
+        "lrt_stop_number": "1981",
+        "lrt_stop_description": "Stadium Station",
+        "latitude": "53.560126000058794",
+        "longitude": "-113.47046000038726",
+        "location": "(53.560126000058794, -113.47046000038726)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.47046000038726, 53.560126000058794]
+        },
+        ":@computed_region_ecxu_fw7u": "153",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "367"
+    },
+    {
+        "lrt_stop_number": "2877",
+        "lrt_stop_description": "Davies Station",
+        "latitude": "53.49962099963864",
+        "longitude": "-113.44390699951511",
+        "location": "(53.49962099963864, -113.44390699951511)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.44390699951511, 53.49962099963864]
+        },
+        ":@computed_region_ecxu_fw7u": "241",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "94"
+    },
+    {
+        "lrt_stop_number": "1876",
+        "lrt_stop_description": "Churchill Station",
+        "latitude": "53.54372899983086",
+        "longitude": "-113.48897199970817",
+        "location": "(53.54372899983086, -113.48897199970817)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.48897199970817, 53.54372899983086]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "1504",
+        "lrt_stop_description": "NAIT Blatchford Market Station",
+        "latitude": "53.56663399972489",
+        "longitude": "-113.50877399944375",
+        "location": "(53.56663399972489, -113.50877399944375)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.50877399944375, 53.56663399972489]
+        },
+        ":@computed_region_ecxu_fw7u": "221",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "209"
+    },
+    {
+        "lrt_stop_number": "1935",
+        "lrt_stop_description": "Central Station",
+        "latitude": "53.54096499956997",
+        "longitude": "-113.4932840001244",
+        "location": "(53.54096499956997, -113.4932840001244)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.4932840001244, 53.54096499956997]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "1513",
+        "lrt_stop_description": "102 Street Stop",
+        "latitude": "53.543159999998444",
+        "longitude": "-113.49413800019893",
+        "location": "(53.543159999998444, -113.49413800019893)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.49413800019893, 53.543159999998444]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "2115",
+        "lrt_stop_description": "South Campus Ft Edmonton Station",
+        "latitude": "53.502282999864654",
+        "longitude": "-113.52849799940002",
+        "location": "(53.502282999864654, -113.52849799940002)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.52849799940002, 53.502282999864654]
+        },
+        ":@computed_region_ecxu_fw7u": "17",
+        ":@computed_region_ueb5_7sqn": "9",
+        ":@computed_region_7ccj_gre3": "260"
+    },
+    {
+        "lrt_stop_number": "1516",
+        "lrt_stop_description": "Churchill Stop",
+        "latitude": "53.54347099998313",
+        "longitude": "-113.48937600024414",
+        "location": "(53.54347099998313, -113.48937600024414)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.48937600024414, 53.54347099998313]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "2717",
+        "lrt_stop_description": "Avonmore Stop",
+        "latitude": "53.51036299979529",
+        "longitude": "-113.45508599986613",
+        "location": "(53.51036299979529, -113.45508599986613)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.45508599986613, 53.51036299979529]
+        },
+        ":@computed_region_ecxu_fw7u": "73",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "188"
+    },
+    {
+        "lrt_stop_number": "1515",
+        "lrt_stop_description": "Churchill Stop",
+        "latitude": "53.5434639999909",
+        "longitude": "-113.49013299982286",
+        "location": "(53.5434639999909, -113.49013299982286)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.49013299982286, 53.5434639999909]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "1742",
+        "lrt_stop_description": "Coliseum Station",
+        "latitude": "53.57086299961547",
+        "longitude": "-113.45804599977274",
+        "location": "(53.57086299961547, -113.45804599977274)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.45804599977274, 53.57086299961547]
+        },
+        ":@computed_region_ecxu_fw7u": "154",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "145"
+    },
+    {
+        "lrt_stop_number": "1117",
+        "lrt_stop_description": "MacEwan Station",
+        "latitude": "53.54780599959217",
+        "longitude": "-113.49921899935693",
+        "location": "(53.54780599959217, -113.49921899935693)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.49921899935693, 53.54780599959217]
+        },
+        ":@computed_region_ecxu_fw7u": "222",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "181"
+    },
+    {
+        "lrt_stop_number": "2715",
+        "lrt_stop_description": "Bonnie Doon Stop",
+        "latitude": "53.519698999615585",
+        "longitude": "-113.45535099964123",
+        "location": "(53.519698999615585, -113.45535099964123)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.45535099964123, 53.519698999615585]
+        },
+        ":@computed_region_ecxu_fw7u": "80",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "269"
+    },
+    {
+        "lrt_stop_number": "1115",
+        "lrt_stop_description": "Kingsway RAH Station",
+        "latitude": "53.55796299994938",
+        "longitude": "-113.50139199928971",
+        "location": "(53.55796299994938, -113.50139199928971)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.50139199928971, 53.55796299994938]
+        },
+        ":@computed_region_ecxu_fw7u": "220",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "181"
+    },
+    {
+        "lrt_stop_number": "2014",
+        "lrt_stop_description": "Health Sciences Jubilee Station",
+        "latitude": "53.52038799984137",
+        "longitude": "-113.52581799937964",
+        "location": "(53.52038799984137, -113.52581799937964)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.52581799937964, 53.52038799984137]
+        },
+        ":@computed_region_ecxu_fw7u": "146",
+        ":@computed_region_ueb5_7sqn": "9",
+        ":@computed_region_7ccj_gre3": "121"
+    },
+    {
+        "lrt_stop_number": "1503",
+        "lrt_stop_description": "NAIT Blatchford Market Station",
+        "latitude": "53.56724199999797",
+        "longitude": "-113.50945100061605",
+        "location": "(53.56724199999797, -113.50945100061605)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.50945100061605, 53.56724199999797]
+        },
+        ":@computed_region_ecxu_fw7u": "221",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "209"
+    },
+    {
+        "lrt_stop_number": "1514",
+        "lrt_stop_description": "102 Street Stop",
+        "latitude": "53.54319199976193",
+        "longitude": "-113.49520999931818",
+        "location": "(53.54319199976193, -113.49520999931818)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.49520999931818, 53.54319199976193]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "7977",
+        "lrt_stop_description": "Clareview Station",
+        "latitude": "53.60159200026841",
+        "longitude": "-113.41181899968991",
+        "location": "(53.60159200026841, -113.41181899968991)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.41181899968991, 53.60159200026841]
+        },
+        ":@computed_region_ecxu_fw7u": "184",
+        ":@computed_region_ueb5_7sqn": "2",
+        ":@computed_region_7ccj_gre3": "202"
+    },
+    {
+        "lrt_stop_number": "2687",
+        "lrt_stop_description": "Davies Station",
+        "latitude": "53.50016099968718",
+        "longitude": "-113.44432000065416",
+        "location": "(53.50016099968718, -113.44432000065416)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.44432000065416, 53.50016099968718]
+        },
+        ":@computed_region_ecxu_fw7u": "241",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "94"
+    },
+    {
+        "lrt_stop_number": "2114",
+        "lrt_stop_description": "Southgate Station",
+        "latitude": "53.48605400006681",
+        "longitude": "-113.51673399975543",
+        "location": "(53.48605400006681, -113.51673399975543)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.51673399975543, 53.48605400006681]
+        },
+        ":@computed_region_ecxu_fw7u": "19",
+        ":@computed_region_ueb5_7sqn": "9",
+        ":@computed_region_7ccj_gre3": "26"
+    },
+    {
+        "lrt_stop_number": "2006",
+        "lrt_stop_description": "Holyrood Stop",
+        "latitude": "53.527466000363916",
+        "longitude": "-113.45735900045291",
+        "location": "(53.527466000363916, -113.45735900045291)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.45735900045291, 53.527466000363916]
+        },
+        ":@computed_region_ecxu_fw7u": "91",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "152"
+    },
+    {
+        "lrt_stop_number": "3607",
+        "lrt_stop_description": "Grey Nuns Stop",
+        "latitude": "53.46244800008343",
+        "longitude": "-113.4345149994685",
+        "location": "(53.46244800008343, -113.4345149994685)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.4345149994685, 53.46244800008343]
+        },
+        ":@computed_region_ecxu_fw7u": "46",
+        ":@computed_region_ueb5_7sqn": "4",
+        ":@computed_region_7ccj_gre3": "111"
+    },
+    {
+        "lrt_stop_number": "2316",
+        "lrt_stop_description": "University Station",
+        "latitude": "53.5251449996587",
+        "longitude": "-113.52155500060643",
+        "location": "(53.5251449996587, -113.52155500060643)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.52155500060643, 53.5251449996587]
+        },
+        ":@computed_region_ecxu_fw7u": "146",
+        ":@computed_region_ueb5_7sqn": "9",
+        ":@computed_region_7ccj_gre3": "121"
+    },
+    {
+        "lrt_stop_number": "2716",
+        "lrt_stop_description": "Bonnie Doon Stop",
+        "latitude": "53.51905599995044",
+        "longitude": "-113.45549599928046",
+        "location": "(53.51905599995044, -113.45549599928046)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.45549599928046, 53.51905599995044]
+        },
+        ":@computed_region_ecxu_fw7u": "80",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "269"
+    },
+    {
+        "lrt_stop_number": "1889",
+        "lrt_stop_description": "Coliseum Station",
+        "latitude": "53.57061699972937",
+        "longitude": "-113.45865500030995",
+        "location": "(53.57061699972937, -113.45865500030995)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.45865500030995, 53.57061699972937]
+        },
+        ":@computed_region_ecxu_fw7u": "154",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "145"
+    },
+    {
+        "lrt_stop_number": "1774",
+        "lrt_stop_description": "Bay Enterprise Square Station",
+        "latitude": "53.54093599991795",
+        "longitude": "-113.4988420004389",
+        "location": "(53.54093599991795, -113.4988420004389)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.4988420004389, 53.54093599991795]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "1723",
+        "lrt_stop_description": "Stadium Station",
+        "latitude": "53.55976400003058",
+        "longitude": "-113.47108900038508",
+        "location": "(53.55976400003058, -113.47108900038508)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.47108900038508, 53.55976400003058]
+        },
+        ":@computed_region_ecxu_fw7u": "153",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "367"
+    },
+    {
+        "lrt_stop_number": "1518",
+        "lrt_stop_description": "Quarters Stop",
+        "latitude": "53.544426000012564",
+        "longitude": "-113.48400800065555",
+        "location": "(53.544426000012564, -113.48400800065555)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.48400800065555, 53.544426000012564]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "154"
+    },
+    {
+        "lrt_stop_number": "3876",
+        "lrt_stop_description": "Millbourne/Woodvale Stop",
+        "latitude": "53.47472299985533",
+        "longitude": "-113.43897900057199",
+        "location": "(53.47472299985533, -113.43897900057199)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.43897900057199, 53.47472299985533]
+        },
+        ":@computed_region_ecxu_fw7u": "57",
+        ":@computed_region_ueb5_7sqn": "4",
+        ":@computed_region_7ccj_gre3": "46"
+    },
+    {
+        "lrt_stop_number": "1926",
+        "lrt_stop_description": "Corona Station",
+        "latitude": "53.540920999744884",
+        "longitude": "-113.50460899953707",
+        "location": "(53.540920999744884, -113.50460899953707)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.50460899953707, 53.540920999744884]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "1114",
+        "lrt_stop_description": "Kingsway RAH Station",
+        "latitude": "53.557486999930816",
+        "longitude": "-113.50068400023693",
+        "location": "(53.557486999930816, -113.50068400023693)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.50068400023693, 53.557486999930816]
+        },
+        ":@computed_region_ecxu_fw7u": "220",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "181"
+    },
+    {
+        "lrt_stop_number": "1863",
+        "lrt_stop_description": "Central Station",
+        "latitude": "53.541034999697594",
+        "longitude": "-113.49171700030577",
+        "location": "(53.541034999697594, -113.49171700030577)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.49171700030577, 53.541034999697594]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "3899",
+        "lrt_stop_description": "Mill Woods Stop",
+        "latitude": "53.45844699962426",
+        "longitude": "-113.42972500020173",
+        "location": "(53.45844699962426, -113.42972500020173)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.42972500020173, 53.45844699962426]
+        },
+        ":@computed_region_ecxu_fw7u": "46",
+        ":@computed_region_ueb5_7sqn": "4",
+        ":@computed_region_7ccj_gre3": "63"
+    },
+    {
+        "lrt_stop_number": "1118",
+        "lrt_stop_description": "MacEwan Station",
+        "latitude": "53.54768399993457",
+        "longitude": "-113.49818000028814",
+        "location": "(53.54768399993457, -113.49818000028814)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.49818000028814, 53.54768399993457]
+        },
+        ":@computed_region_ecxu_fw7u": "222",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    },
+    {
+        "lrt_stop_number": "22992",
+        "lrt_stop_description": "Muttart Stop",
+        "latitude": "53.53662799970703",
+        "longitude": "-113.47910299976016",
+        "location": "(53.53662799970703, -113.47910299976016)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.47910299976016, 53.53662799970703]
+        },
+        ":@computed_region_ecxu_fw7u": "126",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "398"
+    },
+    {
+        "lrt_stop_number": "2019",
+        "lrt_stop_description": "Health Sciences Jubilee Station",
+        "latitude": "53.51993499979266",
+        "longitude": "-113.52592299945226",
+        "location": "(53.51993499979266, -113.52592299945226)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.52592299945226, 53.51993499979266]
+        },
+        ":@computed_region_ecxu_fw7u": "146",
+        ":@computed_region_ueb5_7sqn": "9",
+        ":@computed_region_7ccj_gre3": "121"
+    },
+    {
+        "lrt_stop_number": "2116",
+        "lrt_stop_description": "South Campus Ft Edmonton Station",
+        "latitude": "53.502939999690376",
+        "longitude": "-113.52841400061047",
+        "location": "(53.502939999690376, -113.52841400061047)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.52841400061047, 53.502939999690376]
+        },
+        ":@computed_region_ecxu_fw7u": "17",
+        ":@computed_region_ueb5_7sqn": "9",
+        ":@computed_region_7ccj_gre3": "260"
+    },
+    {
+        "lrt_stop_number": "22991",
+        "lrt_stop_description": "Strathearn Stop",
+        "latitude": "53.53177400037552",
+        "longitude": "-113.46357500033795",
+        "location": "(53.53177400037552, -113.46357500033795)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.46357500033795, 53.53177400037552]
+        },
+        ":@computed_region_ecxu_fw7u": "126",
+        ":@computed_region_ueb5_7sqn": "5",
+        ":@computed_region_7ccj_gre3": "342"
+    },
+    {
+        "lrt_stop_number": "1985",
+        "lrt_stop_description": "Bay Enterprise Square  Station",
+        "latitude": "53.54090999981269",
+        "longitude": "-113.4979850002221",
+        "location": "(53.54090999981269, -113.4979850002221)",
+        "geometry_point": {
+            "type": "Point",
+            "coordinates": [-113.4979850002221, 53.54090999981269]
+        },
+        ":@computed_region_ecxu_fw7u": "242",
+        ":@computed_region_ueb5_7sqn": "7",
+        ":@computed_region_7ccj_gre3": "338"
+    }
+]
