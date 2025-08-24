@@ -21,7 +21,9 @@ See "How to build and deploy" for instructions on how this is accomplished.
 ## How to build and deploy
 
 1. Fill out `import-config.json` and `app-config.json`
-2. Run `npm run db:import` _(note: this can take a minute or two)_
+2. Run `npm run db:update` _(note: this can take a minute or two)_
+    - fetches gtfs data and imports it into `db/gtfs.db`
+    - creates new slim database from `db/gtfs.db` at `data/gtfs_lrt_only.db`
 3. Run `npm run build:all`
 4. Run `fly deploy`
 
@@ -35,6 +37,14 @@ See also `package.json` script `npm run db:import` described below.
 # imports gtfs data into sqlite db './db/gtfs.db'
 npx gtfs-import --configPath import-config.json
 
+# creates a slim version of our `./db/gtfs.db` at `./db/gtfs_lrt_only.db`
+# *should* leave original alone...
+npx tsx ./src/lib/db/build-lrt-only.ts --source ./db/gtfs.db --out ./data/gtfs_lrt_only.db --force
+```
+
+The following has been superceded by the slim script above, but I'm keeping the command for posterity:
+
+```bash
 # creates a slim version of our `./db/gtfs.db` at `./db/gtfs_lrt_only.db`
 # *should* leave original alone...
 sqlite3 -batch db/gtfs.db < scripts/build_lrt_only.sql
@@ -55,7 +65,7 @@ fly deploy
 # 2. Parses it into SQLite database initial Sqlite DB
 # 3. Runs sql script to create our "slim" DB which is what our app uses
 # and is what we deploy to production
-npm run db:import
+npm run db:update
 
 # Starts our express api server & vite ui at the same time
 npm run dev
