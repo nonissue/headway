@@ -1,6 +1,6 @@
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open('nexttrain-v1').then((cache) =>
+        caches.open('headway-v1').then((cache) =>
             cache.addAll([
                 '/', // shell route
                 '/offline.html', // simple offline fallback page you create

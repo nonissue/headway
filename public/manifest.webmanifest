@@ -1,7 +1,7 @@
 {
     "id": "/",
-    "name": "NextTrain",
-    "short_name": "NextTrain",
+    "name": "Headway",
+    "short_name": "Headway",
     "description": "Fast LRT departures near you — even with flaky signal.",
     "start_url": "/",
     "scope": "/",
