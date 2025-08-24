@@ -5,13 +5,29 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as Sentry from '@sentry/node';
 
-// causes fly error?
-// if ('serviceWorker' in navigator) {
-//     window.addEventListener('load', () => {
-//         console.log('Service worker detected');
-//         navigator.serviceWorker.register('/sw.js').catch(console.error);
-//     });
-// }
+/* 
+causes fly error?
+YES, the code below definitely caused a fly error. It deployed caused an error
+
+2025-08-24T03:18:21.188 app[2874247be2e328] sea [info] 2025/08/24 03:18:21 INFO SSH listening listen_address=[fdaa:24:936e:a7b:1a8:8381:e739:2]:22
+2025-08-24T03:18:22.508 app[2874247be2e328] sea [info] file:///app/dist/server.js:7
+2025-08-24T03:18:22.508 app[2874247be2e328] sea [info] if ('serviceWorker' in navigator) {
+2025-08-24T03:18:22.508 app[2874247be2e328] sea [info] ^
+2025-08-24T03:18:22.508 app[2874247be2e328] sea [info] ReferenceError: navigator is not defined
+2025-08-24T03:18:22.508 app[2874247be2e328] sea [info] at file:///app/dist/server.js:7:24
+2025-08-24T03:18:22.515 app[2874247be2e328] sea [info] Node.js v20.19.4
+2025-08-24T03:18:22.837 app[2874247be2e328] sea [info] INFO Main child exited normally with code: 1
+
+Not even sure why i added it...
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        console.log('Service worker detected');
+        navigator.serviceWorker.register('/sw.js').catch(console.error);
+    });
+}
+
+*/
 
 // Import with `import * as Sentry from "@sentry/node"` if you are using ESM
 
