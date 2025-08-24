@@ -1,4 +1,6 @@
-# next-departures
+# headway
+
+(formerly next-departures)
 
 - Shows upcoming departure times based on ETS GTFS Schedule data for geographically closest LRT station.
 - View the app online at [next-departures](https://next-departures.fly.dev)
