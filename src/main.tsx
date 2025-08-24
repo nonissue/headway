@@ -60,7 +60,6 @@ const App = () => {
                     'main.tsx: using users location (position.coords)'
                 );
                 fetchDepartures(latitude, longitude);
-                // fetchDepartures(TEST_COORDS.lat, TEST_COORDS.lon);
             },
             () => {
                 setStatus('Unable to retrieve your location.');
