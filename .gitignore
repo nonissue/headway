@@ -20,7 +20,7 @@ dev-dist/
 .DS_Store  
 .vscode/  
 
-/db/
+/db
 
 # Sentry Config File
 .env.sentry-build-plugin

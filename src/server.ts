@@ -5,12 +5,13 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as Sentry from '@sentry/node';
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        console.log('Service worker detected');
-        navigator.serviceWorker.register('/sw.js').catch(console.error);
-    });
-}
+// causes fly error?
+// if ('serviceWorker' in navigator) {
+//     window.addEventListener('load', () => {
+//         console.log('Service worker detected');
+//         navigator.serviceWorker.register('/sw.js').catch(console.error);
+//     });
+// }
 
 // Import with `import * as Sentry from "@sentry/node"` if you are using ESM
 

@@ -17,5 +17,5 @@ coverage/
 .DS_Store  
 .vscode/  
 
-db/
+/db
 dev-dist/
