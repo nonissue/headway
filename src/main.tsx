@@ -77,8 +77,8 @@ const App = () => {
     }, []);
 
     return (
-        <main className="flex min-h-dvh w-full flex-col items-center justify-center overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
-            <div className="w-full max-w-xl px-4 sm:my-auto">
+        <main className="flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
+            <div className="my-10 w-full max-w-xl px-4">
                 <div className={`${loading && 'animate-pulse'}`}>
                     <div className="rounded-xs border-2 border-b-0 border-zinc-700 bg-zinc-800/70 p-4">
                         <div className="flex flex-col gap-y-1 text-center sm:gap-y-1">
