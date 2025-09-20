@@ -4,7 +4,11 @@ import ReactDOM from 'react-dom/client';
 import CreatorBadgeInline from './components/features/CreatorBadgePopover';
 import './style.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
-import { DEFAULT_STOP_COUNT_LIMIT, TEST_COORDS } from './config.js';
+import {
+    DEFAULT_STOP_COUNT_LIMIT,
+    TEST_COORDS,
+    TEST_COORDS_FAR,
+} from './config.js';
 import { History, RefreshCw } from 'lucide-react';
 
 interface Departure {
@@ -23,29 +27,32 @@ const App = () => {
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchDepartures = useCallback(async (latitude: number, longitude: number) => {
-        try {
-            setLoading(true);
-            // setStatus('Finding nearest station...');
-            const res = await fetch(
-                `/api/departures/nearby?lat=${latitude}&lon=${longitude}`
-            );
+    const fetchDepartures = useCallback(
+        async (latitude: number, longitude: number) => {
+            try {
+                setLoading(true);
+                // setStatus('Finding nearest station...');
+                const res = await fetch(
+                    `/api/departures/nearby?lat=${latitude}&lon=${longitude}`
+                );
 
-            const data = await res.json();
+                const data = await res.json();
 
-            setStationName(data.closestStation.stop_name);
+                setStationName(data.closestStation.stop_name);
 
-            setDepartures(data.departures);
+                setDepartures(data.departures);
 
-            setLastUpdated(new Date());
+                setLastUpdated(new Date());
 
-            setStatus('');
-        } catch (error) {
-            setStatus('Failed to load departures.');
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+                setStatus('');
+            } catch (error) {
+                setStatus('Failed to load departures.');
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
 
     // Check location permission status
     const checkLocationPermission = useCallback(async () => {
@@ -54,7 +61,9 @@ const App = () => {
         }
 
         try {
-            const permission = await navigator.permissions.query({ name: 'geolocation' });
+            const permission = await navigator.permissions.query({
+                name: 'geolocation',
+            });
             return permission.state;
         } catch (error) {
             console.warn('Could not query geolocation permission:', error);
@@ -72,7 +81,7 @@ const App = () => {
         const options = {
             enableHighAccuracy: false,
             timeout: 10000,
-            maximumAge: 300000 // 5 minutes
+            maximumAge: 300000, // 5 minutes
         };
 
         navigator.geolocation.getCurrentPosition(
@@ -81,6 +90,7 @@ const App = () => {
                 console.warn(
                     'main.tsx: using users location (position.coords)'
                 );
+                // fetchDepartures(TEST_COORDS_FAR.lat, TEST_COORDS_FAR.lon);
                 fetchDepartures(latitude, longitude);
             },
             (error) => {
@@ -117,10 +127,10 @@ const App = () => {
 
     // Memoize processed departures to avoid recomputing time conversions on every render
     const processedDepartures = useMemo(() => {
-        return departures.map(group =>
-            group.map(dep => ({
+        return departures.map((group) =>
+            group.map((dep) => ({
                 ...dep,
-                displayTime: convertServiceTimeToClockTime(dep.departure_time)
+                displayTime: convertServiceTimeToClockTime(dep.departure_time),
             }))
         );
     }, [departures]);
