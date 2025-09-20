@@ -118,24 +118,24 @@ export async function getDeparturesForStop({
         serviceDayStartHour,
     });
 
-    if (debug) {
-        console.log(
-            JSON.stringify(
-                {
-                    stopId: id,
-                    serviceDate,
-                    startServiceTime,
-                    endServiceTime,
-                    lookaheadMins,
-                    limit,
-                    tz,
-                    serviceDayStartHour,
-                },
-                null,
-                2
-            )
-        );
-    }
+    // if (debug) {
+    //     console.log(
+    //         JSON.stringify(
+    //             {
+    //                 stopId: id,
+    //                 serviceDate,
+    //                 startServiceTime,
+    //                 endServiceTime,
+    //                 lookaheadMins,
+    //                 limit,
+    //                 tz,
+    //                 serviceDayStartHour,
+    //             },
+    //             null,
+    //             2
+    //         )
+    //     );
+    // }
 
     const rows = getStoptimes(
         {
@@ -154,8 +154,26 @@ export async function getDeparturesForStop({
         [['departure_time', 'ASC']]
     ) as StopDepartures[];
 
+    // Filter out terminating trips where headsign matches the current station
+    const filteredRows = rows.filter((row) => {
+        const headsign = row.stop_headsign?.toLowerCase() || '';
+        // Get the stop's parent station name to check if this is a terminating trip
+        const stopInfo = getStops({ stop_id: id })[0];
+        if (stopInfo?.parent_station) {
+            const parentStation = getStops({
+                stop_id: stopInfo.parent_station,
+            })[0];
+            const stationName = parentStation?.stop_name?.toLowerCase() || '';
+            // Filter out trips where headsign contains the station name (terminating trips)
+            if (stationName && headsign.includes(stationName.split(' ')[0])) {
+                return false;
+            }
+        }
+        return true;
+    });
+
     // Defensive: ensure sorted (some feeds return same-second ties)
-    rows.sort((a, b) => {
+    filteredRows.sort((a, b) => {
         // Prefer numeric timestamp if present; fallback to string time
         if (a.departure_timestamp != null && b.departure_timestamp != null) {
             return a.departure_timestamp - b.departure_timestamp;
@@ -163,5 +181,5 @@ export async function getDeparturesForStop({
         return a.departure_time.localeCompare(b.departure_time);
     });
 
-    return rows.slice(0, Math.max(1, limit));
+    return filteredRows.slice(0, Math.max(1, limit));
 }
