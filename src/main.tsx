@@ -81,7 +81,7 @@ const App = () => {
         const options = {
             enableHighAccuracy: false,
             timeout: 10000,
-            maximumAge: 300000, // 5 minutes
+            maximumAge: 0, // Always get fresh location
         };
 
         navigator.geolocation.getCurrentPosition(
@@ -122,7 +122,30 @@ const App = () => {
             }
         };
 
+        // Initialize location on first load
         initializeLocation();
+
+        // Refresh location when PWA becomes visible/focused
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                console.log('App became visible - refreshing location');
+                initializeLocation();
+            }
+        };
+
+        const handleFocus = () => {
+            console.log('App focused - refreshing location');
+            initializeLocation();
+        };
+
+        // Listen for visibility and focus changes
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
     }, [getUserLocationAndFetch, checkLocationPermission, fetchDepartures]);
 
     // Memoize processed departures to avoid recomputing time conversions on every render
