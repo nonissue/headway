@@ -17,7 +17,8 @@
         "db:slim": "npx tsx ./src/lib/db/build-lrt-only.ts --source ./db/gtfs.db --out ./data/gtfs_lrt_only.db --force",
         "db:og-slim": "sqlite3 db/gtfs.db \".read scripts/build_lrt_only.sql\"",
         "test": "vitest",
-        "test:coverage": "vitest run --coverage"
+        "test:coverage": "vitest run --coverage",
+        "deploy": "npm run build:all && fly deploy"
     },
     "dependencies": {
         "@hono/node-server": "^1.17.1",
