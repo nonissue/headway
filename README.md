@@ -78,3 +78,11 @@ npm run build:all
 # Builds are project and runs our static entrypoint with node
 npm run preview
 ```
+
+### Firefox spoof Geolocation for testing
+
+`about:config` -> `geo.provider.testing` -> `true`
+`about:config` -> `geo.provider.network.url` -> `data:application/json,{"location": {"lat": 53.50584, "lng": -113.52845}, "accuracy": 27000.0}`
+`about:config` -> `geo.wifi.uri` -> `data:application/json,{"location": {"lat": 53.50584, "lng": -113.52845}, "accuracy": 27000.0}`
+
+https://security.stackexchange.com/questions/147166/how-can-you-fake-geolocation-in-firefox
