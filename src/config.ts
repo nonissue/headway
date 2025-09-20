@@ -5,24 +5,30 @@ export const STATION_SEARCH_BOUNDING_BOX_AREA = 100000;
 // Corona I think?
 export const TEST_COORDS = { lat: 53.542005, lon: -113.506607 };
 
-export const TEST_COORDS_SG = { lat: 53.485704, lon: -113.51379 };
-
-export const TEST_COORDS_HEALTH_SCIENCES_SOUTH = {
-    lat: 53.51806,
-    lon: -113.52569,
+export const TEST_COORDS_SOUTHGATE_STATION = {
+    lat: 53.485704,
+    lon: -113.51379,
 };
+
 // (closest to / north of) mckernan belgravia 53.51473° N, 113.52580° W
 export const TEST_COORDS_MCKERNAN_BELGRAVIA = {
     lat: 53.51473,
     lon: -113.5258,
 };
+
+// Random location near (south of?) health sciences
+export const TEST_COORDS_HEALTH_SCIENCES_1 = {
+    lat: 53.51806,
+    lon: -113.52569,
+};
 // (closest to / north of) south health campus 53.50584° N, 113.52845° W
-export const TEST_COORDS_SOUTH_HEALTH_CAMPUS_1 = {
+export const TEST_COORDS_SOUTH_HEALTH_CAMPUS_2 = {
     lat: 53.50584,
     lon: -113.52845,
 };
+
 // (closest to / south of) south health campus 53.49995° N, 113.52836° W
-export const TEST_COORDS_SOUTH_HEALTH_CAMPUS_2 = {
+export const TEST_COORDS_SOUTH_HEALTH_CAMPUS_3 = {
     lat: 53.49995,
     lon: -113.52836,
 };
