@@ -153,7 +153,15 @@ Enhanced with cache-busting for development:
 - Improved error handling with specific fallback to test coordinates
 - Better status messages based on permission state
 
-**Result**: App now properly detects and responds to location permission state, providing smoother user experience on subsequent visits.
+**Solutions implemented:**
+- Added `navigator.permissions.query()` to check geolocation permission state
+- Enhanced geolocation options with timeout (10s) and fresh location requests (`maximumAge: 0`)
+- Improved error handling with specific fallback to test coordinates
+- Better status messages based on permission state
+- **Fresh location on app focus**: Added `visibilitychange` and `focus` event listeners to refresh location when PWA is launched or becomes visible
+- **Always fresh location on refresh**: Set `maximumAge: 0` to ensure manual refresh gets current GPS coordinates
+
+**Result**: App now always provides current location-based departures, whether user moves, returns to app, or manually refreshes. No more stale location data.
 
 ## Testing
 
@@ -171,3 +179,30 @@ Enhanced with cache-busting for development:
 - **Mock GTFS data**: Uses proper TypeScript types with mocked `getStops()` and `getStoptimes()` functions
 - **Edge case coverage**: Tests null/undefined headsigns, missing parent stations, sorting, and limits
 - **79.13% coverage** on stop-utils.ts core business logic
+
+## Additional Improvements (September 2025)
+
+### 4. ✅ Comprehensive Test Suite for stop-utils.ts
+**Achievement**: Created full test coverage for the critical stop utilities, especially the terminus filtering logic.
+
+**Tests implemented:**
+- `getClosestStation()`: Location-based station finding with coordinate handling
+- `getStopsForParentStation()`: Platform retrieval for stations
+- `getDeparturesForStop()`: **Comprehensive terminus filtering tests** validating that terminating trips are properly excluded
+- **Edge cases**: Null/undefined headsigns, missing parent stations, sorting, limits
+- **Proper TypeScript mocking**: Full GTFS data type compliance
+
+**Result**: 79.13% coverage with robust validation of the terminus station bug fixes.
+
+### 5. ✅ Documentation and Deployment Updates
+**Achievement**: Updated project documentation with new database scripts and optimized deployment instructions.
+
+**Updates made:**
+- **package.json**: Added `db:slim-filtered` script for operational stop filtering
+- **README.md**:
+  - Documented the enhanced filtering script that excludes maintenance stops
+  - Updated deployment instructions emphasizing local builds for faster Fly.io deploys
+  - Added clear guidance on database script options
+- **CLAUDE.md**: Comprehensive documentation of all bug fixes and improvements for future Claude Code instances
+
+**Result**: Clear documentation trail for the enhanced filtering and optimized deployment workflow.
