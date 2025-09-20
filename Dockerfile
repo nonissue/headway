@@ -6,24 +6,30 @@ LABEL fly_launch_runtime="Node.js"
 WORKDIR /app
 ENV NODE_ENV="production"
 
-# === Build Stage ===
-FROM base AS build
+# === Production Dependencies ===
+FROM base AS deps
 
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential node-gyp pkg-config python-is-python3
-
+# Install only production dependencies for better caching
 COPY package-lock.json package.json ./
-RUN npm ci --include=dev
-COPY . .
-RUN npm run build
-RUN npm prune --omit=dev
+RUN npm ci --omit=dev
 
 # === Final Image ===
 FROM base
 
-COPY --from=build /app /app
+# Copy production dependencies
+COPY --from=deps /app/node_modules /app/node_modules
+COPY package.json ./
 
-COPY --from=build /app/data/gtfs_lrt_only.db /app/data/gtfs_lrt_only.db
+# Copy configuration files
+COPY app-config.json ./
+COPY import-config.json ./
+
+# Copy pre-built application
+COPY dist/ /app/dist/
+
+# Create data directory and copy database
+RUN mkdir -p /app/data
+COPY data/gtfs_lrt_only.db /app/data/gtfs_lrt_only.db
 RUN chmod 444 /app/data/gtfs_lrt_only.db
 
 ENV DATABASE_URL="file:///app/data/gtfs_lrt_only.db"
