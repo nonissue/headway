@@ -22,12 +22,22 @@ See "How to build and deploy" for instructions on how this is accomplished.
 
 ## How to build and deploy
 
+**Important**: For fast deployment, build locally first rather than letting Fly.io build remotely.
+
 1. Fill out `import-config.json` and `app-config.json`
 2. Run `npm run db:update` _(note: this can take a minute or two)_
     - fetches gtfs data and imports it into `db/gtfs.db`
     - creates new slim database from `db/gtfs.db` at `data/gtfs_lrt_only.db`
-3. Run `npm run build:all`
-4. Run `fly deploy`
+3. Run `npm run build:all` _(builds locally for faster deployment)_
+4. Run `fly deploy` _(uses pre-built artifacts, much faster than remote build)_
+
+### Quick Deploy Command
+
+```bash
+npm run deploy
+```
+
+This runs `npm run build:all && fly deploy` - builds everything locally then deploys.
 
 ## Project Initialization Commands
 
@@ -44,7 +54,25 @@ npx gtfs-import --configPath import-config.json
 npx tsx ./src/lib/db/build-lrt-only.ts --source ./db/gtfs.db --out ./data/gtfs_lrt_only.db --force
 ```
 
-The following has been superceded by the slim script above, but I'm keeping the command for posterity:
+### Alternative Database Scripts
+
+_run this as of 25-09-19_
+
+For creating the slim database with **operational stop filtering** (recommended):
+
+```bash
+# Creates filtered slim database excluding operational/maintenance stops
+# Outputs to ./data/gtfs_lrt_only.db
+npm run db:slim-filtered
+```
+
+Or run the SQL script directly:
+
+```bash
+sqlite3 db/gtfs.db < scripts/build_lrt_only_filtered.sql
+```
+
+The original (unfiltered) SQL script is also available but not recommended for production:
 
 ```bash
 # creates a slim version of our `./db/gtfs.db` at `./db/gtfs_lrt_only.db`
