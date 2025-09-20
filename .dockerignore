@@ -26,5 +26,4 @@ dev-dist/
 
 # Build artifacts
 scripts/
-FOR_CLAUDE.md
 README.md
