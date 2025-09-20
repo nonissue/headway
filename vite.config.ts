@@ -18,7 +18,10 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             disable: process.env.NODE_ENV === 'development',
-            devOptions: { enabled: true },
+            devOptions: {
+                enabled: true,
+                type: 'module'
+            },
             manifest: {
                 name: 'NextTrain',
                 short_name: 'NextTrain',
@@ -47,7 +50,24 @@ export default defineConfig({
                 ],
             },
             includeAssets: ['icons/apple-touch-icon-180.png'],
-            workbox: { navigateFallback: '/offline.html' },
+            workbox: {
+                navigateFallback: '/offline.html',
+                skipWaiting: true,
+                clientsClaim: true,
+                runtimeCaching: [
+                    {
+                        urlPattern: /^\/api\/.*/,
+                        handler: 'NetworkFirst',
+                        options: {
+                            cacheName: 'api-cache',
+                            networkTimeoutSeconds: 10,
+                            cacheableResponse: {
+                                statuses: [0, 200],
+                            },
+                        },
+                    },
+                ],
+            },
         }),
     ],
     server: {

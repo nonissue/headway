@@ -56,6 +56,14 @@ app.use(
     })
 );
 
+// Add cache-control headers for API endpoints
+app.use('/api/*', async (c, next) => {
+    c.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    c.header('Pragma', 'no-cache');
+    c.header('Expires', '0');
+    await next();
+});
+
 // mount the /api/departures router under /api
 app.route('/api', departures);
 
