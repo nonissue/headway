@@ -4,7 +4,11 @@ import ReactDOM from 'react-dom/client';
 import CreatorBadgeInline from './components/features/CreatorBadgePopover';
 import './style.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
-import { DEFAULT_STOP_COUNT_LIMIT, TEST_COORDS } from './config.js';
+import {
+    DEFAULT_STOP_COUNT_LIMIT,
+    TEST_COORDS,
+    TEST_COORDS_SG,
+} from './config.js';
 import { History, RefreshCw } from 'lucide-react';
 
 interface Departure {
@@ -59,6 +63,7 @@ const App = () => {
                 console.warn(
                     'main.tsx: using users location (position.coords)'
                 );
+                // fetchDepartures(TEST_COORDS_SG.lat, TEST_COORDS_SG.lon);
                 fetchDepartures(latitude, longitude);
             },
             () => {
@@ -77,7 +82,7 @@ const App = () => {
 
     return (
         <main className="flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
-            <div className="my-10 w-full max-w-xl px-4 sm:my-24">
+            <div className="my-10 w-full max-w-xl px-4 sm:my-12">
                 <div className={`${loading && 'animate-pulse'}`}>
                     <div className="rounded-xs border-2 border-b-0 border-zinc-700 bg-zinc-800/70 p-4">
                         <div className="flex flex-col gap-y-1 text-center sm:gap-y-1">
@@ -93,6 +98,7 @@ const App = () => {
                 </div>
                 {loading ? (
                     <div className="animate-pulse">
+                        {/* Loading skeleton */}
                         <div className="space-y-0 divide-y-2 divide-orange-400/50 border-2 border-orange-400/50 bg-orange-100/10">
                             {[...Array(2)].map((_, i) => (
                                 <div
