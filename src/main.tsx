@@ -1,14 +1,10 @@
 // src/main.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import CreatorBadgeInline from './components/features/CreatorBadgePopover';
 import './style.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
-import {
-    DEFAULT_STOP_COUNT_LIMIT,
-    TEST_COORDS,
-    TEST_COORDS_SG,
-} from './config.js';
+import { DEFAULT_STOP_COUNT_LIMIT, TEST_COORDS } from './config.js';
 import { History, RefreshCw } from 'lucide-react';
 
 interface Departure {
@@ -27,7 +23,7 @@ const App = () => {
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const fetchDepartures = async (latitude: number, longitude: number) => {
+    const fetchDepartures = useCallback(async (latitude: number, longitude: number) => {
         try {
             setLoading(true);
             // setStatus('Finding nearest station...');
@@ -49,13 +45,35 @@ const App = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []);
 
-    const getUserLocationAndFetch = () => {
+    // Check location permission status
+    const checkLocationPermission = useCallback(async () => {
+        if (!navigator.permissions) {
+            return null;
+        }
+
+        try {
+            const permission = await navigator.permissions.query({ name: 'geolocation' });
+            return permission.state;
+        } catch (error) {
+            console.warn('Could not query geolocation permission:', error);
+            return null;
+        }
+    }, []);
+
+    const getUserLocationAndFetch = useCallback(() => {
         if (!navigator.geolocation) {
             setStatus('Geolocation is not supported by your browser.');
             return;
         }
+
+        // Set timeout for geolocation request to avoid hanging
+        const options = {
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 300000 // 5 minutes
+        };
 
         navigator.geolocation.getCurrentPosition(
             (position) => {
@@ -63,22 +81,49 @@ const App = () => {
                 console.warn(
                     'main.tsx: using users location (position.coords)'
                 );
-                // fetchDepartures(TEST_COORDS_SG.lat, TEST_COORDS_SG.lon);
                 fetchDepartures(latitude, longitude);
             },
-            () => {
+            (error) => {
+                console.warn('Geolocation error:', error.message);
                 setStatus('Unable to retrieve your location.');
                 console.warn(
                     'main.tsx: using TEST_COORDS (navigator.geolocation failed?)'
                 );
                 fetchDepartures(TEST_COORDS.lat, TEST_COORDS.lon);
-            }
+            },
+            options
         );
-    };
+    }, [fetchDepartures]);
 
     useEffect(() => {
-        getUserLocationAndFetch();
-    }, []);
+        const initializeLocation = async () => {
+            // Check permission first
+            const permissionState = await checkLocationPermission();
+
+            if (permissionState === 'granted') {
+                setStatus('Location access granted');
+                getUserLocationAndFetch();
+            } else if (permissionState === 'denied') {
+                setStatus('Location access denied - using default location');
+                fetchDepartures(TEST_COORDS.lat, TEST_COORDS.lon);
+            } else {
+                // prompt or not determined - try to get location
+                getUserLocationAndFetch();
+            }
+        };
+
+        initializeLocation();
+    }, [getUserLocationAndFetch, checkLocationPermission, fetchDepartures]);
+
+    // Memoize processed departures to avoid recomputing time conversions on every render
+    const processedDepartures = useMemo(() => {
+        return departures.map(group =>
+            group.map(dep => ({
+                ...dep,
+                displayTime: convertServiceTimeToClockTime(dep.departure_time)
+            }))
+        );
+    }, [departures]);
 
     return (
         <main className="flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
@@ -152,7 +197,7 @@ const App = () => {
                 ) : (
                     <div className="animate-in fade-in-5 duration-[0.1s]">
                         <div className="space-y-0 divide-y-2 divide-orange-400/50 border-2 border-orange-400/50 bg-orange-100/10">
-                            {departures.map((group, idx) =>
+                            {processedDepartures.map((group, idx) =>
                                 group.length == 0 ? (
                                     <></>
                                 ) : (
@@ -181,9 +226,7 @@ const App = () => {
                                                     className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-zinc-900 hover:text-black sm:py-2 sm:text-sm"
                                                 >
                                                     <div className="my-auto font-mono tracking-wide text-orange-100">
-                                                        {convertServiceTimeToClockTime(
-                                                            dep.departure_time
-                                                        )}
+                                                        {dep.displayTime}
                                                     </div>
                                                     <div className="col-span-2 truncate font-normal tracking-wide text-orange-100 uppercase">
                                                         {dep.stop_headsign}
