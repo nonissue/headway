@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import CreatorBadgeInline from './components/features/CreatorBadgePopover';
 import { StationPicker } from './components/StationPicker';
 import { ThemeProvider } from './components/theme-provider';
-import { ThemeToggle } from './components/theme-toggle';
+import { useErrorHandler } from './hooks/useErrorHandler';
 import './globals.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
 import {
@@ -45,10 +45,11 @@ const App = () => {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [departuresKey, setDeparturesKey] = useState(0);
 
-    const fetchDepartures = useCallback(
+    const { error, clearError, hasError } = useErrorHandler();
         async (latitude: number, longitude: number) => {
             try {
                 setLoading(true);
+                clearError();
                 setUserLocation({ lat: latitude, lon: longitude });
                 // setStatus('Finding nearest station...');
                 const res = await fetch(
@@ -70,7 +71,7 @@ const App = () => {
                 setLoading(false);
             }
         },
-        []
+        [fetchDepartures, clearError]
     );
 
     const fetchDeparturesForStation = useCallback(async (station: Station) => {
@@ -81,6 +82,7 @@ const App = () => {
 
         try {
             setIsTransitioning(true);
+            clearError();
             setStatus('Loading departures for selected station...');
 
             const res = await fetch(
@@ -99,24 +101,7 @@ const App = () => {
         } finally {
             setIsTransitioning(false);
         }
-    }, []);
-
-    // Check location permission status
-    const checkLocationPermission = useCallback(async () => {
-        if (!navigator.permissions) {
-            return null;
-        }
-
-        try {
-            const permission = await navigator.permissions.query({
-                name: 'geolocation',
-            });
-            return permission.state;
-        } catch (error) {
-            console.warn('Could not query geolocation permission:', error);
-            return null;
-        }
-    }, []);
+    }, [fetchStationDepartures, clearError]);
 
     const getUserLocationAndFetch = useCallback(() => {
         if (!navigator.geolocation) {
@@ -223,24 +208,19 @@ const App = () => {
                     {/* Glass effect overlay */}
                     <div className="from-background/5 to-muted/20 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent"></div>
 
-                    {/* Header section */}
-                    <div className="border-border/30 from-background/50 to-background/10 relative flex items-center gap-3 border-b bg-gradient-to-r p-4">
-                        <div className="min-w-0 flex-1 overflow-hidden">
-                            {selectedStation ? (
-                                <StationPicker
-                                    selectedStation={selectedStation}
-                                    onStationSelect={fetchDeparturesForStation}
-                                    userLocation={userLocation}
-                                    className="w-full"
-                                />
-                            ) : (
-                                <div className="bg-muted/20 flex h-8 w-full animate-pulse items-center justify-center rounded-lg">
-                                    <div className="bg-muted/40 h-4 w-32 rounded"></div>
-                                </div>
-                            )}
+                    {hasError && (
+                        <div className="relative p-4 text-center border-l-4 border-red-500 bg-red-50 dark:bg-red-900/20">
+                            <div className="text-red-600 dark:text-red-400 text-sm font-medium mb-2">
+                                {error?.message}
+                            </div>
+                            <button
+                                onClick={clearError}
+                                className="text-red-600 dark:text-red-400 underline text-xs hover:no-underline"
+                            >
+                                Dismiss
+                            </button>
                         </div>
-                        <ThemeToggle />
-                    </div>
+                    )}
                     {loading || isTransitioning ? (
                         <div className="relative">
                             {/* Enhanced loading skeleton */}
