@@ -209,22 +209,22 @@ const App = () => {
     }, [departures]);
 
     return (
-        <main className="from-background via-background to-muted/20 text-foreground relative flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none bg-gradient-to-br px-4 sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
+        <main className="from-background via-background to-background text-foreground font-display relative flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none bg-gradient-to-br px-4 sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
             {/* Animated background elements */}
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
-                <div className="from-primary/10 to-accent/10 absolute top-1/4 left-1/4 h-96 w-96 scale-200 animate-pulse rounded-full bg-gradient-to-r blur-3xl"></div>
-                <div className="from-accent/10 to-primary/10 absolute right-1/4 bottom-1/4 h-80 w-80 scale-200 animate-pulse rounded-full bg-gradient-to-l blur-3xl delay-200"></div>
-                <div className="from-muted/5 to-primary/5 absolute top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 scale-200 transform animate-pulse rounded-full bg-gradient-to-br blur-2xl delay-500"></div>
+                <div className="from-foreground/10 to-accent/10 absolute top-1/4 left-1/4 h-96 w-96 scale-200 animate-[pulse_10s_ease-in-out_infinite] rounded-full bg-gradient-to-r via-transparent blur-3xl"></div>
+                <div className="from-accent/5 to-primary/5 absolute right-1/4 bottom-1/4 h-80 w-80 scale-200 animate-[pulse_10s_ease-in-out_infinite] rounded-full bg-gradient-to-l blur-3xl delay-200"></div>
+                <div className="from-muted/10 to-primary/10 absolute top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 scale-[400%] transform animate-[pulse_10s_ease-in-out_infinite] rounded-full bg-gradient-to-br blur-2xl delay-500"></div>
             </div>
 
-            <div className="animate-in blur-in-20 relative z-10 my-6 w-full max-w-xl px-4 duration-250 sm:my-8">
+            <div className="animate-in blur-in-20 relative z-10 my-6 w-full max-w-xl px-4 duration-500 sm:my-8">
                 {/* Unified container with all components */}
-                <div className="border-border/50 bg-card/80 shadow-primary/10 relative overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl backdrop-saturate-150">
+                <div className="border-border/70 bg-card/80 shadow-primary/5 relative overflow-hidden rounded-lg border-2 shadow-2xl backdrop-blur-xl backdrop-saturate-150">
                     {/* Glass effect overlay */}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent"></div>
+                    <div className="from-background/5 to-muted/20 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent"></div>
 
                     {/* Header section */}
-                    <div className="border-border/30 from-background/50 to-background/10 relative z-10 flex items-center gap-3 border-b bg-gradient-to-r p-4">
+                    <div className="border-border/30 from-background/50 to-background/10 relative flex items-center gap-3 border-b bg-gradient-to-r p-4">
                         <div className="min-w-0 flex-1 overflow-hidden">
                             {selectedStation ? (
                                 <StationPicker
@@ -318,27 +318,27 @@ const App = () => {
                             )}
                         >
                             {/* Main content area - Actual departures */}
-                            <div className="divide-border/20 relative space-y-0 divide-y">
+                            <div className="divide-foreground/20 relative space-y-0 divide-y border-y">
                                 {processedDepartures.map((group, idx) =>
                                     group.length == 0 ? (
                                         <></>
                                     ) : (
                                         <div
                                             key={`${departuresKey}-${idx}`}
-                                            className="animate-fade-in animate-duration-500 animate-ease-out relative flex w-full items-stretch"
+                                            className="animate-in blur-in-0 relative flex w-full items-stretch"
                                             style={{
-                                                animationDelay: `${idx * 100}ms`,
+                                                animationDelay: `${idx * 1}ms`,
                                             }}
                                         >
                                             {/* Label column */}
-                                            <div className="border-border/20 bg-background/20 relative flex min-h-32 w-10 flex-col items-center justify-center border-r border-b-0 border-solid">
+                                            <div className="border-border/100 relative flex min-h-32 w-10 flex-col items-center justify-center border-r border-b-0 border-solid">
                                                 <span className="text-muted-foreground rotate-[-90deg] text-xs font-bold tracking-[0.2em] whitespace-nowrap uppercase drop-shadow-xs">
                                                     Platform {idx + 1}
                                                 </span>
                                             </div>
 
                                             {/* Content column */}
-                                            <div className="divide-border/10 flex-1 divide-y divide-dotted">
+                                            <div className="divide-foreground/20 flex-1 divide-y divide-dotted">
                                                 <div className="text-foreground grid grid-cols-3 gap-2 bg-transparent px-4 py-2 text-xs font-bold tracking-wider uppercase">
                                                     <span className="text-muted-foreground font-[500]">
                                                         Time
@@ -358,10 +358,10 @@ const App = () => {
                                                             animationDelay: `${idx * 100 + i * 50}ms`,
                                                         }}
                                                     >
-                                                        <div className="text-primary group-hover:text-accent-foreground my-auto font-mono text-xs font-[500] tracking-wider sm:text-sm">
+                                                        <div className="text-primary/90 group-hover:text-accent-foreground my-auto font-mono text-xs font-[400] tracking-wider sm:text-sm">
                                                             {dep.displayTime}
                                                         </div>
-                                                        <div className="text-foreground group-hover:text-accent-foreground col-span-2 truncate text-sm font-semibold tracking-wide uppercase sm:text-base">
+                                                        <div className="text-chart-3 group-hover:text-accent-foreground font-display col-span-2 truncate text-sm font-[400] tracking-widest uppercase sm:text-base">
                                                             {dep.stop_headsign}
                                                         </div>
                                                     </div>
@@ -408,7 +408,7 @@ const App = () => {
                                     {/* Refresh button */}
                                     <button
                                         onClick={getUserLocationAndFetch}
-                                        className="from-muted/50 to-accent/20 text-foreground hover:from-accent/30 hover:to-accent/40 flex items-center gap-2 rounded-lg bg-gradient-to-r px-3 py-2 text-xs font-bold tracking-wider uppercase backdrop-blur-sm transition-all duration-300 hover:shadow-lg"
+                                        className="from-muted/50 to-accent/20 text-foreground hover:from-accent/30 hover:to-accent/40 flex items-center gap-2 rounded-lg bg-gradient-to-r px-3 py-2 text-xs font-bold tracking-wider uppercase backdrop-blur-sm transition-all duration-300"
                                     >
                                         <RefreshCw className="text-accent-foreground h-3.5 w-3.5 transition-transform duration-300 hover:rotate-180" />
                                         <span className="font-[500]">

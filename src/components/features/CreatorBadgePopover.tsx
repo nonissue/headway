@@ -45,12 +45,14 @@ export default function CreatorBadgeInline({
 
     return (
         <>
+            {/* OVERLAY IS SET IN DIALOG OVERLAY! */}
+            {/* no idea what this does */}
             {withBackdrop && (
                 <button
                     aria-hidden={!open}
                     onClick={() => setOpen(false)}
                     className={cn(
-                        'fixed inset-0 z-40 bg-zinc-950/60 backdrop-blur-[2px] transition-opacity duration-200',
+                        'bg-foreground fixed inset-0 z-40 backdrop-blur-[0px] transition-opacity duration-200',
                         open
                             ? 'pointer-events-auto opacity-100'
                             : 'pointer-events-none opacity-0'
@@ -59,14 +61,15 @@ export default function CreatorBadgeInline({
             )}
 
             <Dialog open={open} onOpenChange={setOpen}>
+                {/* this seems to cover just the departures section? */}
                 <button
                     aria-hidden={!open}
                     aria-label="Close info"
                     onClick={() => setOpen(false)}
                     className={cn(
-                        'fixed inset-0 z-10', // below the badge (z-50 on container), above app
-                        'bg-background/80 backdrop-blur-xl',
-                        'transition-opacity duration-[400ms]',
+                        'fixed inset-0 z-100', // below the badge (z-50 on container), above app
+                        'bg-background/50 backdrop-blur-xl',
+                        'transition-opacity duration-500',
                         open
                             ? 'pointer-events-auto opacity-100'
                             : 'pointer-events-none opacity-0'
@@ -77,7 +80,7 @@ export default function CreatorBadgeInline({
                         type="button"
                         className={cn(
                             'border-border/30 from-muted/50 to-primary/10 relative flex items-center gap-x-3 border-r bg-gradient-to-r px-6 py-4',
-                            'text-foreground hover:from-accent/30 hover:to-accent/20 hover:text-accent-foreground tracking-wide uppercase backdrop-blur-sm transition-all duration-300 hover:shadow-lg',
+                            'text-foreground hover:from-accent/30 hover:to-accent/20 hover:text-accent-foreground hover:bg-muted-foreground/20 tracking-wide uppercase backdrop-blur-sm transition-all duration-300',
                             className
                         )}
                         aria-label="Show creator info"
@@ -92,12 +95,12 @@ export default function CreatorBadgeInline({
                 {/* Appears ABOVE the trigger, right-aligned */}
                 <DialogContent
                     className={cn(
-                        'border-border/50 bg-card/90 text-card-foreground relative overflow-hidden rounded-2xl border backdrop-blur-xl backdrop-saturate-150 sm:max-w-[28rem]',
-                        'shadow-primary/20 shadow-2xl'
+                        'border-border/50 bg-card/90 text-card-foreground fixed overflow-hidden rounded-2xl border backdrop-blur-xl backdrop-saturate-150 sm:max-w-[28rem]',
+                        'shadow-background/20 shadow-xl'
                     )}
                 >
                     {/* Glass effect overlay */}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent"></div>
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/0 via-transparent to-transparent"></div>
 
                     <div className="relative z-10 mb-4 items-center justify-between">
                         <div className="flex flex-row items-center gap-x-3">
