@@ -206,3 +206,73 @@ Enhanced with cache-busting for development:
 - **CLAUDE.md**: Comprehensive documentation of all bug fixes and improvements for future Claude Code instances
 
 **Result**: Clear documentation trail for the enhanced filtering and optimized deployment workflow.
+
+### 6. ✅ iOS Mobile UX Improvements
+**Achievement**: Fixed iOS-specific UX issues with the station picker combobox to improve mobile experience.
+
+**Problems addressed:**
+- **Auto-focus keyboard popup**: Station picker search input was auto-focusing on open, causing keyboard to appear immediately on iOS
+- **iOS zoom on input focus**: When manually tapping the search input, iOS Safari would zoom the viewport due to small font size
+
+**Solutions implemented in `src/components/StationPicker.tsx`:**
+- Added `tabIndex={-1}` to CommandInput to prevent auto-focus behavior
+- Added `autoFocus={false}` as additional prevention
+- Added `text-base` class to ensure 16px font-size minimum (prevents iOS zoom)
+- Added `viewport-fit=cover` to index.html for better safe area handling
+
+**Code changes:**
+```typescript
+<CommandInput
+    placeholder="Search stations..."
+    className="text-popover-foreground placeholder-muted-foreground [&>svg]:text-muted-foreground h-10 border-none bg-transparent text-base"
+    autoFocus={false}
+    tabIndex={-1}
+/>
+```
+
+**Result**: Smooth mobile experience on iOS - no unwanted keyboard popup on open, no viewport zoom when manually searching.
+
+### 7. ✅ PWA Theme and Overscroll Improvements
+**Achievement**: Fixed PWA-specific issues with theme colors and overscroll behavior on iOS.
+
+**Problems addressed:**
+- **Status bar theme mismatch**: PWA status bar color was based on iOS system appearance, not app's theme toggle
+- **PWA overscroll bounce**: Rubber band scrolling effect in PWA mode despite CSS prevention attempts
+- **Theme color meta tag conflicts**: Multiple theme-color meta tags causing inconsistent behavior
+
+**Solutions implemented:**
+
+**Dynamic theme-color updates in `src/components/theme-provider.tsx`:**
+```typescript
+// Update all theme-color meta tags dynamically
+const themeColorMetas = document.querySelectorAll('meta[name="theme-color"]');
+const themeColor = actualTheme === 'dark' ? '#242424' : '#ffffff';
+themeColorMetas.forEach(meta => {
+  meta.setAttribute('content', themeColor);
+});
+```
+
+**PWA-specific CSS in `src/globals.css`:**
+```css
+@media (display-mode: standalone) {
+    html, body {
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+```
+
+**Main element overscroll prevention in `src/main.tsx`:**
+```typescript
+// Updated className with comprehensive overscroll prevention
+className="text-foreground font-display sm:overflow-none relative flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none px-4 sm:min-h-screen sm:overscroll-none"
+```
+
+**Theme colors configured:**
+- Light mode: `#ffffff` (white)
+- Dark mode: `#242424` (dark gray)
+- Manifest: `#242424` (optimized for dark mode)
+
+**Result**: PWA status bar now properly reflects app theme toggle regardless of iOS system appearance. Overscroll bouncing eliminated in PWA mode.
+
+**Note**: Some JavaScript overscroll prevention code remains in theme-provider.tsx but may need cleanup as CSS solution proved sufficient.

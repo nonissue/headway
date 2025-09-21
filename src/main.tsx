@@ -209,7 +209,7 @@ const App = () => {
     }, [departures]);
 
     return (
-        <main className="text-foreground font-display relative flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none px-4 sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
+        <main className="text-foreground font-display relative flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none px-4 sm:min-h-screen sm:overflow-visible sm:overscroll-none">
             {/* Animated background elements */}
             <div className="pointer-events-none fixed inset-0 overflow-hidden">
                 <div className="from-foreground/10 to-accent/10 absolute top-1/4 left-1/4 h-96 w-96 scale-200 animate-[pulse_10s_ease-in-out_infinite] rounded-full bg-gradient-to-r via-transparent blur-3xl"></div>

@@ -161,14 +161,17 @@
     }
 }
 
-/* for ios notch */
-@supports (padding: max(0px)) {
-    @media (display-mode: standalone) {
-        body {
-            padding: max(0px, env(safe-area-inset-top))
-                max(0px, env(safe-area-inset-right))
-                max(0px, env(safe-area-inset-bottom))
-                max(0px, env(safe-area-inset-left));
-        }
+/* PWA standalone mode specific styles */
+@media (display-mode: standalone) {
+    html, body {
+        overscroll-behavior: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    body {
+        padding: max(0px, env(safe-area-inset-top))
+            max(0px, env(safe-area-inset-right))
+            max(0px, env(safe-area-inset-bottom))
+            max(0px, env(safe-area-inset-left));
     }
 }
