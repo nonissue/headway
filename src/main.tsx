@@ -12,7 +12,8 @@ import {
     TEST_COORDS,
     TEST_COORDS_FAR,
 } from './config.js';
-import { History, RefreshCw } from 'lucide-react';
+import { History, RefreshCw, Info } from 'lucide-react';
+import { cn } from '@/components/lib/utils';
 
 interface Departure {
     stop_id: string;
@@ -35,8 +36,14 @@ const App = () => {
     const [departures, setDepartures] = useState<Departure[][]>([]);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [loading, setLoading] = useState(true);
-    const [selectedStation, setSelectedStation] = useState<Station | undefined>();
-    const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | undefined>();
+    const [selectedStation, setSelectedStation] = useState<
+        Station | undefined
+    >();
+    const [userLocation, setUserLocation] = useState<
+        { lat: number; lon: number } | undefined
+    >();
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [departuresKey, setDeparturesKey] = useState(0);
 
     const fetchDepartures = useCallback(
         async (latitude: number, longitude: number) => {
@@ -66,38 +73,33 @@ const App = () => {
         []
     );
 
-    const fetchDeparturesForStation = useCallback(
-        async (station: Station) => {
-            if (!station.stop_lat || !station.stop_lon) {
-                setStatus('Station coordinates not available.');
-                return;
-            }
+    const fetchDeparturesForStation = useCallback(async (station: Station) => {
+        if (!station.stop_lat || !station.stop_lon) {
+            setStatus('Station coordinates not available.');
+            return;
+        }
 
-            try {
-                setLoading(true);
-                setStatus('Loading departures for selected station...');
+        try {
+            setIsTransitioning(true);
+            setStatus('Loading departures for selected station...');
 
-                const res = await fetch(
-                    `/api/departures/nearby?lat=${station.stop_lat}&lon=${station.stop_lon}`
-                );
+            const res = await fetch(
+                `/api/departures/nearby?lat=${station.stop_lat}&lon=${station.stop_lon}`
+            );
 
-                const data = await res.json();
+            const data = await res.json();
 
-                setSelectedStation(station);
-
-                setDepartures(data.departures);
-
-                setLastUpdated(new Date());
-
-                setStatus('');
-            } catch (error) {
-                setStatus('Failed to load departures.');
-            } finally {
-                setLoading(false);
-            }
-        },
-        []
-    );
+            setSelectedStation(station);
+            setDepartures(data.departures);
+            setDeparturesKey((prev) => prev + 1); // Trigger animation
+            setLastUpdated(new Date());
+            setStatus('');
+        } catch (error) {
+            setStatus('Failed to load departures.');
+        } finally {
+            setIsTransitioning(false);
+        }
+    }, []);
 
     // Check location permission status
     const checkLocationPermission = useCallback(async () => {
@@ -188,7 +190,10 @@ const App = () => {
         window.addEventListener('focus', handleFocus);
 
         return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            document.removeEventListener(
+                'visibilitychange',
+                handleVisibilityChange
+            );
             window.removeEventListener('focus', handleFocus);
         };
     }, [getUserLocationAndFetch, checkLocationPermission, fetchDepartures]);
@@ -204,18 +209,23 @@ const App = () => {
     }, [departures]);
 
     return (
-        <main className="flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none bg-background px-4 font-mono text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
-            <div className="my-10 w-full max-w-xl px-4 sm:my-12">
-                <div className={`${loading && 'animate-pulse'}`}>
-                    <div className="rounded-xs border-2 border-b-0 border-border bg-card p-4">
-                        <div className="flex justify-between items-center mb-3">
-                            <span className="text-xs tracking-widest text-muted-foreground uppercase">
-                                {selectedStation ? 'Station:' : 'Loading'}
-                            </span>
-                            <ThemeToggle />
-                        </div>
+        <main className="from-background via-background to-muted/20 text-foreground relative flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none bg-gradient-to-br px-4 sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
+            {/* Animated background elements */}
+            <div className="pointer-events-none fixed inset-0 overflow-hidden">
+                <div className="from-primary/10 to-accent/10 absolute top-1/4 left-1/4 h-96 w-96 scale-200 animate-pulse rounded-full bg-gradient-to-r blur-3xl"></div>
+                <div className="from-accent/10 to-primary/10 absolute right-1/4 bottom-1/4 h-80 w-80 scale-200 animate-pulse rounded-full bg-gradient-to-l blur-3xl delay-200"></div>
+                <div className="from-muted/5 to-primary/5 absolute top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 scale-200 transform animate-pulse rounded-full bg-gradient-to-br blur-2xl delay-500"></div>
+            </div>
 
-                        <div className="text-center">
+            <div className="animate-in blur-in-20 relative z-10 my-6 w-full max-w-xl px-4 duration-250 sm:my-8">
+                {/* Unified container with all components */}
+                <div className="border-border/50 bg-card/80 shadow-primary/10 relative overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl backdrop-saturate-150">
+                    {/* Glass effect overlay */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent"></div>
+
+                    {/* Header section */}
+                    <div className="border-border/30 from-background/50 to-background/10 relative z-10 flex items-center gap-3 border-b bg-gradient-to-r p-4">
+                        <div className="min-w-0 flex-1 overflow-hidden">
                             {selectedStation ? (
                                 <StationPicker
                                     selectedStation={selectedStation}
@@ -224,155 +234,192 @@ const App = () => {
                                     className="w-full"
                                 />
                             ) : (
-                                <div className="font-mono text-xl font-semibold tracking-wider text-foreground uppercase drop-shadow-lg sm:text-xl">
-                                    Loading
+                                <div className="bg-muted/20 flex h-8 w-full animate-pulse items-center justify-center rounded-lg">
+                                    <div className="bg-muted/40 h-4 w-32 rounded"></div>
                                 </div>
                             )}
                         </div>
+                        <ThemeToggle />
                     </div>
-                </div>
-                {loading ? (
-                    <div className="animate-pulse">
-                        {/* Loading skeleton */}
-                        <div className="space-y-0 divide-y-2 divide-border border-2 border-border bg-muted/10">
-                            {[...Array(2)].map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="flex w-full items-stretch divide-y divide-dotted divide-border/30"
-                                >
-                                    <div className="relative flex min-h-40 w-8 flex-col items-center justify-center border-r border-b-0 border-solid border-border">
-                                        <span className="sm:text-md rotate-[-90deg] text-xs font-light tracking-widest whitespace-nowrap text-muted-foreground uppercase">
-                                            Platform {i + 1}
-                                        </span>
-                                    </div>
-                                    <div className="flex-1 divide-y divide-dotted divide-border/20 bg-card/70 text-foreground">
-                                        <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs text-foreground uppercase sm:text-sm">
-                                            <span>Time</span>
-                                            <span className="col-span-2">
-                                                Destination
-                                            </span>
-                                        </div>
-                                        {[
-                                            ...Array(DEFAULT_STOP_COUNT_LIMIT),
-                                        ].map((_, n) => (
-                                            <div
-                                                key={`${n}-${n}`}
-                                                className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-accent hover:text-accent-foreground sm:py-2 sm:text-sm"
-                                            >
-                                                <div className="my-auto h-5 bg-muted/50 font-mono tracking-wide text-foreground"></div>
-                                                <div className="col-span-2 h-5 truncate bg-muted/50 font-normal tracking-wide text-foreground uppercase"></div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="px-0 sm:px-0">
-                            <div className="flex items-center justify-between rounded-b-xs border-2 border-t-0 border-border bg-card text-card-foreground">
-                                <span className="w-full text-center text-xs font-semibold uppercase sm:px-4 sm:text-left sm:text-sm">
-                                    <div className="h-5 bg-muted/50 font-normal text-muted-foreground"></div>
-                                </span>
-                                <button
-                                    onClick={getUserLocationAndFetch}
-                                    className="flex items-center gap-x-3 border-l-0 border-border bg-muted px-4 py-2 text-xs tracking-wide text-foreground uppercase transition hover:cursor-pointer hover:bg-accent hover:text-accent-foreground sm:py-3 sm:text-base"
-                                >
-                                    <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span className="text-foreground">
-                                        Refresh
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="animate-in fade-in-5 duration-[0.1s]">
-                        <div className="space-y-0 divide-y-2 divide-border border-2 border-border bg-muted/10">
-                            {processedDepartures.map((group, idx) =>
-                                group.length == 0 ? (
-                                    <></>
-                                ) : (
+                    {loading || isTransitioning ? (
+                        <div className="relative">
+                            {/* Enhanced loading skeleton */}
+                            <div className="divide-border/20 relative space-y-0 divide-y">
+                                {[...Array(2)].map((_, i) => (
                                     <div
-                                        key={idx}
-                                        className="flex w-full items-stretch divide-y divide-dotted divide-border/30"
+                                        key={i}
+                                        className="relative flex w-full items-stretch"
                                     >
-                                        {/* Label column */}
-                                        <div className="relative flex min-h-40 w-8 flex-col items-center justify-center border-r border-b-0 border-solid border-border">
-                                            <span className="sm:text-md rotate-[-90deg] text-xs font-light tracking-widest whitespace-nowrap text-muted-foreground uppercase">
-                                                Platform {idx + 1}
+                                        <div className="border-border/20 from-primary/5 to-accent/5 relative flex min-h-32 w-10 flex-col items-center justify-center border-r border-b-0 border-solid bg-gradient-to-b">
+                                            <span className="text-accent/60 rotate-[-90deg] text-xs font-bold tracking-[0.2em] whitespace-nowrap uppercase">
+                                                Platform {i + 1}
                                             </span>
                                         </div>
-
-                                        {/* Content column */}
-                                        <div className="flex-1 divide-y divide-dotted divide-border/20 bg-card/70 text-foreground">
-                                            <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs text-foreground uppercase sm:text-sm">
-                                                <span>Time</span>
-                                                <span className="col-span-2">
+                                        <div className="divide-border/10 flex-1 divide-y divide-dotted">
+                                            <div className="text-accent from-primary/10 grid grid-cols-3 gap-2 bg-gradient-to-r to-transparent px-4 py-2 text-xs font-bold tracking-wider uppercase">
+                                                <span className="text-primary font-black">
+                                                    Time
+                                                </span>
+                                                <span className="text-accent col-span-2 font-black">
                                                     Destination
                                                 </span>
                                             </div>
-                                            {group.map((dep, i) => (
+                                            {[
+                                                ...Array(
+                                                    DEFAULT_STOP_COUNT_LIMIT
+                                                ),
+                                            ].map((_, n) => (
                                                 <div
-                                                    key={`${idx}-${i}`}
-                                                    className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-accent hover:text-accent-foreground sm:py-2 sm:text-sm"
+                                                    key={`${i}-${n}`}
+                                                    className="grid grid-cols-3 gap-1 px-4 py-2 text-sm"
                                                 >
-                                                    <div className="my-auto font-mono tracking-wide text-foreground">
-                                                        {dep.displayTime}
-                                                    </div>
-                                                    <div className="col-span-2 truncate font-normal tracking-wide text-foreground uppercase">
-                                                        {dep.stop_headsign}
-                                                    </div>
+                                                    <div className="from-muted/40 to-muted/20 my-auto h-4 animate-pulse rounded-md bg-gradient-to-r"></div>
+                                                    <div className="from-muted/30 to-muted/10 col-span-2 my-auto h-4 animate-pulse rounded-md bg-gradient-to-r"></div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
-                                )
-                            )}
+                                ))}
+                            </div>
+
+                            {/* Footer section - integrated */}
+                            <div className="border-border/30 from-muted/30 to-accent/10 relative z-10 flex items-center justify-between border-t bg-gradient-to-r p-3">
+                                <div className="flex items-center gap-2">
+                                    <div className="bg-muted/50 flex items-center gap-2 rounded-lg px-3 py-2 backdrop-blur-sm">
+                                        <Info className="text-primary h-3.5 w-3.5" />
+                                        <span className="text-foreground hidden text-xs font-medium sm:inline">
+                                            About
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="text-muted-foreground flex items-center gap-2 text-xs">
+                                    <History className="text-accent h-3.5 w-3.5" />
+                                    <div className="bg-muted/40 h-4 w-16 rounded-md"></div>
+                                </div>
+
+                                <button
+                                    onClick={getUserLocationAndFetch}
+                                    className="from-muted/50 to-accent/20 text-foreground hover:from-accent/30 hover:to-accent/40 flex items-center gap-2 rounded-lg bg-gradient-to-r px-3 py-2 text-xs font-bold tracking-wider uppercase backdrop-blur-sm transition-all duration-300 hover:shadow-lg"
+                                >
+                                    <RefreshCw className="text-accent h-3.5 w-3.5" />
+                                    <span className="font-bold">Refresh</span>
+                                </button>
+                            </div>
                         </div>
+                    ) : (
+                        <div
+                            key={departuresKey}
+                            className={cn(
+                                'relative transition-all duration-500 ease-in-out',
+                                isTransitioning
+                                    ? 'scale-[1] opacity-50 blur-[0px]'
+                                    : 'blur-0 animate-in fade-in-0 scale-100 opacity-100 duration-700'
+                            )}
+                        >
+                            {/* Main content area - Actual departures */}
+                            <div className="divide-border/20 relative space-y-0 divide-y">
+                                {processedDepartures.map((group, idx) =>
+                                    group.length == 0 ? (
+                                        <></>
+                                    ) : (
+                                        <div
+                                            key={`${departuresKey}-${idx}`}
+                                            className="animate-fade-in animate-duration-500 animate-ease-out relative flex w-full items-stretch"
+                                            style={{
+                                                animationDelay: `${idx * 100}ms`,
+                                            }}
+                                        >
+                                            {/* Label column */}
+                                            <div className="border-border/20 bg-background/20 relative flex min-h-32 w-10 flex-col items-center justify-center border-r border-b-0 border-solid">
+                                                <span className="text-muted-foreground rotate-[-90deg] text-xs font-bold tracking-[0.2em] whitespace-nowrap uppercase drop-shadow-xs">
+                                                    Platform {idx + 1}
+                                                </span>
+                                            </div>
 
-                        {/* LAST REFRESH TIME AND REFRESH BUTTON */}
-                        <div className="flex flex-row text-xs sm:text-sm">
+                                            {/* Content column */}
+                                            <div className="divide-border/10 flex-1 divide-y divide-dotted">
+                                                <div className="text-foreground grid grid-cols-3 gap-2 bg-transparent px-4 py-2 text-xs font-bold tracking-wider uppercase">
+                                                    <span className="text-muted-foreground font-[500]">
+                                                        Time
+                                                    </span>
+                                                    <span className="text-muted-foreground col-span-2 font-[500]">
+                                                        Destination
+                                                    </span>
+                                                </div>
+                                                {group.map((dep, i) => (
+                                                    <div
+                                                        key={`${departuresKey}-${idx}-${i}`}
+                                                        className={cn(
+                                                            'group animate-fade-in-up animate-duration-300 animate-ease-out grid grid-cols-3 gap-1 px-4 py-2 text-sm transition-all duration-200 ease-in-out',
+                                                            'hover:bg-accent/20 hover:text-accent-foreground hover:cursor-pointer'
+                                                        )}
+                                                        style={{
+                                                            animationDelay: `${idx * 100 + i * 50}ms`,
+                                                        }}
+                                                    >
+                                                        <div className="text-primary group-hover:text-accent-foreground my-auto font-mono text-xs font-[500] tracking-wider sm:text-sm">
+                                                            {dep.displayTime}
+                                                        </div>
+                                                        <div className="text-foreground group-hover:text-accent-foreground col-span-2 truncate text-sm font-semibold tracking-wide uppercase sm:text-base">
+                                                            {dep.stop_headsign}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )
+                                )}
+                            </div>
+
+                            {/* Footer section - integrated */}
                             {lastUpdated && (
-                                <div className="flex w-full items-stretch justify-between rounded-b-xs border-2 border-t-0 border-border bg-card tracking-wide text-card-foreground">
-                                    {/* About button FIRST */}
-                                    <CreatorBadgeInline
-                                        name="Andy Williams"
-                                        email="andy@nonissue.org"
-                                        website="https://andy.ws"
-                                        github="https://github.com/nonissue/next-departures"
-                                        note="Built with GTFS data; times are estimates and may change."
-                                        startYear={2025}
-                                        triggerLabel="About"
-                                        // withBackdrop
-                                    />
-
-                                    {/* Updated-at text in the middle */}
-                                    {/* Center: Updated block fills space */}
-                                    <div className="flex items-center justify-center gap-x-1.5 uppercase sm:px-4 sm:py-3">
-                                        <History className="h-3.5 w-3.5 text-muted-foreground" />
-
-                                        {lastUpdated?.toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            second: '2-digit', // remove if you want HH:mm
-                                            hour12: false,
-                                        })}
+                                <div className="border-border/30 from-muted/30 to-accent/10 relative z-10 flex items-center justify-between border-t bg-gradient-to-r p-3">
+                                    {/* About button */}
+                                    <div className="relative">
+                                        <CreatorBadgeInline
+                                            name="Andy Williams"
+                                            email="andy@nonissue.org"
+                                            website="https://andy.ws"
+                                            github="https://github.com/nonissue/next-departures"
+                                            note="Built with GTFS data; times are estimates and may change."
+                                            startYear={2025}
+                                            triggerLabel="About"
+                                            className="bg-muted/50 rounded-lg border-0 px-3 py-2 backdrop-blur-sm"
+                                        />
                                     </div>
 
-                                    {/* Refresh button LAST */}
+                                    {/* Updated-at text */}
+                                    <div className="text-muted-foreground flex items-center gap-2 text-xs font-bold tracking-wider uppercase">
+                                        <History className="text-muted-foreground h-3.5 w-3.5" />
+                                        <span className="text-primary font-mono font-[500]">
+                                            {lastUpdated?.toLocaleTimeString(
+                                                [],
+                                                {
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    second: '2-digit',
+                                                    hour12: false,
+                                                }
+                                            )}
+                                        </span>
+                                    </div>
+
+                                    {/* Refresh button */}
                                     <button
                                         onClick={getUserLocationAndFetch}
-                                        className="flex items-center gap-x-3 border-l border-border bg-muted px-4 py-2 tracking-wide text-foreground uppercase transition hover:bg-accent hover:text-accent-foreground"
+                                        className="from-muted/50 to-accent/20 text-foreground hover:from-accent/30 hover:to-accent/40 flex items-center gap-2 rounded-lg bg-gradient-to-r px-3 py-2 text-xs font-bold tracking-wider uppercase backdrop-blur-sm transition-all duration-300 hover:shadow-lg"
                                     >
-                                        <RefreshCw className="h-3.5 w-3.5 text-foreground" />
-                                        <span className="text-foreground">
+                                        <RefreshCw className="text-accent-foreground h-3.5 w-3.5 transition-transform duration-300 hover:rotate-180" />
+                                        <span className="font-[500]">
                                             Refresh
                                         </span>
                                     </button>
                                 </div>
                             )}
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </main>
     );

@@ -65,7 +65,7 @@ export default function CreatorBadgeInline({
                     onClick={() => setOpen(false)}
                     className={cn(
                         'fixed inset-0 z-10', // below the badge (z-50 on container), above app
-                        'bg-zinc-950/70 backdrop-blur-[4px]',
+                        'bg-background/80 backdrop-blur-xl',
                         'transition-opacity duration-[400ms]',
                         open
                             ? 'pointer-events-auto opacity-100'
@@ -73,50 +73,55 @@ export default function CreatorBadgeInline({
                     )}
                 />
                 <DialogTrigger asChild>
-                    {/* Match your Refresh button vibe */}
                     <button
                         type="button"
                         className={cn(
-                            'flex items-center gap-x-3 border-r border-zinc-700 bg-zinc-800 px-4',
-                            'tracking-wide text-orange-300 uppercase transition hover:bg-orange-500 hover:text-black',
+                            'border-border/30 from-muted/50 to-primary/10 relative flex items-center gap-x-3 border-r bg-gradient-to-r px-6 py-4',
+                            'text-foreground hover:from-accent/30 hover:to-accent/20 hover:text-accent-foreground tracking-wide uppercase backdrop-blur-sm transition-all duration-300 hover:shadow-lg',
                             className
                         )}
                         aria-label="Show creator info"
                     >
-                        <Info className="h-3.5 w-3.5 text-sky-300" />
-                        <span className="hidden font-mono text-sky-100 sm:inline">
+                        <Info className="text-primary h-4 w-4 transition-colors duration-300" />
+                        <span className="text-foreground hidden font-mono text-xs font-medium sm:inline">
                             {triggerLabel}
                         </span>
-                        {/* <span className="text-amber-200">{triggerLabel}</span> */}
                     </button>
                 </DialogTrigger>
 
                 {/* Appears ABOVE the trigger, right-aligned */}
                 <DialogContent
                     className={cn(
-                        'rounded-sm border-zinc-800 bg-zinc-900 text-zinc-300 sm:max-w-[28rem]',
-                        'shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset,0_16px_40px_rgba(0,0,0,0.6)]'
+                        'border-border/50 bg-card/90 text-card-foreground relative overflow-hidden rounded-2xl border backdrop-blur-xl backdrop-saturate-150 sm:max-w-[28rem]',
+                        'shadow-primary/20 shadow-2xl'
                     )}
                 >
-                    <div className="mb-1 items-center justify-between">
-                        <div className="flex flex-row items-center gap-x-2">
-                            <div className="font-semibold text-orange-200">
+                    {/* Glass effect overlay */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent"></div>
+
+                    <div className="relative z-10 mb-4 items-center justify-between">
+                        <div className="flex flex-row items-center gap-x-3">
+                            <div className="text-foreground text-lg font-semibold">
                                 {name}
                             </div>
-                            <div className="text-zinc-400">© {years}</div>
+                            <div className="text-muted-foreground font-mono text-sm">
+                                © {years}
+                            </div>
                         </div>
                         {note && (
-                            <div className="mt-1.5 text-zinc-400">{note}</div>
+                            <div className="text-muted-foreground mt-2 leading-relaxed">
+                                {note}
+                            </div>
                         )}
                     </div>
 
-                    <div className="mt-0 flex flex-wrap items-center gap-1.5">
+                    <div className="relative z-10 mt-0 flex flex-wrap items-center gap-2">
                         {email && (
                             <a
                                 href={`mailto:${email}`}
-                                className="inline-flex items-center gap-1 rounded-xs border border-zinc-800 bg-zinc-900 px-2 py-1 hover:border-zinc-700 hover:bg-zinc-800 hover:text-amber-200"
+                                className="border-border/50 bg-muted/50 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300"
                             >
-                                <Mail className="h-3.5 w-3.5" />
+                                <Mail className="h-4 w-4" />
                                 Email
                             </a>
                         )}
@@ -125,9 +130,9 @@ export default function CreatorBadgeInline({
                                 href={website}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1 rounded-xs border border-zinc-800 bg-zinc-900 px-2 py-1 hover:border-zinc-700 hover:bg-zinc-800 hover:text-amber-200"
+                                className="border-border/50 bg-muted/50 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300"
                             >
-                                <Globe className="h-3.5 w-3.5" />
+                                <Globe className="h-4 w-4" />
                                 Website
                             </a>
                         )}
@@ -136,9 +141,9 @@ export default function CreatorBadgeInline({
                                 href={github}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1 rounded-xs border border-zinc-800 bg-zinc-900 px-2 py-1 hover:border-zinc-700 hover:bg-zinc-800 hover:text-amber-200"
+                                className="border-border/50 bg-muted/50 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300"
                             >
-                                <Github className="h-3.5 w-3.5" />
+                                <Github className="h-4 w-4" />
                                 GitHub
                             </a>
                         )}

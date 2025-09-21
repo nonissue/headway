@@ -73,36 +73,36 @@ export function StationPicker({
         <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
                 <Button
-                    variant="outline"
+                    variant="ghost"
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                        'justify-between bg-card border-border text-card-foreground hover:bg-accent hover:text-accent-foreground',
+                        'border-border/90 text-card-foreground hover:text-accent-foreground hover:border-primary/40 bg-background/50 hover:bg-background max-w-full justify-between border backdrop-blur-none transition-all duration-300',
                         className
                     )}
                 >
-                    <div className="flex min-w-0 items-center gap-2">
-                        <MapPin className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                        <span className="truncate font-mono text-sm font-semibold tracking-wider uppercase">
+                    <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
+                        <MapPin className="text-muted-foreground h-4 w-4 flex-shrink-0" />
+                        <span className="min-w-0 truncate font-mono text-sm tracking-wider uppercase">
                             {selectedStation?.stop_name || 'Select station...'}
                         </span>
                     </div>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-muted-foreground opacity-50" />
+                    <ChevronsUpDown className="text-muted-foreground ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent
-                className="w-[var(--radix-popover-trigger-width)] border-border bg-popover p-0"
+                className="border-border/50 bg-popover/90 w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] p-0 shadow-xl backdrop-blur-xl backdrop-saturate-150"
                 align="center"
-                sideOffset={0}
+                sideOffset={4}
             >
-                <Command className="bg-popover">
+                <Command className="bg-transparent">
                     <CommandInput
                         placeholder="Search stations..."
-                        className="h-9 border-none bg-popover text-popover-foreground placeholder-muted-foreground [&>svg]:text-muted-foreground"
+                        className="text-popover-foreground placeholder-muted-foreground [&>svg]:text-muted-foreground h-10 border-none bg-transparent"
                     />
-                    <CommandList className="bg-popover">
+                    <CommandList className="bg-transparent">
                         {loading ? (
-                            <div className="p-2 text-sm text-muted-foreground">
+                            <div className="text-muted-foreground p-2 text-sm">
                                 Loading stations...
                             </div>
                         ) : (
@@ -119,12 +119,14 @@ export function StationPicker({
                                                 onStationSelect(station);
                                                 setOpen(false);
                                             }}
-                                            className="font-mono text-sm tracking-wide text-popover-foreground uppercase hover:bg-accent hover:text-accent-foreground data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground"
+                                            className="text-popover-foreground hover:bg-accent/20 hover:text-accent-foreground data-[selected=true]:bg-accent/30 data-[selected=true]:text-accent-foreground flex min-w-0 items-center justify-between font-mono text-sm tracking-wide uppercase backdrop-blur-sm transition-all duration-200"
                                         >
-                                            {station.stop_name}
+                                            <span className="min-w-0 flex-1 truncate">
+                                                {station.stop_name}
+                                            </span>
                                             <Check
                                                 className={cn(
-                                                    'ml-auto h-4 w-4 text-muted-foreground',
+                                                    'text-muted-foreground ml-auto h-4 w-4',
                                                     selectedStation?.stop_id ===
                                                         station.stop_id
                                                         ? 'opacity-100'
