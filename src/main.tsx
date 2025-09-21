@@ -1,34 +1,17 @@
 // src/main.tsx
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
-import CreatorBadgeInline from './components/features/CreatorBadgePopover';
-import { StationPicker } from './components/StationPicker';
 import { ThemeProvider } from './components/theme-provider';
+import { Header } from './components/Header';
+import { DeparturesTable } from './components/DeparturesTable';
+import { Footer } from './components/Footer';
+import { useLocationManager } from './hooks/useLocationManager';
+import { useApiRequest } from './hooks/useApiRequest';
 import { useErrorHandler } from './hooks/useErrorHandler';
+import { Station, Departure, ProcessedDeparture, DeparturesResponse } from './types/departures';
 import './globals.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
-import {
-    DEFAULT_STOP_COUNT_LIMIT,
-    TEST_COORDS,
-    TEST_COORDS_FAR,
-} from './config.js';
-import { History, RefreshCw, Info } from 'lucide-react';
-import { cn } from '@/components/lib/utils';
 
-interface Departure {
-    stop_id: string;
-    trip_id: string;
-    stop_headsign: string;
-    departure_time: string;
-    departure_timestamp: number;
-}
-
-interface Station {
-    stop_id: string;
-    stop_name: string;
-    stop_lat?: number;
-    stop_lon?: number;
-}
 
 const App = () => {
     const [status, setStatus] = useState('Requesting location');
@@ -46,24 +29,20 @@ const App = () => {
     const [departuresKey, setDeparturesKey] = useState(0);
 
     const { error, clearError, hasError } = useErrorHandler();
+    const { fetchDepartures, fetchStationDepartures } = useApiRequest();
+
+    const handleFetchDepartures = useCallback(
         async (latitude: number, longitude: number) => {
             try {
                 setLoading(true);
                 clearError();
                 setUserLocation({ lat: latitude, lon: longitude });
-                // setStatus('Finding nearest station...');
-                const res = await fetch(
-                    `/api/departures/nearby?lat=${latitude}&lon=${longitude}`
-                );
 
-                const data = await res.json();
+                const data: DeparturesResponse = await fetchDepartures(latitude, longitude);
 
                 setSelectedStation(data.closestStation);
-
                 setDepartures(data.departures);
-
                 setLastUpdated(new Date());
-
                 setStatus('');
             } catch (error) {
                 setStatus('Failed to load departures.');
@@ -74,26 +53,17 @@ const App = () => {
         [fetchDepartures, clearError]
     );
 
-    const fetchDeparturesForStation = useCallback(async (station: Station) => {
-        if (!station.stop_lat || !station.stop_lon) {
-            setStatus('Station coordinates not available.');
-            return;
-        }
-
+    const handleFetchDeparturesForStation = useCallback(async (station: Station) => {
         try {
             setIsTransitioning(true);
             clearError();
             setStatus('Loading departures for selected station...');
 
-            const res = await fetch(
-                `/api/departures/nearby?lat=${station.stop_lat}&lon=${station.stop_lon}`
-            );
-
-            const data = await res.json();
+            const data = await fetchStationDepartures(station.stop_id);
 
             setSelectedStation(station);
             setDepartures(data.departures);
-            setDeparturesKey((prev) => prev + 1); // Trigger animation
+            setDeparturesKey((prev) => prev + 1);
             setLastUpdated(new Date());
             setStatus('');
         } catch (error) {
@@ -103,88 +73,12 @@ const App = () => {
         }
     }, [fetchStationDepartures, clearError]);
 
-    const getUserLocationAndFetch = useCallback(() => {
-        if (!navigator.geolocation) {
-            setStatus('Geolocation is not supported by your browser.');
-            return;
-        }
+    const { getUserLocationAndFetch } = useLocationManager({
+        onLocationSuccess: handleFetchDepartures,
+        onStatusChange: setStatus,
+    });
 
-        // Set timeout for geolocation request to avoid hanging
-        const options = {
-            enableHighAccuracy: false,
-            timeout: 10000,
-            maximumAge: 0, // Always get fresh location
-        };
-
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                console.warn(
-                    'main.tsx: using users location (position.coords)'
-                );
-                // fetchDepartures(TEST_COORDS_FAR.lat, TEST_COORDS_FAR.lon);
-                fetchDepartures(latitude, longitude);
-            },
-            (error) => {
-                console.warn('Geolocation error:', error.message);
-                setStatus('Unable to retrieve your location.');
-                console.warn(
-                    'main.tsx: using TEST_COORDS (navigator.geolocation failed?)'
-                );
-                fetchDepartures(TEST_COORDS.lat, TEST_COORDS.lon);
-            },
-            options
-        );
-    }, [fetchDepartures]);
-
-    useEffect(() => {
-        const initializeLocation = async () => {
-            // Check permission first
-            const permissionState = await checkLocationPermission();
-
-            if (permissionState === 'granted') {
-                setStatus('Location access granted');
-                getUserLocationAndFetch();
-            } else if (permissionState === 'denied') {
-                setStatus('Location access denied - using default location');
-                fetchDepartures(TEST_COORDS.lat, TEST_COORDS.lon);
-            } else {
-                // prompt or not determined - try to get location
-                getUserLocationAndFetch();
-            }
-        };
-
-        // Initialize location on first load
-        initializeLocation();
-
-        // Refresh location when PWA becomes visible/focused
-        const handleVisibilityChange = () => {
-            if (!document.hidden) {
-                console.log('App became visible - refreshing location');
-                initializeLocation();
-            }
-        };
-
-        const handleFocus = () => {
-            console.log('App focused - refreshing location');
-            initializeLocation();
-        };
-
-        // Listen for visibility and focus changes
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('focus', handleFocus);
-
-        return () => {
-            document.removeEventListener(
-                'visibilitychange',
-                handleVisibilityChange
-            );
-            window.removeEventListener('focus', handleFocus);
-        };
-    }, [getUserLocationAndFetch, checkLocationPermission, fetchDepartures]);
-
-    // Memoize processed departures to avoid recomputing time conversions on every render
-    const processedDepartures = useMemo(() => {
+    const processedDepartures = useMemo((): ProcessedDeparture[][] => {
         return departures.map((group) =>
             group.map((dep) => ({
                 ...dep,
@@ -208,6 +102,11 @@ const App = () => {
                     {/* Glass effect overlay */}
                     <div className="from-background/5 to-muted/20 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent"></div>
 
+                    <Header
+                        selectedStation={selectedStation}
+                        onStationSelect={handleFetchDeparturesForStation}
+                        userLocation={userLocation}
+                    />
                     {hasError && (
                         <div className="relative p-4 text-center border-l-4 border-red-500 bg-red-50 dark:bg-red-900/20">
                             <div className="text-red-600 dark:text-red-400 text-sm font-medium mb-2">
@@ -222,182 +121,23 @@ const App = () => {
                         </div>
                     )}
                     {loading || isTransitioning ? (
-                        <div className="relative">
-                            {/* Enhanced loading skeleton */}
-                            <div className="divide-border/20 relative space-y-0 divide-y">
-                                {[...Array(2)].map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className="relative flex w-full items-stretch"
-                                    >
-                                        <div className="border-border/20 from-primary/5 to-accent/5 relative flex min-h-32 w-10 flex-col items-center justify-center border-r border-b-0 border-solid bg-gradient-to-b">
-                                            <span className="text-accent/60 rotate-[-90deg] text-xs font-bold tracking-[0.2em] whitespace-nowrap uppercase">
-                                                Platform {i + 1}
-                                            </span>
-                                        </div>
-                                        <div className="divide-border/10 flex-1 divide-y divide-dotted">
-                                            <div className="text-accent from-primary/10 grid grid-cols-3 gap-2 bg-gradient-to-r to-transparent px-4 py-2 text-xs font-bold tracking-wider uppercase">
-                                                <span className="text-primary font-black">
-                                                    Time
-                                                </span>
-                                                <span className="text-accent col-span-2 font-black">
-                                                    Destination
-                                                </span>
-                                            </div>
-                                            {[
-                                                ...Array(
-                                                    DEFAULT_STOP_COUNT_LIMIT
-                                                ),
-                                            ].map((_, n) => (
-                                                <div
-                                                    key={`${i}-${n}`}
-                                                    className="grid grid-cols-3 gap-1 px-4 py-2 text-sm"
-                                                >
-                                                    <div className="from-muted/40 to-muted/20 my-auto h-4 animate-pulse rounded-md bg-gradient-to-r"></div>
-                                                    <div className="from-muted/30 to-muted/10 col-span-2 my-auto h-4 animate-pulse rounded-md bg-gradient-to-r"></div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Footer section - integrated */}
-                            <div className="border-border/30 from-muted/30 to-accent/10 relative z-10 flex items-center justify-between border-t bg-gradient-to-r p-3">
-                                <div className="flex items-center gap-2">
-                                    <div className="bg-muted/50 flex items-center gap-2 rounded-lg px-3 py-2 backdrop-blur-sm">
-                                        <Info className="text-primary h-3.5 w-3.5" />
-                                        <span className="text-foreground hidden text-xs font-medium sm:inline">
-                                            About
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                                    <History className="text-accent h-3.5 w-3.5" />
-                                    <div className="bg-muted/40 h-4 w-16 rounded-md"></div>
-                                </div>
-
-                                <button
-                                    onClick={getUserLocationAndFetch}
-                                    className="from-muted/50 to-accent/20 text-foreground hover:from-accent/30 hover:to-accent/40 flex items-center gap-2 rounded-lg bg-gradient-to-r px-3 py-2 text-xs font-bold tracking-wider uppercase backdrop-blur-sm transition-all duration-300 hover:shadow-lg"
-                                >
-                                    <RefreshCw className="text-accent h-3.5 w-3.5" />
-                                    <span className="font-bold">Refresh</span>
-                                </button>
+                        <div className="relative p-8 text-center">
+                            <div className="text-muted-foreground text-sm">
+                                {status || 'Loading departures...'}
                             </div>
                         </div>
                     ) : (
-                        <div
-                            key={departuresKey}
-                            className={cn(
-                                'relative transition-all duration-500 ease-in-out',
-                                isTransitioning
-                                    ? 'scale-[1] opacity-50 blur-[0px]'
-                                    : 'blur-0 animate-in fade-in-0 scale-100 opacity-100 duration-700'
-                            )}
-                        >
-                            {/* Main content area - Actual departures */}
-                            <div className="divide-foreground/20 relative space-y-0 divide-y border-y">
-                                {processedDepartures.map((group, idx) =>
-                                    group.length == 0 ? (
-                                        <></>
-                                    ) : (
-                                        <div
-                                            key={`${departuresKey}-${idx}`}
-                                            className="animate-in blur-in-0 relative flex w-full items-stretch"
-                                            style={{
-                                                animationDelay: `${idx * 1}ms`,
-                                            }}
-                                        >
-                                            {/* Label column */}
-                                            <div className="border-border/100 relative flex min-h-32 w-10 flex-col items-center justify-center border-r border-b-0 border-solid">
-                                                <span className="text-muted-foreground rotate-[-90deg] text-xs font-bold tracking-[0.2em] whitespace-nowrap uppercase drop-shadow-xs">
-                                                    Platform {idx + 1}
-                                                </span>
-                                            </div>
-
-                                            {/* Content column */}
-                                            <div className="divide-foreground/20 flex-1 divide-y divide-dotted">
-                                                <div className="text-foreground grid grid-cols-3 gap-2 bg-transparent px-4 py-2 text-xs font-bold tracking-wider uppercase">
-                                                    <span className="text-muted-foreground font-[500]">
-                                                        Time
-                                                    </span>
-                                                    <span className="text-muted-foreground col-span-2 font-[500]">
-                                                        Destination
-                                                    </span>
-                                                </div>
-                                                {group.map((dep, i) => (
-                                                    <div
-                                                        key={`${departuresKey}-${idx}-${i}`}
-                                                        className={cn(
-                                                            'group animate-fade-in-up animate-duration-300 animate-ease-out grid grid-cols-3 gap-1 px-4 py-2 text-sm transition-all duration-200 ease-in-out',
-                                                            'hover:bg-accent/20 hover:text-accent-foreground hover:cursor-pointer'
-                                                        )}
-                                                        style={{
-                                                            animationDelay: `${idx * 100 + i * 50}ms`,
-                                                        }}
-                                                    >
-                                                        <div className="text-primary/90 group-hover:text-accent-foreground my-auto font-mono text-xs font-[400] tracking-wider sm:text-sm">
-                                                            {dep.displayTime}
-                                                        </div>
-                                                        <div className="text-chart-3 group-hover:text-accent-foreground font-display col-span-2 truncate text-sm font-[400] tracking-widest uppercase sm:text-base">
-                                                            {dep.stop_headsign}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )
-                                )}
-                            </div>
-
-                            {/* Footer section - integrated */}
-                            {lastUpdated && (
-                                <div className="border-border/30 from-muted/30 to-accent/10 relative z-10 flex items-center justify-between border-t bg-gradient-to-r p-3">
-                                    {/* About button */}
-                                    <div className="relative">
-                                        <CreatorBadgeInline
-                                            name="Andy Williams"
-                                            email="andy@nonissue.org"
-                                            website="https://andy.ws"
-                                            github="https://github.com/nonissue/next-departures"
-                                            note="Built with GTFS data; times are estimates and may change."
-                                            startYear={2025}
-                                            triggerLabel="About"
-                                            className="bg-muted/50 rounded-lg border-0 px-3 py-2 backdrop-blur-sm"
-                                        />
-                                    </div>
-
-                                    {/* Updated-at text */}
-                                    <div className="text-muted-foreground flex items-center gap-2 text-xs font-bold tracking-wider uppercase">
-                                        <History className="text-muted-foreground h-3.5 w-3.5" />
-                                        <span className="text-primary font-mono font-[500]">
-                                            {lastUpdated?.toLocaleTimeString(
-                                                [],
-                                                {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    second: '2-digit',
-                                                    hour12: false,
-                                                }
-                                            )}
-                                        </span>
-                                    </div>
-
-                                    {/* Refresh button */}
-                                    <button
-                                        onClick={getUserLocationAndFetch}
-                                        className="from-muted/50 to-accent/20 text-foreground hover:from-accent/30 hover:to-accent/40 flex items-center gap-2 rounded-lg bg-gradient-to-r px-3 py-2 text-xs font-bold tracking-wider uppercase backdrop-blur-sm transition-all duration-300"
-                                    >
-                                        <RefreshCw className="text-accent-foreground h-3.5 w-3.5 transition-transform duration-300 hover:rotate-180" />
-                                        <span className="font-[500]">
-                                            Refresh
-                                        </span>
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+                        <>
+                            <DeparturesTable
+                                processedDepartures={processedDepartures}
+                                departuresKey={departuresKey}
+                                isTransitioning={isTransitioning}
+                            />
+                            <Footer
+                                lastUpdated={lastUpdated}
+                                onRefresh={getUserLocationAndFetch}
+                            />
+                        </>
                     )}
                 </div>
             </div>

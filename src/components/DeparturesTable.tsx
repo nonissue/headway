@@ -1,16 +1,8 @@
 import { cn } from '@/components/lib/utils';
-
-interface Departure {
-    stop_id: string;
-    trip_id: string;
-    stop_headsign: string;
-    departure_time: string;
-    departure_timestamp: number;
-    displayTime: string;
-}
+import { ProcessedDeparture } from '../types/departures';
 
 interface DeparturesTableProps {
-    processedDepartures: Departure[][];
+    processedDepartures: ProcessedDeparture[][];
     departuresKey: number;
     isTransitioning: boolean;
 }

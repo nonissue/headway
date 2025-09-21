@@ -1,17 +1,11 @@
 import { StationPicker } from './StationPicker';
 import { ThemeToggle } from './theme-toggle';
-
-interface Station {
-    stop_id: string;
-    stop_name: string;
-    stop_lat?: number;
-    stop_lon?: number;
-}
+import { Station, LocationCoordinates } from '../types/departures';
 
 interface HeaderProps {
     selectedStation: Station | undefined;
     onStationSelect: (station: Station) => void;
-    userLocation: { lat: number; lon: number } | undefined;
+    userLocation: LocationCoordinates | undefined;
 }
 
 export const Header = ({ selectedStation, onStationSelect, userLocation }: HeaderProps) => {

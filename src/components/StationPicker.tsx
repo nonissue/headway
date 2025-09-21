@@ -15,18 +15,12 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-
-interface Station {
-    stop_id: string;
-    stop_name: string;
-    stop_lat?: number;
-    stop_lon?: number;
-}
+import { Station, LocationCoordinates } from '../types/departures';
 
 interface StationPickerProps {
     selectedStation?: Station;
     onStationSelect: (station: Station) => void;
-    userLocation?: { lat: number; lon: number };
+    userLocation?: LocationCoordinates;
     className?: string;
 }
 
