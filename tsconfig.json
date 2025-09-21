@@ -6,6 +6,7 @@
         "jsx": "react-jsx",
         "moduleResolution": "bundler",
         "strict": true,
+        "noImplicitAny": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
