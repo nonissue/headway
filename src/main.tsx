@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import CreatorBadgeInline from './components/features/CreatorBadgePopover';
+import { StationPicker } from './components/StationPicker';
 import './style.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
 import {
@@ -19,6 +20,13 @@ interface Departure {
     departure_timestamp: number;
 }
 
+interface Station {
+    stop_id: string;
+    stop_name: string;
+    stop_lat?: number;
+    stop_lon?: number;
+}
+
 const App = () => {
     const [status, setStatus] = useState('Requesting location');
 
@@ -26,11 +34,14 @@ const App = () => {
     const [departures, setDepartures] = useState<Departure[][]>([]);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [loading, setLoading] = useState(true);
+    const [selectedStation, setSelectedStation] = useState<Station | undefined>();
+    const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | undefined>();
 
     const fetchDepartures = useCallback(
         async (latitude: number, longitude: number) => {
             try {
                 setLoading(true);
+                setUserLocation({ lat: latitude, lon: longitude });
                 // setStatus('Finding nearest station...');
                 const res = await fetch(
                     `/api/departures/nearby?lat=${latitude}&lon=${longitude}`
@@ -38,7 +49,40 @@ const App = () => {
 
                 const data = await res.json();
 
-                setStationName(data.closestStation.stop_name);
+                setSelectedStation(data.closestStation);
+
+                setDepartures(data.departures);
+
+                setLastUpdated(new Date());
+
+                setStatus('');
+            } catch (error) {
+                setStatus('Failed to load departures.');
+            } finally {
+                setLoading(false);
+            }
+        },
+        []
+    );
+
+    const fetchDeparturesForStation = useCallback(
+        async (station: Station) => {
+            if (!station.stop_lat || !station.stop_lon) {
+                setStatus('Station coordinates not available.');
+                return;
+            }
+
+            try {
+                setLoading(true);
+                setStatus('Loading departures for selected station...');
+
+                const res = await fetch(
+                    `/api/departures/nearby?lat=${station.stop_lat}&lon=${station.stop_lon}`
+                );
+
+                const data = await res.json();
+
+                setSelectedStation(station);
 
                 setDepartures(data.departures);
 
