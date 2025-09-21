@@ -41,5 +41,5 @@ export const TEST_COORDS_CENTURY_PARK = {
 export const TEST_COORDS_FAR = { lat: 53.413853, lon: -113.634919 };
 export const TEST_COORDS_SUPER_FAR = { lat: 47.570042, lon: -52.681893 }; // signal hill
 export const DEFAULT_LOOK_AHEAD_IN_MINS = 120;
-export const DEFAULT_STOP_COUNT_LIMIT = 7;
+export const DEFAULT_STOP_COUNT_LIMIT = 5;
 export const DEFAULT_TIMEZONE = 'America/Edmonton';
