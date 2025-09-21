@@ -27,7 +27,7 @@
 }
 /*
 ---break--- */
-@theme {
+@theme inline {
     --font-display: 'DM Sans', sans-serif;
     --font-display--font-optical-sizing: auto;
 
