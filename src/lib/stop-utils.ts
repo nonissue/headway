@@ -5,6 +5,7 @@ import {
     convertServiceTimeToClockTime,
 } from '../lib/time-utils.js';
 import { ClockTime, GeoCoordinate } from '../types/global.js';
+import { StopQuery } from '../types/gtfs.js';
 import {
     DEFAULT_TIMEZONE,
     SERVICE_DAY_START_HOUR,
@@ -25,7 +26,7 @@ import {
 export const getAllStations = async (
     coordinates?: GeoCoordinate
 ): Promise<Stop[]> => {
-    const query: any = { location_type: 1 };
+    const query: StopQuery = { location_type: 1 };
 
     // If coordinates provided, add them to query for distance-based sorting
     if (coordinates?.lat && coordinates?.lon) {

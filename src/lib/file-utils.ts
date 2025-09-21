@@ -38,7 +38,7 @@ export const getConfig = async () => {
         );
 
         return JSON.parse(await readFile(configPath, 'utf-8'));
-    } catch (error: any) {
-        throw new Error(error);
+    } catch (error: unknown) {
+        throw new Error(error instanceof Error ? error.message : String(error));
     }
 };

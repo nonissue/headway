@@ -39,8 +39,8 @@ export const importGtfsDataToDb = async (config: Config) => {
 
     try {
         db = await loadDb(config);
-    } catch (error: any) {
-        throw new Error(error);
+    } catch (error: unknown) {
+        throw new Error(error instanceof Error ? error.message : String(error));
     }
 
     try {
