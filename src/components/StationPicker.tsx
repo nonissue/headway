@@ -95,10 +95,12 @@ export function StationPicker({
                 align="center"
                 sideOffset={4}
             >
-                <Command className="bg-transparent">
+                <Command className="bg-transparent" shouldFilter={true}>
                     <CommandInput
                         placeholder="Search stations..."
-                        className="text-popover-foreground placeholder-muted-foreground [&>svg]:text-muted-foreground h-10 border-none bg-transparent"
+                        className="text-popover-foreground placeholder-muted-foreground [&>svg]:text-muted-foreground h-10 border-none bg-transparent text-base"
+                        autoFocus={false}
+                        tabIndex={-1}
                     />
                     <CommandList className="bg-transparent">
                         {loading ? (

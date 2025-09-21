@@ -62,19 +62,19 @@ export default function CreatorBadgeInline({
 
             <Dialog open={open} onOpenChange={setOpen}>
                 {/* this seems to cover just the departures section? */}
-                <button
-                    aria-hidden={!open}
-                    aria-label="Close info"
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                        'fixed inset-0 z-100', // below the badge (z-50 on container), above app
-                        'bg-background/50 backdrop-blur-xl',
-                        'transition-opacity duration-500',
-                        open
-                            ? 'pointer-events-auto opacity-100'
-                            : 'pointer-events-none opacity-0'
-                    )}
-                />
+                {open && (
+                    <button
+                        aria-hidden={!open}
+                        aria-label="Close info"
+                        onClick={() => setOpen(false)}
+                        className={cn(
+                            'fixed inset-0 z-50', // below the badge (z-50 on container), above app
+                            'bg-background/50 backdrop-blur-xl',
+                            'transition-opacity duration-500',
+                            'pointer-events-auto opacity-100'
+                        )}
+                    />
+                )}
                 <DialogTrigger asChild>
                     <button
                         type="button"
