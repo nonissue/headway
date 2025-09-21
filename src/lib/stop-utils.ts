@@ -16,6 +16,41 @@ import {
 } from '../config.js';
 
 /**
+ * Retrieves all LRT stations from GTFS stops.
+ * A "station" is a stop with `location_type=1`
+ * If coordinates are provided, sorts by distance automatically via GTFS library.
+ *
+ * @returns Promise<Stop[]> - an array of LRT station objects.
+ */
+export const getAllStations = async (
+    coordinates?: GeoCoordinate
+): Promise<Stop[]> => {
+    const query: any = { location_type: 1 };
+
+    // If coordinates provided, add them to query for distance-based sorting
+    if (coordinates?.lat && coordinates?.lon) {
+        query.stop_lat = coordinates.lat;
+        query.stop_lon = coordinates.lon;
+    }
+
+    const stations = await getStops(
+        query,
+        [],
+        [],
+        { bounding_box_side_m: 999999999 }
+    );
+
+    // Only sort alphabetically if no coordinates provided (GTFS handles distance sorting)
+    if (!coordinates?.lat || !coordinates?.lon) {
+        return stations.sort((a, b) =>
+            (a.stop_name || '').localeCompare(b.stop_name || '')
+        );
+    }
+
+    return stations;
+};
+
+/**
  * Retrieves closest "station" from GTFS stops.
  * A "station" is a stop with `location_type=1`
  *
