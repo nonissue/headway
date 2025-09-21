@@ -40,6 +40,7 @@ Sentry.init({
 });
 
 import { departures } from './api/departures.js';
+import { stations } from './api/stations.js';
 
 const app = new Hono();
 
@@ -66,6 +67,7 @@ app.use('/api/*', async (c, next) => {
 
 // mount the /api/departures router under /api
 app.route('/api', departures);
+app.route('/api', stations);
 
 // simple health check
 // app.get('/', (c) => c.text('API is running.'));
