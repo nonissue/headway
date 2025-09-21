@@ -10,7 +10,6 @@ import { FlatCompat } from "@eslint/eslintrc";
 import tailwind from "eslint-plugin-tailwindcss";
 import tselint from "typescript-eslint";
 import react from "eslint-plugin-react";
-// import eslintPluginTailwindCSS from 'eslint-plugin-tailwindcss';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
