@@ -81,9 +81,7 @@ app.onError((err, c) => {
   return c.text('Custom Error Message', 500);
 });
 
-// eslint-disable-next-line node/prefer-global/process
 const PORT = Number(process.env.PORT) || 3000;
 serve({ fetch: app.fetch, port: PORT }, () => {
-  // eslint-disable-next-line no-console
   console.log(`🚆 Server is running at http://localhost:${PORT}`);
 });
