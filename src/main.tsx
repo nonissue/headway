@@ -3,6 +3,8 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 import CreatorBadgeInline from './components/features/CreatorBadgePopover';
 import { StationPicker } from './components/StationPicker';
+import { ThemeProvider } from './components/theme-provider';
+import { ThemeToggle } from './components/theme-toggle';
 import './style.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
 import {
@@ -30,7 +32,6 @@ interface Station {
 const App = () => {
     const [status, setStatus] = useState('Requesting location');
 
-    const [stationName, setStationName] = useState('');
     const [departures, setDepartures] = useState<Departure[][]>([]);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [loading, setLoading] = useState(true);
@@ -203,37 +204,49 @@ const App = () => {
     }, [departures]);
 
     return (
-        <main className="flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
+        <main className="flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none bg-background px-4 font-mono text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
             <div className="my-10 w-full max-w-xl px-4 sm:my-12">
                 <div className={`${loading && 'animate-pulse'}`}>
-                    <div className="rounded-xs border-2 border-b-0 border-zinc-700 bg-zinc-800/70 p-4">
-                        <div className="flex flex-col gap-y-1 text-center sm:gap-y-1">
-                            <span className="relative bg-gradient-to-r from-gray-700/0 via-zinc-700/0 to-gray-800/0 text-xs tracking-widest text-orange-300 uppercase">
-                                {stationName ? 'Closest Station: ' : 'Loading'}
+                    <div className="rounded-xs border-2 border-b-0 border-border bg-card p-4">
+                        <div className="flex justify-between items-center mb-3">
+                            <span className="text-xs tracking-widest text-muted-foreground uppercase">
+                                {selectedStation ? 'Station:' : 'Loading'}
                             </span>
+                            <ThemeToggle />
+                        </div>
 
-                            <div className="font-mono text-xl font-semibold tracking-wider text-orange-200 uppercase drop-shadow-lg sm:text-xl">
-                                {stationName ? stationName : 'Loading'}
-                            </div>
+                        <div className="text-center">
+                            {selectedStation ? (
+                                <StationPicker
+                                    selectedStation={selectedStation}
+                                    onStationSelect={fetchDeparturesForStation}
+                                    userLocation={userLocation}
+                                    className="w-full"
+                                />
+                            ) : (
+                                <div className="font-mono text-xl font-semibold tracking-wider text-foreground uppercase drop-shadow-lg sm:text-xl">
+                                    Loading
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
                 {loading ? (
                     <div className="animate-pulse">
                         {/* Loading skeleton */}
-                        <div className="space-y-0 divide-y-2 divide-orange-400/50 border-2 border-orange-400/50 bg-orange-100/10">
+                        <div className="space-y-0 divide-y-2 divide-border border-2 border-border bg-muted/10">
                             {[...Array(2)].map((_, i) => (
                                 <div
                                     key={i}
-                                    className="flex w-full items-stretch divide-y divide-dotted divide-orange-300/30"
+                                    className="flex w-full items-stretch divide-y divide-dotted divide-border/30"
                                 >
-                                    <div className="relative flex min-h-40 w-8 flex-col items-center justify-center border-r border-b-0 border-solid border-zinc-800">
-                                        <span className="sm:text-md rotate-[-90deg] text-xs font-light tracking-widest whitespace-nowrap text-amber-100/90 uppercase">
+                                    <div className="relative flex min-h-40 w-8 flex-col items-center justify-center border-r border-b-0 border-solid border-border">
+                                        <span className="sm:text-md rotate-[-90deg] text-xs font-light tracking-widest whitespace-nowrap text-muted-foreground uppercase">
                                             Platform {i + 1}
                                         </span>
                                     </div>
-                                    <div className="flex-1 divide-y divide-dotted divide-orange-100/20 bg-zinc-950/70 text-orange-300">
-                                        <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs text-orange-300 uppercase sm:text-sm">
+                                    <div className="flex-1 divide-y divide-dotted divide-border/20 bg-card/70 text-foreground">
+                                        <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs text-foreground uppercase sm:text-sm">
                                             <span>Time</span>
                                             <span className="col-span-2">
                                                 Destination
@@ -244,10 +257,10 @@ const App = () => {
                                         ].map((_, n) => (
                                             <div
                                                 key={`${n}-${n}`}
-                                                className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-zinc-900 hover:text-black sm:py-2 sm:text-sm"
+                                                className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-accent hover:text-accent-foreground sm:py-2 sm:text-sm"
                                             >
-                                                <div className="my-auto h-5 bg-zinc-700/50 font-mono tracking-wide text-orange-100"></div>
-                                                <div className="col-span-2 h-5 truncate bg-zinc-700/50 font-normal tracking-wide text-orange-100 uppercase"></div>
+                                                <div className="my-auto h-5 bg-muted/50 font-mono tracking-wide text-foreground"></div>
+                                                <div className="col-span-2 h-5 truncate bg-muted/50 font-normal tracking-wide text-foreground uppercase"></div>
                                             </div>
                                         ))}
                                     </div>
@@ -255,16 +268,16 @@ const App = () => {
                             ))}
                         </div>
                         <div className="px-0 sm:px-0">
-                            <div className="flex items-center justify-between rounded-b-xs border-2 border-t-0 border-zinc-700 bg-zinc-900 text-orange-100/90">
+                            <div className="flex items-center justify-between rounded-b-xs border-2 border-t-0 border-border bg-card text-card-foreground">
                                 <span className="w-full text-center text-xs font-semibold uppercase sm:px-4 sm:text-left sm:text-sm">
-                                    <div className="h-5 bg-zinc-600/50 font-normal text-orange-100/70"></div>
+                                    <div className="h-5 bg-muted/50 font-normal text-muted-foreground"></div>
                                 </span>
                                 <button
                                     onClick={getUserLocationAndFetch}
-                                    className="flex items-center gap-x-3 border-l-0 border-zinc-700 bg-zinc-800 px-4 py-2 text-xs tracking-wide text-orange-300 uppercase transition hover:cursor-pointer hover:bg-orange-500 hover:text-black sm:py-3 sm:text-base"
+                                    className="flex items-center gap-x-3 border-l-0 border-border bg-muted px-4 py-2 text-xs tracking-wide text-foreground uppercase transition hover:cursor-pointer hover:bg-accent hover:text-accent-foreground sm:py-3 sm:text-base"
                                 >
-                                    <RefreshCw className="h-3.5 w-3.5 text-amber-300" />
-                                    <span className="text-amber-200">
+                                    <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <span className="text-foreground">
                                         Refresh
                                     </span>
                                 </button>
@@ -273,25 +286,25 @@ const App = () => {
                     </div>
                 ) : (
                     <div className="animate-in fade-in-5 duration-[0.1s]">
-                        <div className="space-y-0 divide-y-2 divide-orange-400/50 border-2 border-orange-400/50 bg-orange-100/10">
+                        <div className="space-y-0 divide-y-2 divide-border border-2 border-border bg-muted/10">
                             {processedDepartures.map((group, idx) =>
                                 group.length == 0 ? (
                                     <></>
                                 ) : (
                                     <div
                                         key={idx}
-                                        className="flex w-full items-stretch divide-y divide-dotted divide-orange-300/30"
+                                        className="flex w-full items-stretch divide-y divide-dotted divide-border/30"
                                     >
                                         {/* Label column */}
-                                        <div className="relative flex min-h-40 w-8 flex-col items-center justify-center border-r border-b-0 border-solid border-zinc-800">
-                                            <span className="sm:text-md rotate-[-90deg] text-xs font-light tracking-widest whitespace-nowrap text-amber-100/90 uppercase">
+                                        <div className="relative flex min-h-40 w-8 flex-col items-center justify-center border-r border-b-0 border-solid border-border">
+                                            <span className="sm:text-md rotate-[-90deg] text-xs font-light tracking-widest whitespace-nowrap text-muted-foreground uppercase">
                                                 Platform {idx + 1}
                                             </span>
                                         </div>
 
                                         {/* Content column */}
-                                        <div className="flex-1 divide-y divide-dotted divide-orange-100/20 bg-zinc-950/70 text-orange-300">
-                                            <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs text-orange-300 uppercase sm:text-sm">
+                                        <div className="flex-1 divide-y divide-dotted divide-border/20 bg-card/70 text-foreground">
+                                            <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs text-foreground uppercase sm:text-sm">
                                                 <span>Time</span>
                                                 <span className="col-span-2">
                                                     Destination
@@ -300,12 +313,12 @@ const App = () => {
                                             {group.map((dep, i) => (
                                                 <div
                                                     key={`${idx}-${i}`}
-                                                    className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-zinc-900 hover:text-black sm:py-2 sm:text-sm"
+                                                    className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-accent hover:text-accent-foreground sm:py-2 sm:text-sm"
                                                 >
-                                                    <div className="my-auto font-mono tracking-wide text-orange-100">
+                                                    <div className="my-auto font-mono tracking-wide text-foreground">
                                                         {dep.displayTime}
                                                     </div>
-                                                    <div className="col-span-2 truncate font-normal tracking-wide text-orange-100 uppercase">
+                                                    <div className="col-span-2 truncate font-normal tracking-wide text-foreground uppercase">
                                                         {dep.stop_headsign}
                                                     </div>
                                                 </div>
@@ -319,7 +332,7 @@ const App = () => {
                         {/* LAST REFRESH TIME AND REFRESH BUTTON */}
                         <div className="flex flex-row text-xs sm:text-sm">
                             {lastUpdated && (
-                                <div className="flex w-full items-stretch justify-between rounded-b-xs border-2 border-t-0 border-zinc-700 bg-zinc-900 tracking-wide text-orange-100/90">
+                                <div className="flex w-full items-stretch justify-between rounded-b-xs border-2 border-t-0 border-border bg-card tracking-wide text-card-foreground">
                                     {/* About button FIRST */}
                                     <CreatorBadgeInline
                                         name="Andy Williams"
@@ -335,7 +348,7 @@ const App = () => {
                                     {/* Updated-at text in the middle */}
                                     {/* Center: Updated block fills space */}
                                     <div className="flex items-center justify-center gap-x-1.5 uppercase sm:px-4 sm:py-3">
-                                        <History className="h-3.5 w-3.5 text-zinc-400" />
+                                        <History className="h-3.5 w-3.5 text-muted-foreground" />
 
                                         {lastUpdated?.toLocaleTimeString([], {
                                             hour: '2-digit',
@@ -348,10 +361,10 @@ const App = () => {
                                     {/* Refresh button LAST */}
                                     <button
                                         onClick={getUserLocationAndFetch}
-                                        className="flex items-center gap-x-3 border-l border-zinc-700 bg-zinc-800 px-4 py-2 tracking-wide text-orange-300 uppercase transition hover:bg-orange-500 hover:text-black"
+                                        className="flex items-center gap-x-3 border-l border-border bg-muted px-4 py-2 tracking-wide text-foreground uppercase transition hover:bg-accent hover:text-accent-foreground"
                                     >
-                                        <RefreshCw className="h-3.5 w-3.5 text-amber-100" />
-                                        <span className="text-amber-200">
+                                        <RefreshCw className="h-3.5 w-3.5 text-foreground" />
+                                        <span className="text-foreground">
                                             Refresh
                                         </span>
                                     </button>
@@ -365,4 +378,8 @@ const App = () => {
     );
 };
 
-ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
+ReactDOM.createRoot(document.getElementById('root')!).render(
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <App />
+    </ThemeProvider>
+);
