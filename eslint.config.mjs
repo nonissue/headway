@@ -46,7 +46,6 @@ const eslintConfig = [
 
             react: {
                 version: "detect",
-                // ...react.configs.flat.recommended,
             },
             eslintPluginTailwindCSS: {
                 config: `${__dirname}/src/globals.css`,
@@ -73,13 +72,15 @@ const eslintConfig = [
         },
         rules: {
             'tailwindcss/enforces-shorthand': 'warn',
-            'tailwindcss/no-arbitrary-value': 'warn',
-            'tailwindcss/no-contradicting-classname': 'warn',
+            'tailwindcss/no-arbitrary-value': 'off',
             'tailwindcss/no-custom-classname': 'warn',
+            'tailwindcss/no-contradicting-classname': 'error',
             'tailwindcss/no-unnecessary-arbitrary-value': 'warn',
             "tailwindcss/classnames-order": "warn",
             "react/prop-types": "off",
             "react/react-in-jsx-scope": "off",
+            // 'ts/consistent-type-definitions': ['error', 'type'], 
+            'react/prefer-destructuring-assignment': 'off', // Vscode doesn't support automatically destructuring, it's a pain to add a new variable
    
         },
     },
