@@ -5,7 +5,7 @@ import CreatorBadgeInline from './components/features/CreatorBadgePopover';
 import { StationPicker } from './components/StationPicker';
 import { ThemeProvider } from './components/theme-provider';
 import { ThemeToggle } from './components/theme-toggle';
-import './style.css';
+import './globals.css';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
 import {
     DEFAULT_STOP_COUNT_LIMIT,
