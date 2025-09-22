@@ -2,7 +2,7 @@
 
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { FlatCompat } from '@eslint/eslintrc';
+// import { FlatCompat } from '@eslint/eslintrc';
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 
