@@ -35,11 +35,11 @@ if ('serviceWorker' in navigator) {
 // Import with `import * as Sentry from "@sentry/node"` if you are using ESM
 
 Sentry.init({
-  dsn: 'https://07484d1f244886b5aba802227c2608d8@o4509785629786112.ingest.us.sentry.io/4509785630048256',
+    dsn: 'https://07484d1f244886b5aba802227c2608d8@o4509785629786112.ingest.us.sentry.io/4509785630048256',
 
-  // Setting this option to true will send default PII data to Sentry.
-  // For example, automatic IP address collection on events
-  sendDefaultPii: true,
+    // Setting this option to true will send default PII data to Sentry.
+    // For example, automatic IP address collection on events
+    sendDefaultPii: true,
 });
 
 const app = new Hono();
@@ -50,19 +50,19 @@ const clientPath = path.join(__dirname, '../dist/client');
 
 // Serve static files from Vite build
 app.use(
-  '*',
-  serveStatic({
-    root: clientPath,
-    rewriteRequestPath: p => (p === '/' ? '/index.html' : p),
-  }),
+    '*',
+    serveStatic({
+        root: clientPath,
+        rewriteRequestPath: (p) => (p === '/' ? '/index.html' : p),
+    })
 );
 
 // Add cache-control headers for API endpoints
 app.use('/api/*', async (c, next) => {
-  c.header('Cache-Control', 'no-cache, no-store, must-revalidate');
-  c.header('Pragma', 'no-cache');
-  c.header('Expires', '0');
-  await next();
+    c.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    c.header('Pragma', 'no-cache');
+    c.header('Expires', '0');
+    await next();
 });
 
 // mount the /api/departures router under /api
@@ -73,15 +73,15 @@ app.route('/api', stations);
 // app.get('/', (c) => c.text('API is running.'));
 
 app.notFound((c) => {
-  return c.text(`Route not found ${c.req.path}`, 404);
+    return c.text(`Route not found ${c.req.path}`, 404);
 });
 
 app.onError((err, c) => {
-  console.error(`${err}`);
-  return c.text('Custom Error Message', 500);
+    console.error(`${err}`);
+    return c.text('Custom Error Message', 500);
 });
 
 const PORT = Number(process.env.PORT) || 3000;
 serve({ fetch: app.fetch, port: PORT }, () => {
-  console.log(`🚆 Server is running at http://localhost:${PORT}`);
+    console.log(`🚆 Server is running at http://localhost:${PORT}`);
 });

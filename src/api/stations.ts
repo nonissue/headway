@@ -1,6 +1,10 @@
 import { Hono } from 'hono';
 import { closeDb } from 'gtfs';
-import { getDeparturesForStop, getStopsForParentStation, getAllStations } from '../lib/stop-utils.js';
+import {
+    getDeparturesForStop,
+    getStopsForParentStation,
+    getAllStations,
+} from '../lib/stop-utils.js';
 import { getConfig } from '../lib/file-utils.js';
 import { loadDb } from '../lib/db-utils.js';
 import { Config } from '../types/global.js';
@@ -25,10 +29,13 @@ stations.get('/', async (c) => {
         if (lat && lon) {
             coordinates = {
                 lat: parseFloat(lat),
-                lon: parseFloat(lon)
+                lon: parseFloat(lon),
             };
 
-            if (Number.isNaN(coordinates.lat) || Number.isNaN(coordinates.lon)) {
+            if (
+                Number.isNaN(coordinates.lat) ||
+                Number.isNaN(coordinates.lon)
+            ) {
                 return c.json({ error: 'Invalid latitude or longitude' }, 400);
             }
         }
@@ -37,14 +44,17 @@ stations.get('/', async (c) => {
 
         return c.json({
             stations,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         });
     } catch (err) {
         console.error('Error in /api/stations:', err);
 
-        return c.json({
-            error: 'Failed to fetch stations'
-        }, 500);
+        return c.json(
+            {
+                error: 'Failed to fetch stations',
+            },
+            500
+        );
     } finally {
         if (db) closeDb(db);
     }
@@ -78,15 +88,21 @@ stations.get('/:stationId/departures', async (c) => {
         return c.json({
             stationId,
             departures: departures,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
         });
     } catch (err) {
-        console.error(`Error in /api/stations/${c.req.param('stationId')}/departures:`, err);
+        console.error(
+            `Error in /api/stations/${c.req.param('stationId')}/departures:`,
+            err
+        );
 
-        return c.json({
-            error: 'Failed to fetch departures for station',
-            stationId: c.req.param('stationId')
-        }, 500);
+        return c.json(
+            {
+                error: 'Failed to fetch departures for station',
+                stationId: c.req.param('stationId'),
+            },
+            500
+        );
     } finally {
         if (db) closeDb(db);
     }

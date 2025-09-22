@@ -163,7 +163,8 @@
 
 /* PWA standalone mode specific styles */
 @media (display-mode: standalone) {
-    html, body {
+    html,
+    body {
         overscroll-behavior: none;
         -webkit-overflow-scrolling: touch;
     }

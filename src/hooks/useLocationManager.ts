@@ -2,11 +2,18 @@ import { useCallback, useEffect } from 'react';
 import { TEST_COORDS } from '@/config.js';
 
 interface UseLocationManagerProps {
-    onLocationSuccess: (latitude: number, longitude: number) => void;
+    onLocationSuccess: (
+        latitude: number,
+        longitude: number,
+        isRefresh?: boolean
+    ) => void;
     onStatusChange: (status: string) => void;
 }
 
-export const useLocationManager = ({ onLocationSuccess, onStatusChange }: UseLocationManagerProps) => {
+export const useLocationManager = ({
+    onLocationSuccess,
+    onStatusChange,
+}: UseLocationManagerProps) => {
     const checkLocationPermission = useCallback(async () => {
         if (!navigator.permissions) {
             return null;
@@ -23,33 +30,44 @@ export const useLocationManager = ({ onLocationSuccess, onStatusChange }: UseLoc
         }
     }, []);
 
-    const getUserLocationAndFetch = useCallback(() => {
-        if (!navigator.geolocation) {
-            onStatusChange('Geolocation is not supported by your browser.');
-            return;
-        }
+    const getUserLocationAndFetch = useCallback(
+        (isRefresh = false) => {
+            if (!navigator.geolocation) {
+                onStatusChange('Geolocation is not supported by your browser.');
+                return;
+            }
 
-        const options = {
-            enableHighAccuracy: false,
-            timeout: 10000,
-            maximumAge: 0,
-        };
+            const options = {
+                enableHighAccuracy: false,
+                timeout: 10000,
+                maximumAge: 0,
+            };
 
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                console.warn('useLocationManager: using user location (position.coords)');
-                onLocationSuccess(latitude, longitude);
-            },
-            (error) => {
-                console.warn('Geolocation error:', error.message);
-                onStatusChange('Unable to retrieve your location.');
-                console.warn('useLocationManager: using TEST_COORDS (navigator.geolocation failed)');
-                onLocationSuccess(TEST_COORDS.lat, TEST_COORDS.lon);
-            },
-            options
-        );
-    }, [onLocationSuccess, onStatusChange]);
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    console.warn(
+                        'useLocationManager: using user location (position.coords)'
+                    );
+                    onLocationSuccess(latitude, longitude, isRefresh);
+                },
+                (error) => {
+                    console.warn('Geolocation error:', error.message);
+                    onStatusChange('Unable to retrieve your location.');
+                    console.warn(
+                        'useLocationManager: using TEST_COORDS (navigator.geolocation failed)'
+                    );
+                    onLocationSuccess(
+                        TEST_COORDS.lat,
+                        TEST_COORDS.lon,
+                        isRefresh
+                    );
+                },
+                options
+            );
+        },
+        [onLocationSuccess, onStatusChange]
+    );
 
     useEffect(() => {
         const initializeLocation = async () => {
@@ -59,7 +77,9 @@ export const useLocationManager = ({ onLocationSuccess, onStatusChange }: UseLoc
                 onStatusChange('Location access granted');
                 getUserLocationAndFetch();
             } else if (permissionState === 'denied') {
-                onStatusChange('Location access denied - using default location');
+                onStatusChange(
+                    'Location access denied - using default location'
+                );
                 onLocationSuccess(TEST_COORDS.lat, TEST_COORDS.lon);
             } else {
                 getUserLocationAndFetch();
@@ -84,10 +104,18 @@ export const useLocationManager = ({ onLocationSuccess, onStatusChange }: UseLoc
         window.addEventListener('focus', handleFocus);
 
         return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            document.removeEventListener(
+                'visibilitychange',
+                handleVisibilityChange
+            );
             window.removeEventListener('focus', handleFocus);
         };
-    }, [getUserLocationAndFetch, checkLocationPermission, onLocationSuccess, onStatusChange]);
+    }, [
+        getUserLocationAndFetch,
+        checkLocationPermission,
+        onLocationSuccess,
+        onStatusChange,
+    ]);
 
     return { getUserLocationAndFetch };
 };

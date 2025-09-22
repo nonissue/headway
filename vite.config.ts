@@ -20,7 +20,7 @@ export default defineConfig({
             disable: process.env.NODE_ENV === 'development',
             devOptions: {
                 enabled: true,
-                type: 'module'
+                type: 'module',
             },
             manifest: {
                 name: 'NextTrain',

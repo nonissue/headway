@@ -5,21 +5,25 @@ interface DeparturesTableProps {
     processedDepartures: ProcessedDeparture[][];
     departuresKey: number;
     isTransitioning: boolean;
+    isRefreshing?: boolean;
 }
 
 export const DeparturesTable = ({
     processedDepartures,
     departuresKey,
-    isTransitioning
+    isTransitioning,
+    isRefreshing = false,
 }: DeparturesTableProps) => {
     return (
         <div
             key={departuresKey}
             className={cn(
-                'relative transition-all  ease-in-out ',
+                'relative transition-all ease-in-out',
                 isTransitioning
                     ? 'scale-[1] opacity-0 blur-[10px]'
-                    : 'scale-100 animate-in opacity-100 blur-[0px] duration-500 fade-in-100'
+                    : isRefreshing
+                      ? 'animate-in duration-700 ease-out slide-in-from-right-8'
+                      : 'scale-100 animate-in duration-500 fade-in-100'
             )}
         >
             <div className="relative space-y-0 divide-y divide-foreground/20 border-y">
