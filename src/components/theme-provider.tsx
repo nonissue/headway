@@ -54,6 +54,7 @@ export function ThemeProvider({
             meta.setAttribute('content', themeColor);
         });
 
+        // WHY IS THIS HERE?
         // Prevent overscroll in PWA mode
         const isPWA = window.matchMedia('(display-mode: standalone)').matches;
         if (isPWA) {
