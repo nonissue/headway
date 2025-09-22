@@ -27,7 +27,6 @@ export default defineConfig([
     {
         ignores: [
             'dist/',
-            'src/generated/**/*',
             'public/',
             'node_modules/',
             'db/',
@@ -76,7 +75,7 @@ export default defineConfig([
     {
         name: 'tailwindcss',
         plugins: { tailwindcss: tailwindPlugin },
-
+        files: ['**/*.{js,jsx,mjs,cjs,ts,tsx}'],
         settings: {
             tailwindcss: {
                 config: `${__dirname}/src/globals.css`,
@@ -89,14 +88,14 @@ export default defineConfig([
                     '!**/build',
                 ],
             },
-            rules: {
-                'tailwindcss/classnames-order': 'warn',
-                'tailwindcss/enforces-shorthand': 'warn',
-                'tailwindcss/no-arbitrary-value': 'off',
-                'tailwindcss/no-contradicting-classname': 'warn',
-                'tailwindcss/no-custom-classname': 'error',
-                'tailwindcss/no-unnecessary-arbitrary-value': 'warn',
-            },
+        },
+        rules: {
+            'tailwindcss/classnames-order': 'error',
+            'tailwindcss/enforces-shorthand': 'warn',
+            'tailwindcss/no-arbitrary-value': 'off',
+            'tailwindcss/no-contradicting-classname': 'warn',
+            'tailwindcss/no-custom-classname': 'error',
+            'tailwindcss/no-unnecessary-arbitrary-value': 'warn',
         },
     },
 ]);
