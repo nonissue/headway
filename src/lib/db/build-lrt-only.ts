@@ -1,7 +1,5 @@
 // npx tsx ./src/lib/db/build-lrt-only.ts --source ./db/gtfs.db --out ./data/gtfs_lrt_only.db --force
 
-/* eslint-disable no-console */
-
 import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';

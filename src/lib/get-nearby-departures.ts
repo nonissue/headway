@@ -1,5 +1,5 @@
 import { GeoCoordinate } from '../types/global.js';
-import { TEST_COORDS, TEST_COORDS_FAR } from '../config.js';
+import { TEST_COORDS } from '../config.js';
 import {
     getClosestStation,
     getStopsForParentStation,

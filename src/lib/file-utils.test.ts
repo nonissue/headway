@@ -7,7 +7,7 @@ describe('file-utils', () => {
 
     it('validateConfigForImport should return the current date in the correct format', () => {
         // Mock fake system date to specific date for testing
-        const fakeConfig = {};
+        // const fakeConfig = {};
         expect('something').toBe('something');
     });
 });
