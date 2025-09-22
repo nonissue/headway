@@ -16,6 +16,7 @@ import { useApiRequest } from './hooks/useApiRequest';
 import { useErrorHandler } from './hooks/useErrorHandler';
 import { useLocationManager } from './hooks/useLocationManager';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
+import { Loader2 } from 'lucide-react';
 
 function App() {
     const [status, setStatus] = useState('Requesting location');
@@ -156,11 +157,16 @@ function App() {
                     )}
 
                     {loading || isTransitioning ? (
-                        <div className="relative min-h-96 p-8 text-center">
-                            <div className="text-sm text-muted-foreground">
-                                {status
-                                    ? 'Loading closest departures...'
-                                    : 'Loading departures...'}
+                        <div className="relative min-h-96 animate-pulse p-8 text-center">
+                            <div className="my-auto flex h-full flex-col items-center justify-center text-sm text-muted-foreground">
+                                {status ? (
+                                    <>
+                                        <Loader2 className="h-8 w-8 animate-spin" />
+                                        {/* Loading closest departures */}
+                                    </>
+                                ) : (
+                                    'Loading departures...'
+                                )}
                             </div>
                         </div>
                     ) : (
