@@ -9,9 +9,10 @@ import globals from 'globals';
 // `eslint-plugin-tailwindcss` is not updated for tailwind v4 it seems
 // it relies on a tailwindcss lib (resolveConfig) which has been depreciated
 // so it cannot resolve config file. however, it seems to still work?
-import tailwindPlugin from 'eslint-plugin-tailwindcss';
-import reactPlugin from 'eslint-plugin-react';
+// import reactPlugin from 'eslint-plugin-react';
+import eslintReact from '@eslint-react/eslint-plugin';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
+import tailwindPlugin from 'eslint-plugin-tailwindcss';
 import ts from 'typescript-eslint';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -38,17 +39,20 @@ export default defineConfig([
         name: 'ts-eslint',
         plugins: { 'typescript-eslint': ts },
         extends: [ts.configs.recommended],
+        files: ['**/*.{js,jsx,mjs,cjs,ts,tsx}'],
     },
     {
         name: 'react-hooks',
         plugins: { 'react-hooks': reactHooksPlugin },
+        files: ['**/*.{js,jsx,mjs,cjs,ts,tsx}'],
         rules: reactHooksPlugin.configs.recommended.rules,
     },
     {
         name: 'react',
-
-        plugins: { reactPlugin },
-        extends: [reactPlugin.configs.flat.recommended],
+        plugins: { eslintReact },
+        extends: [eslintReact.configs['recommended-typescript']],
+        // plugins: { reactPlugin },
+        // extends: [reactPlugin.configs.flat.recommended],
         languageOptions: {
             parserOptions: {
                 ecmaFeatures: {
@@ -71,15 +75,17 @@ export default defineConfig([
         rules: {
             'react/react-in-jsx-scope': 'off',
         },
+        files: ['**/*.{js,jsx,mjs,cjs,ts,tsx}'],
     },
     {
         name: 'tailwindcss',
         plugins: { tailwindcss: tailwindPlugin },
+        extends: [tailwindPlugin.configs['flat/recommended']],
         files: ['**/*.{js,jsx,mjs,cjs,ts,tsx}'],
         settings: {
             tailwindcss: {
                 config: `${__dirname}/src/globals.css`,
-                callees: ['cva', 'cn', 'classnames'],
+                callees: ['cva', 'cn', 'classnames', 'clsx'],
                 cssFiles: [
                     '**/*.css',
                     '!**/node_modules',
@@ -89,6 +95,7 @@ export default defineConfig([
                 ],
             },
         },
+
         rules: {
             'tailwindcss/classnames-order': 'error',
             'tailwindcss/enforces-shorthand': 'warn',
