@@ -52,7 +52,7 @@ export default function CreatorBadgeInline({
                     aria-hidden={!open}
                     onClick={() => setOpen(false)}
                     className={cn(
-                        'bg-foreground fixed inset-0 z-40 backdrop-blur-[0px] transition-opacity duration-200',
+                        'fixed inset-0 z-40 bg-foreground backdrop-blur-[0px] transition-opacity duration-200',
                         open
                             ? 'pointer-events-auto opacity-100'
                             : 'pointer-events-none opacity-0'
@@ -79,14 +79,14 @@ export default function CreatorBadgeInline({
                     <button
                         type="button"
                         className={cn(
-                            'border-border/30 from-muted/50 to-primary/10 relative flex items-center gap-x-3 border-r bg-gradient-to-r px-6 py-4',
-                            'text-foreground hover:from-accent/30 hover:to-accent/20 hover:text-accent-foreground hover:bg-muted-foreground/20 tracking-wide uppercase backdrop-blur-sm transition-all duration-300',
+                            'relative flex items-center gap-x-3 border-r border-border/30 bg-gradient-to-r from-muted/50 to-primary/10 px-6 py-4',
+                            'tracking-wide text-foreground uppercase backdrop-blur-sm transition-all duration-300 hover:bg-muted-foreground/20 hover:from-accent/30 hover:to-accent/20 hover:text-accent-foreground',
                             className
                         )}
                         aria-label="Show creator info"
                     >
-                        <Info className="text-primary h-4 w-4 transition-colors duration-300" />
-                        <span className="text-foreground hidden font-mono text-xs font-medium sm:inline">
+                        <Info className="h-4 w-4 text-primary transition-colors duration-300" />
+                        <span className="hidden font-mono text-xs font-medium text-foreground sm:inline">
                             {triggerLabel}
                         </span>
                     </button>
@@ -95,8 +95,8 @@ export default function CreatorBadgeInline({
                 {/* Appears ABOVE the trigger, right-aligned */}
                 <DialogContent
                     className={cn(
-                        'border-border/50 bg-card/90 text-card-foreground fixed overflow-hidden rounded-2xl border backdrop-blur-xl backdrop-saturate-150 sm:max-w-[28rem]',
-                        'shadow-background/20 shadow-xl'
+                        'fixed overflow-hidden rounded-2xl border border-border/50 bg-card/90 text-card-foreground backdrop-blur-xl backdrop-saturate-150 sm:max-w-[28rem]',
+                        'shadow-xl shadow-background/20'
                     )}
                 >
                     {/* Glass effect overlay */}
@@ -104,15 +104,15 @@ export default function CreatorBadgeInline({
 
                     <div className="relative z-10 mb-4 items-center justify-between">
                         <div className="flex flex-row items-center gap-x-3">
-                            <div className="text-foreground text-lg font-semibold">
+                            <div className="text-lg font-semibold text-foreground">
                                 {name}
                             </div>
-                            <div className="text-muted-foreground font-mono text-sm">
+                            <div className="font-mono text-sm text-muted-foreground">
                                 © {years}
                             </div>
                         </div>
                         {note && (
-                            <div className="text-muted-foreground mt-2 leading-relaxed">
+                            <div className="mt-2 leading-relaxed text-muted-foreground">
                                 {note}
                             </div>
                         )}
@@ -122,7 +122,7 @@ export default function CreatorBadgeInline({
                         {email && (
                             <a
                                 href={`mailto:${email}`}
-                                className="border-border/50 bg-muted/50 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300"
+                                className="inline-flex items-center gap-2 rounded-xl border border-border/50 bg-muted/50 px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
                             >
                                 <Mail className="h-4 w-4" />
                                 Email
@@ -133,7 +133,7 @@ export default function CreatorBadgeInline({
                                 href={website}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="border-border/50 bg-muted/50 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300"
+                                className="inline-flex items-center gap-2 rounded-xl border border-border/50 bg-muted/50 px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
                             >
                                 <Globe className="h-4 w-4" />
                                 Website
@@ -144,7 +144,7 @@ export default function CreatorBadgeInline({
                                 href={github}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="border-border/50 bg-muted/50 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300"
+                                className="inline-flex items-center gap-2 rounded-xl border border-border/50 bg-muted/50 px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
                             >
                                 <Github className="h-4 w-4" />
                                 GitHub

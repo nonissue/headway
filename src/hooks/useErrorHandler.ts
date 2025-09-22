@@ -15,7 +15,7 @@ export const useErrorHandler = () => {
         const appError: AppError = {
             message: errorMessage,
             code,
-            timestamp: new Date()
+            timestamp: new Date(),
         };
 
         setError(appError);
@@ -31,17 +31,25 @@ export const useErrorHandler = () => {
         setError(null);
     }, []);
 
-    const handleApiError = useCallback((response: Response, customMessage?: string) => {
-        const message = customMessage || `API Error: ${response.status} ${response.statusText}`;
-        handleError(message, response.status.toString());
-    }, [handleError]);
+    const handleApiError = useCallback(
+        (response: Response, customMessage?: string) => {
+            const message =
+                customMessage ||
+                `API Error: ${response.status} ${response.statusText}`;
+            handleError(message, response.status.toString());
+        },
+        [handleError]
+    );
 
-    const handleNetworkError = useCallback((error: Error) => {
-        const message = error.message.includes('fetch')
-            ? 'Network error. Please check your connection.'
-            : error.message;
-        handleError(message, 'NETWORK_ERROR');
-    }, [handleError]);
+    const handleNetworkError = useCallback(
+        (error: Error) => {
+            const message = error.message.includes('fetch')
+                ? 'Network error. Please check your connection.'
+                : error.message;
+            handleError(message, 'NETWORK_ERROR');
+        },
+        [handleError]
+    );
 
     return {
         error,
@@ -49,6 +57,6 @@ export const useErrorHandler = () => {
         clearError,
         handleApiError,
         handleNetworkError,
-        hasError: error !== null
+        hasError: error !== null,
     };
 };
