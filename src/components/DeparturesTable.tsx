@@ -29,9 +29,11 @@ export const DeparturesTable = ({
             <div className="relative space-y-0 divide-y divide-foreground/20 border-y">
                 {processedDepartures.map((group, idx) =>
                     group.length == 0 ? (
+                        // eslint-disable-next-line @eslint-react/no-missing-key
                         <></>
                     ) : (
                         <div
+                            // eslint-disable-next-line @eslint-react/no-array-index-key
                             key={`${departuresKey}-${idx}`}
                             className="relative flex w-full animate-in items-stretch blur-in-0"
                             style={{
@@ -55,6 +57,7 @@ export const DeparturesTable = ({
                                 </div>
                                 {group.map((dep, i) => (
                                     <div
+                                        // eslint-disable-next-line @eslint-react/no-array-index-key
                                         key={`${departuresKey}-${idx}-${i}`}
                                         className={cn(
                                             'group grid animate-in grid-cols-3 gap-1 px-4 py-2 text-sm opacity-0 duration-200 direction-reverse fade-in-100 fill-mode-forwards',
