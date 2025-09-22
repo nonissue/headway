@@ -49,6 +49,7 @@ export default function CreatorBadgeInline({
             {/* no idea what this does */}
             {withBackdrop && (
                 <button
+                    type="button"
                     aria-hidden={!open}
                     onClick={() => setOpen(false)}
                     className={cn(
@@ -64,6 +65,7 @@ export default function CreatorBadgeInline({
                 {/* this seems to cover just the departures section? */}
                 {open && (
                     <button
+                        type="button"
                         aria-hidden={!open}
                         aria-label="Close info"
                         onClick={() => setOpen(false)}
