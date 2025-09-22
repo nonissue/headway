@@ -1,4 +1,4 @@
-import React, { createContext, use, useEffect, useState } from 'react';
+import React, { createContext, use, useEffect, useMemo, useState } from 'react';
 
 type Theme = 'dark' | 'light' | 'system';
 
@@ -104,13 +104,26 @@ export function ThemeProvider({
         }
     }, [theme]);
 
-    const value = {
-        theme,
-        setTheme: (theme: Theme) => {
-            localStorage.setItem(storageKey, theme);
-            setTheme(theme);
-        },
-    };
+    // const value = {
+    //     theme,
+    //     setTheme: (theme: Theme) => {
+    //         localStorage.setItem(storageKey, theme);
+    //         setTheme(theme);
+    //     },
+    // };
+
+    // resolves:
+    // A/an 'object expression' passed as the value prop to the context provider should not be constructed. It will change on every render. Consider wrapping it in a useMemo hook.
+    const value = useMemo(
+        () => ({
+            theme,
+            setTheme: (theme: Theme) => {
+                localStorage.setItem(storageKey, theme);
+                setTheme(theme);
+            },
+        }),
+        [storageKey, theme]
+    );
 
     return (
         <ThemeProviderContext {...props} value={value}>
