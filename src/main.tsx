@@ -11,11 +11,11 @@ import { DeparturesTable } from './components/DeparturesTable';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { ThemeProvider } from './components/theme-provider';
+import './globals.css';
 import { useApiRequest } from './hooks/useApiRequest';
 import { useErrorHandler } from './hooks/useErrorHandler';
 import { useLocationManager } from './hooks/useLocationManager';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
-import './globals.css';
 
 function App() {
     const [status, setStatus] = useState('Requesting location');
