@@ -20,7 +20,6 @@ import { convertServiceTimeToClockTime } from './lib/time-utils.js';
 import { Loader2 } from 'lucide-react';
 
 function App() {
-
     const [departures, setDepartures] = useState<Departure[][]>([]);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -185,7 +184,7 @@ function App() {
                         </div>
                     ) : (
                         <>
-                            <div className="flex-1 overflow-y-auto">
+                            <div className="flex-1 overflow-hidden">
                                 <DeparturesTable
                                     processedDepartures={processedDepartures}
                                     animationKey={animationKey}

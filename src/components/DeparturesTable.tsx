@@ -1,5 +1,6 @@
 import { cn } from '@/components/lib/utils';
 import { ProcessedDeparture } from '../types/departures';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface DeparturesTableProps {
     processedDepartures: ProcessedDeparture[][];
@@ -11,8 +12,8 @@ export const DeparturesTable = ({
     animationKey = 0,
 }: DeparturesTableProps) => {
     return (
-        <div className="relative">
-            <div className="relative space-y-0 divide-y-2 divide-foreground/20 border-y-0 border-foreground/20">
+        <div className="relative flex h-full flex-col">
+            <div className="relative flex h-full flex-col divide-y-2 divide-foreground/20 border-y-0 border-foreground/20">
                 {processedDepartures.map((group, idx) =>
                     group.length == 0 ? (
                         // eslint-disable-next-line @eslint-react/no-missing-key
@@ -21,7 +22,7 @@ export const DeparturesTable = ({
                         <div
                             // eslint-disable-next-line @eslint-react/no-array-index-key
                             key={idx}
-                            className="relative flex w-full items-stretch"
+                            className="relative flex w-full flex-1 items-stretch"
                             style={{
                                 animationDelay: `${idx * 1}ms`,
                             }}
@@ -32,7 +33,7 @@ export const DeparturesTable = ({
                                 </span>
                             </div>
 
-                            <div className="flex-1 divide-y divide-dotted divide-foreground/20">
+                            <div className="flex flex-1 flex-col divide-y divide-dotted divide-foreground/20">
                                 <div className="grid grid-cols-3 gap-2 bg-transparent px-4 py-2 text-xs font-bold tracking-wider text-foreground uppercase">
                                     <span className="font-[500] text-muted-foreground">
                                         Time
@@ -41,26 +42,32 @@ export const DeparturesTable = ({
                                         Destination
                                     </span>
                                 </div>
-                                {group.map((dep, i) => (
-                                    <div
-                                        // eslint-disable-next-line @eslint-react/no-array-index-key
-                                        key={`${animationKey}-${idx}-${i}`}
-                                        className={cn(
-                                            'group grid animate-in grid-cols-3 gap-1 px-4 py-2 text-sm opacity-0 duration-200 direction-reverse fade-in-100 fill-mode-forwards',
-                                            'hover:cursor-pointer hover:bg-accent/20 hover:text-accent-foreground'
-                                        )}
-                                        style={{
-                                            animationDelay: `${idx * 100 + i * 50}ms`,
-                                        }}
-                                    >
-                                        <div className="my-auto font-mono text-xs font-[400] tracking-wider text-primary/90 group-hover:text-accent-foreground sm:text-sm">
-                                            {dep.displayTime}
-                                        </div>
-                                        <div className="col-span-2 truncate font-display text-sm font-[600] tracking-widest text-chart-3 uppercase group-hover:text-accent-foreground sm:text-base">
-                                            {dep.stop_headsign}
-                                        </div>
+                                <ScrollArea className="relative h-0 flex-1 sm:min-h-[25dvh]">
+                                    <div className="divide-y divide-dotted divide-foreground/20">
+                                        {group.map((dep, i) => (
+                                            <div
+                                                // eslint-disable-next-line @eslint-react/no-array-index-key
+                                                key={`${animationKey}-${idx}-${i}`}
+                                                className={cn(
+                                                    'group grid animate-in grid-cols-3 gap-1 px-4 py-2 text-sm opacity-0 duration-200 direction-reverse fade-in-100 fill-mode-forwards',
+                                                    'hover:cursor-pointer hover:bg-accent/20 hover:text-accent-foreground'
+                                                )}
+                                                style={{
+                                                    animationDelay: `${idx * 100 + i * 50}ms`,
+                                                }}
+                                            >
+                                                <div className="my-auto font-mono text-xs font-[400] tracking-wider text-primary/90 group-hover:text-accent-foreground sm:text-sm">
+                                                    {dep.displayTime}
+                                                </div>
+                                                <div className="col-span-2 truncate font-display text-sm font-[600] tracking-widest text-chart-3 uppercase group-hover:text-accent-foreground sm:text-base">
+                                                    {dep.stop_headsign}
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+                                    {/* Bottom gradient mask */}
+                                    <div className="pointer-events-none absolute right-0 bottom-0 left-0 h-24 bg-gradient-to-t from-background/60 to-transparent"></div>
+                                </ScrollArea>
                             </div>
                         </div>
                     )

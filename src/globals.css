@@ -274,4 +274,10 @@
             max(0px, env(safe-area-inset-bottom))
             max(0px, env(safe-area-inset-left));
     }
+
+    /* Fix ScrollArea on iOS PWA */
+    [data-radix-scroll-area-viewport] {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
 }
