@@ -2,7 +2,7 @@ export const AnimatedBackground = () => {
     return (
         <div className="pointer-events-none fixed inset-0 overflow-hidden">
             {/* Lightweight animated line networks */}
-            <div className="absolute inset-0 h-full w-full opacity-15">
+            <div className="absolute inset-0 h-full w-full opacity-5">
                 {/* Horizontal flowing lines */}
                 <div className="absolute top-20 h-64 w-full rotate-12 animate-[slide-right_9s_linear_infinite] bg-gradient-to-r from-transparent via-muted-foreground/90 to-transparent"></div>
                 <div className="absolute top-32 h-96 w-full -rotate-6 animate-[slide-left_12s_linear_infinite] bg-gradient-to-r from-transparent via-ring/30 to-transparent"></div>
@@ -13,7 +13,7 @@ export const AnimatedBackground = () => {
 
                 <div className="absolute top-1/2 h-[48rem] w-full rotate-45 animate-[slide-left_30s_linear_infinite] bg-gradient-to-r from-transparent via-muted-foreground/90 to-transparent"></div>
                 <div
-                    className="absolute bottom-44 h-80 w-full -rotate-8 animate-[slide-right_7.5s_linear_infinite] bg-gradient-to-r from-transparent via-ring/40 to-transparent"
+                    className="absolute bottom-44 h-80 w-full -rotate-8 animate-[slide-right_20s_linear_infinite] bg-gradient-to-r from-transparent via-ring/40 to-transparent"
                     style={{ animationDelay: '1s' }}
                 ></div>
                 <div
