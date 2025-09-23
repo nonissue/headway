@@ -10,7 +10,7 @@ export function Footer({ lastUpdated, onRefresh }: FooterProps) {
     if (!lastUpdated) return null;
 
     return (
-        <div className="relative z-10 flex items-center justify-between border-t border-border/30 bg-gradient-to-r from-muted/30 to-accent/10 p-3">
+        <div className="relative z-10 flex items-center justify-between border-t border-border/30 p-4">
             <div className="relative">
                 <CreatorBadgeInline
                     name="Andy Williams"
