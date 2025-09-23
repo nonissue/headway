@@ -17,7 +17,7 @@ export function Footer({ lastUpdated, onRefresh }: FooterProps) {
                     email="andy@nonissue.org"
                     website="https://andy.ws"
                     github="https://github.com/nonissue/next-departures"
-                    note="Built with GTFS data; times are estimates and may change."
+                    note="Built with GTFS data; times are estimates and may change. "
                     startYear={2025}
                     triggerLabel="About"
                     className="cursor-pointer rounded-lg border border-border bg-background px-3 py-2 text-secondary-foreground hover:ring-2 hover:ring-foreground"

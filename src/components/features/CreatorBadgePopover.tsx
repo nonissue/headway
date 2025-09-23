@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'; // npx shadcn@latest add popover
-import { Info, Mail, Github, Globe } from 'lucide-react';
+import { Info, Mail, Github, Globe, TramFront } from 'lucide-react';
 import { cn } from '@/components/lib/utils';
 
 type Props = {
@@ -71,7 +71,7 @@ export default function CreatorBadgeInline({
                         onClick={() => setOpen(false)}
                         className={cn(
                             'fixed inset-0 z-50', // below the badge (z-50 on container), above app
-                            'bg-background/60 backdrop-blur-2xl',
+                            'bg-background/30 backdrop-blur-2xl',
                             'transition-opacity duration-500',
                             'pointer-events-auto opacity-100'
                         )}
@@ -105,26 +105,35 @@ export default function CreatorBadgeInline({
                     <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/0 via-transparent to-transparent"></div>
 
                     <div className="relative z-10 mb-4 items-center justify-between">
-                        <div className="flex flex-row items-center gap-x-3">
-                            <div className="text-lg font-semibold text-foreground">
-                                {name}
+                        <div className="flex flex-row items-center gap-x-1">
+                            <div className="mr-2 flex flex-row items-center gap-x-2 font-sans text-lg font-bold text-foreground">
+                                {/* {name} */}
+                                <TramFront className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                Headway
                             </div>
-                            <div className="font-mono text-sm text-muted-foreground">
+                            <div className="rounded bg-foreground/10 px-1 py-0.5 font-sans text-xs font-[500] text-muted-foreground">
+                                By {name}
+                            </div>
+                            <div className="rounded bg-foreground/10 px-1 py-0.5 font-sans text-xs font-[500] text-muted-foreground">
                                 © {years}
                             </div>
                         </div>
                         {note && (
-                            <div className="mt-2 leading-relaxed text-muted-foreground">
+                            <div className="my-4 leading-relaxed text-foreground/90">
                                 {note}
                             </div>
                         )}
+                        <div className="rounded text-xs leading-relaxed text-blue-600 saturate-50 dark:text-blue-300">
+                            Note: On iOS, this website can be added to your
+                            homescreen as a progressive web app (PWA).
+                        </div>
                     </div>
 
-                    <div className="relative z-10 mt-0 flex flex-wrap items-center gap-2">
+                    <div className="relative z-10 mt-0 flex flex-wrap items-center justify-around gap-2 font-display font-[600]">
                         {email && (
                             <a
                                 href={`mailto:${email}`}
-                                className="inline-flex items-center gap-2 rounded-xl border border-border/50 bg-muted/50 px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
+                                className="inline-flex items-center gap-2 rounded-lg border border-card-foreground/20 px-3 py-2 text-sm font-medium transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
                             >
                                 <Mail className="h-4 w-4" />
                                 Email
@@ -135,7 +144,7 @@ export default function CreatorBadgeInline({
                                 href={website}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-2 rounded-xl border border-border/50 bg-muted/50 px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
+                                className="inline-flex items-center gap-2 rounded-lg border border-card-foreground/20 px-3 py-2 text-sm font-medium transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
                             >
                                 <Globe className="h-4 w-4" />
                                 Website
@@ -146,7 +155,7 @@ export default function CreatorBadgeInline({
                                 href={github}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-2 rounded-xl border border-border/50 bg-muted/50 px-3 py-2 text-sm font-medium backdrop-blur-sm transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
+                                className="inline-flex items-center gap-2 rounded-lg border border-card-foreground/20 px-3 py-2 text-sm font-medium transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
                             >
                                 <Github className="h-4 w-4" />
                                 GitHub
