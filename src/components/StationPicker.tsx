@@ -71,7 +71,7 @@ export function StationPicker({
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                        'max-w-full justify-between border border-border/90 bg-background/50 text-card-foreground backdrop-blur-none transition-all duration-300 hover:border-primary/40 hover:bg-background hover:text-accent-foreground',
+                        'max-w-full justify-between border border-border/90 bg-background/30 text-card-foreground backdrop-blur-none transition-all duration-300 hover:border-primary/40 hover:bg-background hover:text-accent-foreground',
                         className
                     )}
                 >
