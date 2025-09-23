@@ -5,8 +5,9 @@ import type {
     Station,
 } from './types/departures';
 // src/main.tsx
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom/client';
+// import { AnimatedBackground } from './components/AnimatedBackground';
 import { DeparturesTable } from './components/DeparturesTable';
 import { Footer } from './components/Footer';
 import { Header } from './components/Header';
@@ -19,29 +20,32 @@ import { convertServiceTimeToClockTime } from './lib/time-utils.js';
 import { Loader2 } from 'lucide-react';
 
 function App() {
-    const [status, setStatus] = useState('Requesting location');
 
     const [departures, setDepartures] = useState<Departure[][]>([]);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasInitialized, setHasInitialized] = useState(false);
     const [selectedStation, setSelectedStation] = useState<
         Station | undefined
     >();
     const [userLocation, setUserLocation] = useState<
         { lat: number; lon: number } | undefined
     >();
-    const [isTransitioning, setIsTransitioning] = useState(false);
-    const [departuresKey, setDeparturesKey] = useState(0);
-    const [isRefreshing, startRefreshTransition] = useTransition();
+    const [animationKey, setAnimationKey] = useState(0);
 
     const { error, clearError, hasError } = useErrorHandler();
     const { fetchDepartures, fetchStationDepartures } = useApiRequest();
 
     const handleFetchDepartures = useCallback(
         async (latitude: number, longitude: number, isRefresh = false) => {
+            // Prevent multiple initial loads
+            if (!isRefresh && hasInitialized) {
+                return;
+            }
+
             try {
                 if (!isRefresh) {
-                    setLoading(true);
+                    setIsLoading(true);
                 }
                 clearError();
                 setUserLocation({ lat: latitude, lon: longitude });
@@ -54,41 +58,39 @@ function App() {
                 setSelectedStation(data.closestStation);
                 setDepartures(data.departures);
                 if (isRefresh) {
-                    setDeparturesKey((prev) => prev + 1);
+                    setAnimationKey((prev) => prev + 1);
                 }
                 setLastUpdated(new Date());
-                setStatus('');
+
+                if (!hasInitialized) {
+                    setHasInitialized(true);
+                }
             } catch (error) {
-                setStatus('Failed to load departures.');
                 console.error(error);
             } finally {
                 if (!isRefresh) {
-                    setLoading(false);
+                    setIsLoading(false);
                 }
             }
         },
-        [fetchDepartures, clearError]
+        [fetchDepartures, clearError, hasInitialized]
     );
 
     const handleFetchDeparturesForStation = useCallback(
         async (station: Station) => {
             try {
-                setIsTransitioning(true);
+                setIsLoading(true);
                 clearError();
-                setStatus('Loading departures for selected station...');
 
                 const data = await fetchStationDepartures(station.stop_id);
 
                 setSelectedStation(station);
                 setDepartures(data.departures);
-                setDeparturesKey((prev) => prev + 1);
                 setLastUpdated(new Date());
-                setStatus('');
             } catch (error) {
-                setStatus('Failed to load departures.');
                 console.error(error);
             } finally {
-                setIsTransitioning(false);
+                setIsLoading(false);
             }
         },
         [fetchStationDepartures, clearError]
@@ -96,14 +98,22 @@ function App() {
 
     const { getUserLocationAndFetch } = useLocationManager({
         onLocationSuccess: handleFetchDepartures,
-        onStatusChange: setStatus,
+        onStatusChange: () => {},
     });
 
-    const handleRefresh = useCallback(() => {
-        startRefreshTransition(() => {
-            getUserLocationAndFetch(true);
-        });
-    }, [getUserLocationAndFetch, startRefreshTransition]);
+    const handleRefresh = useCallback(async () => {
+        const startTime = Date.now();
+        await getUserLocationAndFetch(true);
+
+        // Ensure minimum 800ms for animation to be visible
+        const elapsed = Date.now() - startTime;
+        const minDuration = 800;
+        if (elapsed < minDuration) {
+            await new Promise((resolve) =>
+                setTimeout(resolve, minDuration - elapsed)
+            );
+        }
+    }, [getUserLocationAndFetch]);
 
     const processedDepartures = useMemo((): ProcessedDeparture[][] => {
         return departures.map((group) =>
@@ -115,31 +125,33 @@ function App() {
     }, [departures]);
 
     return (
-        <main className="relative flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none px-4 font-display text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-none">
-            {/* Animated background elements */}
-            <div className="pointer-events-none fixed inset-0 overflow-hidden">
-                <div className="absolute top-1/4 left-1/4 h-96 w-96 scale-200 animate-[pulse_10s_ease-in-out_infinite] rounded-full bg-gradient-to-r from-foreground/10 via-transparent to-accent/10 blur-3xl"></div>
-                <div className="absolute right-1/4 bottom-1/4 h-80 w-80 scale-200 animate-[pulse_10s_ease-in-out_infinite] rounded-full bg-gradient-to-l from-accent/5 to-primary/5 blur-3xl delay-200"></div>
-                <div className="absolute top-1/2 left-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 scale-[400%] transform animate-[pulse_10s_ease-in-out_infinite] rounded-full bg-gradient-to-br from-muted/10 to-primary/10 blur-2xl delay-500"></div>
-            </div>
+        <main className="relative flex h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none font-display text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-none">
+            {/* <AnimatedBackground /> */}
 
-            <div className="relative z-10 my-6 w-full max-w-xl animate-in px-4 duration-500 blur-in-20 sm:my-8">
+            <div className="relative z-10 flex h-full w-full max-w-xl animate-in flex-col px-0 duration-500 blur-in-0 sm:my-8 sm:h-auto">
                 {/* Unified container with all components */}
-                <div className="relative overflow-hidden rounded-lg border-2 border-border/70 bg-card/80 shadow-2xl shadow-primary/5 backdrop-blur-xl backdrop-saturate-150">
-                    {/* Glass effect overlay */}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-background/5 via-transparent to-muted/20"></div>
+                <div
+                    className="relative flex h-full flex-col overflow-hidden border-2 border-border bg-card shadow-2xl ring-2 ring-border/40 backdrop-blur-3xl backdrop-saturate-150 sm:rounded-2xl"
+                    style={{
+                        boxShadow:
+                            'var(--glass-shadow, 0 12px 40px rgba(0,0,0,0.15))',
+                    }}
+                >
+                    {/* Frosted glass surface */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-foreground/5 via-foreground/5 to-foreground/5"></div>
 
-                    {/* Refresh indicator overlay */}
-                    {isRefreshing && (
-                        <div className="absolute top-2 right-2 z-20 rounded-md bg-blue-500/90 px-3 py-1 text-xs font-medium text-white shadow-lg backdrop-blur-sm">
-                            🔄 Refreshing...
-                        </div>
-                    )}
+                    {/* Inner glass reflection */}
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent"></div>
+                    <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-foreground/5 to-transparent"></div>
+
+                    {/* Liquid glass morphing highlight */}
+                    <div className="pointer-events-none absolute -top-2 -right-2 h-32 w-32 animate-[morph_8s_ease-in-out_infinite] rounded-full bg-gradient-to-br from-blue-400/20 to-purple-400/10 blur-2xl"></div>
 
                     <Header
                         selectedStation={selectedStation}
                         onStationSelect={handleFetchDeparturesForStation}
                         userLocation={userLocation}
+                        isLoading={isLoading}
                     />
                     {hasError && (
                         <div className="relative border-l-4 border-red-500 bg-red-50 p-4 text-center text-blue-400 dark:bg-red-900/20">
@@ -156,27 +168,29 @@ function App() {
                         </div>
                     )}
 
-                    {loading || isTransitioning ? (
-                        <div className="relative min-h-96 animate-pulse p-8 text-center">
-                            <div className="my-auto flex h-full flex-col items-center justify-center text-sm text-muted-foreground">
-                                {status ? (
-                                    <>
-                                        <Loader2 className="h-8 w-8 animate-spin" />
-                                        {/* Loading closest departures */}
-                                    </>
-                                ) : (
-                                    'Loading departures...'
-                                )}
+                    {isLoading ? (
+                        <div className="relative flex min-h-96 items-center justify-center p-8">
+                            <div className="flex flex-col items-center gap-4 text-center">
+                                <div className="relative">
+                                    <Loader2 className="h-10 w-10 animate-spin text-ring" />
+                                    <div className="absolute inset-0 h-10 w-10 rounded-full border-2 border-ring/20"></div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="text-sm font-medium text-foreground">
+                                        {/* {status || 'Loading departures...'} */}
+                                        Loading
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ) : (
                         <>
-                            <DeparturesTable
-                                processedDepartures={processedDepartures}
-                                departuresKey={departuresKey}
-                                isTransitioning={isTransitioning}
-                                isRefreshing={isRefreshing}
-                            />
+                            <div className="flex-1 overflow-y-auto">
+                                <DeparturesTable
+                                    processedDepartures={processedDepartures}
+                                    animationKey={animationKey}
+                                />
+                            </div>
                             <Footer
                                 lastUpdated={lastUpdated}
                                 onRefresh={handleRefresh}

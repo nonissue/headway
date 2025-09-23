@@ -3,30 +3,16 @@ import { ProcessedDeparture } from '../types/departures';
 
 interface DeparturesTableProps {
     processedDepartures: ProcessedDeparture[][];
-    departuresKey: number;
-    isTransitioning: boolean;
-    isRefreshing?: boolean;
+    animationKey?: number;
 }
 
 export const DeparturesTable = ({
     processedDepartures,
-    departuresKey,
-    isTransitioning,
-    isRefreshing = false,
+    animationKey = 0,
 }: DeparturesTableProps) => {
     return (
-        <div
-            key={departuresKey}
-            className={cn(
-                'relative transition-all ease-in-out',
-                isTransitioning
-                    ? 'scale-[1] opacity-0 blur-[10px]'
-                    : isRefreshing
-                      ? 'animate-in duration-700 ease-out slide-in-from-right-8'
-                      : 'scale-100 animate-in duration-500 fade-in-100'
-            )}
-        >
-            <div className="relative space-y-0 divide-y divide-foreground/20 border-y">
+        <div className="relative">
+            <div className="relative space-y-0 divide-y-2 divide-foreground/20 border-y-0 border-foreground/20">
                 {processedDepartures.map((group, idx) =>
                     group.length == 0 ? (
                         // eslint-disable-next-line @eslint-react/no-missing-key
@@ -34,14 +20,14 @@ export const DeparturesTable = ({
                     ) : (
                         <div
                             // eslint-disable-next-line @eslint-react/no-array-index-key
-                            key={`${departuresKey}-${idx}`}
-                            className="relative flex w-full animate-in items-stretch blur-in-0"
+                            key={idx}
+                            className="relative flex w-full items-stretch"
                             style={{
                                 animationDelay: `${idx * 1}ms`,
                             }}
                         >
-                            <div className="relative flex min-h-32 w-10 flex-col items-center justify-center border-r border-b-0 border-solid border-border/100">
-                                <span className="rotate-[-90deg] text-xs font-bold tracking-[0.2em] whitespace-nowrap text-muted-foreground uppercase drop-shadow-xs">
+                            <div className="relative flex min-h-32 w-10 flex-col items-center justify-center border-r-0 border-foreground/20 bg-foreground/0">
+                                <span className="rotate-[-90deg] text-xs font-semibold tracking-[0.2em] whitespace-nowrap text-muted-foreground uppercase">
                                     Platform {idx + 1}
                                 </span>
                             </div>
@@ -58,7 +44,7 @@ export const DeparturesTable = ({
                                 {group.map((dep, i) => (
                                     <div
                                         // eslint-disable-next-line @eslint-react/no-array-index-key
-                                        key={`${departuresKey}-${idx}-${i}`}
+                                        key={`${animationKey}-${idx}-${i}`}
                                         className={cn(
                                             'group grid animate-in grid-cols-3 gap-1 px-4 py-2 text-sm opacity-0 duration-200 direction-reverse fade-in-100 fill-mode-forwards',
                                             'hover:cursor-pointer hover:bg-accent/20 hover:text-accent-foreground'

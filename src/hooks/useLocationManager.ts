@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { TEST_COORDS } from '@/config.js';
 
 interface UseLocationManagerProps {
@@ -14,6 +14,7 @@ export const useLocationManager = ({
     onLocationSuccess,
     onStatusChange,
 }: UseLocationManagerProps) => {
+    const hasInitializedRef = useRef(false);
     const checkLocationPermission = useCallback(async () => {
         if (!navigator.permissions) {
             return null;
@@ -46,9 +47,6 @@ export const useLocationManager = ({
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
-                    console.warn(
-                        'useLocationManager: using user location (position.coords)'
-                    );
                     onLocationSuccess(latitude, longitude, isRefresh);
                 },
                 (error) => {
@@ -71,7 +69,15 @@ export const useLocationManager = ({
 
     useEffect(() => {
         const initializeLocation = async () => {
+            // Prevent multiple initializations
+            if (hasInitializedRef.current) {
+                console.log('initializeLocation: already initialized, skipping');
+                return;
+            }
+
             const permissionState = await checkLocationPermission();
+
+            console.error('initializeLocation called');
 
             if (permissionState === 'granted') {
                 onStatusChange('Location access granted');
@@ -84,6 +90,8 @@ export const useLocationManager = ({
             } else {
                 getUserLocationAndFetch();
             }
+
+            hasInitializedRef.current = true;
         };
 
         initializeLocation();

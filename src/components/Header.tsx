@@ -6,15 +6,17 @@ interface HeaderProps {
     selectedStation: Station | undefined;
     onStationSelect: (station: Station) => void;
     userLocation: LocationCoordinates | undefined;
+    isLoading?: boolean;
 }
 
 export function Header({
     selectedStation,
     onStationSelect,
     userLocation,
+    isLoading = false,
 }: HeaderProps) {
     return (
-        <div className="relative flex items-center gap-3 border-b border-border/30 bg-gradient-to-r from-background/50 to-background/10 p-4">
+        <div className="relative flex items-center gap-3 border-b border-border/30 p-4">
             <div className="min-w-0 flex-1 overflow-hidden">
                 {selectedStation ? (
                     <StationPicker
@@ -29,7 +31,11 @@ export function Header({
                     </div>
                 )}
             </div>
-            <ThemeToggle />
+            {isLoading ? (
+                <div className="h-8 w-8 animate-pulse rounded-md bg-muted/40"></div>
+            ) : (
+                <ThemeToggle />
+            )}
         </div>
     );
 }
