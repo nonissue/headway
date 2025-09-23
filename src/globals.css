@@ -266,6 +266,7 @@
     body {
         overscroll-behavior: none;
         -webkit-overflow-scrolling: touch;
+        overflow: hidden;
     }
 
     body {
@@ -280,4 +281,10 @@
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
     }
+
+    /* Prevent any unwanted scrolling on mobile */
+    /* #root {
+        overflow: hidden;
+        height: 100dvh;
+    } */
 }

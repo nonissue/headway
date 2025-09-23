@@ -124,7 +124,7 @@ function App() {
     }, [departures]);
 
     return (
-        <main className="relative flex h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none font-display text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-none">
+        <main className="relative flex h-dvh w-full flex-col items-center justify-start overflow-hidden overscroll-none font-display text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-none">
             {/* <AnimatedBackground /> */}
 
             <div className="relative z-10 flex h-full w-full max-w-xl flex-col px-0 sm:my-8 sm:h-auto">
