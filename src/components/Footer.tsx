@@ -42,7 +42,7 @@ export function Footer({ lastUpdated, onRefresh }: FooterProps) {
                 className="flex items-center gap-2 rounded-lg border border-border bg-primary/20 px-3 py-2 text-xs font-bold tracking-wider text-primary uppercase transition-all duration-300 hover:cursor-pointer hover:bg-primary/40"
             >
                 <RefreshCw className="h-3.5 w-3.5 text-primary/50 transition-transform duration-300 hover:rotate-180" />
-                <span className="font-[500] hidden sm:inline">Refresh</span>
+                <span className="hidden font-[500] sm:inline">Refresh</span>
             </button>
         </div>
     );

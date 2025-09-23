@@ -49,7 +49,7 @@ export function ThemeProvider({
         const themeColorMetas = document.querySelectorAll(
             'meta[name="theme-color"]'
         );
-        const themeColor = actualTheme === 'dark' ? '#242424' : '#ffffff';
+        const themeColor = actualTheme === 'dark' ? '#1f1f23' : '#ffffff';
         themeColorMetas.forEach((meta) => {
             meta.setAttribute('content', themeColor);
         });

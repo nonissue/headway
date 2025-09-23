@@ -127,10 +127,10 @@ function App() {
         <main className="relative flex h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none font-display text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-none">
             {/* <AnimatedBackground /> */}
 
-            <div className="relative z-10 flex h-full w-full max-w-xl animate-in flex-col px-0 duration-500 blur-in-0 sm:my-8 sm:h-auto">
+            <div className="relative z-10 flex h-full w-full max-w-xl flex-col px-0 sm:my-8 sm:h-auto">
                 {/* Unified container with all components */}
                 <div
-                    className="relative flex h-full flex-col overflow-hidden border-2 border-border bg-card shadow-2xl ring-2 ring-border/40 backdrop-blur-3xl backdrop-saturate-150 sm:rounded-2xl"
+                    className="relative flex h-full flex-col overflow-hidden border-0 border-border bg-card shadow-2xl ring-2 ring-border/40 backdrop-blur-3xl backdrop-saturate-150 sm:rounded-2xl sm:border-2"
                     style={{
                         boxShadow:
                             'var(--glass-shadow, 0 12px 40px rgba(0,0,0,0.15))',

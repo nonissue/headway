@@ -27,15 +27,15 @@ export const DeparturesTable = ({
                                 animationDelay: `${idx * 1}ms`,
                             }}
                         >
-                            <div className="relative flex min-h-32 w-10 flex-col items-center justify-center border-r-0 border-foreground/20 bg-foreground/0">
-                                <span className="rotate-[-90deg] text-xs font-semibold tracking-[0.2em] whitespace-nowrap text-muted-foreground uppercase">
+                            <div className="relative flex min-h-24 w-7 flex-col items-center justify-center bg-transparent sm:w-8">
+                                <span className="rotate-[-90deg] font-display text-xs font-semibold tracking-[0.2em] whitespace-nowrap text-muted-foreground uppercase">
                                     Platform {idx + 1}
                                 </span>
                             </div>
 
-                            <div className="flex flex-1 flex-col divide-y divide-dotted divide-foreground/20">
-                                <div className="grid grid-cols-3 gap-2 bg-transparent px-4 py-2 text-xs font-bold tracking-wider text-foreground uppercase">
-                                    <span className="font-[500] text-muted-foreground">
+                            <div className="flex flex-1 flex-col divide-y divide-foreground/20">
+                                <div className="grid grid-cols-3 gap-2 bg-transparent px-4 py-2 font-display text-xs tracking-[0.15em] text-foreground uppercase">
+                                    <span className="text-muted-foreground">
                                         Time
                                     </span>
                                     <span className="col-span-2 font-[500] text-muted-foreground">
