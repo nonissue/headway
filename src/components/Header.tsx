@@ -17,6 +17,10 @@ export function Header({
 }: HeaderProps) {
     return (
         <div className="relative flex items-center gap-3 border-b border-border/30 p-4">
+            {/* <div className="flex h-full items-center justify-center rounded-md border border-foreground/10 bg-foreground/30 px-2 text-foreground shadow-xs">
+                <TrainFrontTunnel className="h-4 w-4" />
+                <span className="hidden sm:block"> Headway</span>
+            </div> */}
             <div className="min-w-0 flex-1 overflow-hidden">
                 {selectedStation ? (
                     <StationPicker

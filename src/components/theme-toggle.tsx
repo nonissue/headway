@@ -43,10 +43,10 @@ export function ThemeToggle() {
 
     return (
         <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            className="border-border bg-background hover:bg-accent hover:text-accent-foreground"
+            className="border border-foreground/20 bg-background/50 hover:bg-accent hover:text-accent-foreground"
         >
             {getIcon()}
             <span className="sr-only">Toggle theme</span>

@@ -53,7 +53,7 @@ export default function CreatorBadgeInline({
                     aria-hidden={!open}
                     onClick={() => setOpen(false)}
                     className={cn(
-                        'fixed inset-0 z-40 bg-foreground backdrop-blur-[0px] transition-opacity duration-200',
+                        'fixed inset-0 z-40 bg-foreground transition-opacity duration-200',
                         open
                             ? 'pointer-events-auto opacity-100'
                             : 'pointer-events-none opacity-0'
@@ -71,7 +71,7 @@ export default function CreatorBadgeInline({
                         onClick={() => setOpen(false)}
                         className={cn(
                             'fixed inset-0 z-50', // below the badge (z-50 on container), above app
-                            'bg-background/50 backdrop-blur-xl',
+                            'bg-background/60 backdrop-blur-2xl',
                             'transition-opacity duration-500',
                             'pointer-events-auto opacity-100'
                         )}
@@ -81,14 +81,14 @@ export default function CreatorBadgeInline({
                     <button
                         type="button"
                         className={cn(
-                            'relative flex items-center gap-x-3 border-r border-border/30 bg-gradient-to-r from-muted/50 to-primary/10 px-6 py-4',
-                            'tracking-wide text-foreground uppercase backdrop-blur-sm transition-all duration-300 hover:bg-muted-foreground/20 hover:from-accent/30 hover:to-accent/20 hover:text-accent-foreground',
+                            'relative flex items-center gap-x-3 border-r border-border/30 px-6 py-4',
+                            'tracking-wide text-foreground uppercase transition-all duration-300',
                             className
                         )}
                         aria-label="Show creator info"
                     >
                         <Info className="h-4 w-4 text-primary transition-colors duration-300" />
-                        <span className="hidden font-mono text-xs font-medium text-foreground sm:inline">
+                        <span className="hidden font-mono text-xs font-medium text-foreground">
                             {triggerLabel}
                         </span>
                     </button>

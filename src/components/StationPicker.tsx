@@ -71,7 +71,7 @@ export function StationPicker({
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                        'max-w-full justify-between border border-border/90 bg-background/30 text-card-foreground backdrop-blur-none transition-all duration-300 hover:border-primary/40 hover:bg-background hover:text-accent-foreground',
+                        'max-w-full justify-between border border-border bg-background/50 text-card-foreground transition-all duration-1000 hover:border-primary/40 hover:bg-background hover:text-accent-foreground',
                         className
                     )}
                 >
@@ -81,18 +81,18 @@ export function StationPicker({
                             {selectedStation?.stop_name || 'Select station...'}
                         </span>
                     </div>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-muted-foreground opacity-50" />
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent
-                className="w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] border-border/50 bg-popover/90 p-0 shadow-xl backdrop-blur-xl backdrop-saturate-150"
+                className="w-[var(--radix-popover-trigger-width)] max-w-[calc(100vw-2rem)] border-border/50 bg-popover/50 p-0 shadow-xl backdrop-blur-xl"
                 align="center"
                 sideOffset={4}
             >
                 <Command className="bg-transparent" shouldFilter={true}>
                     <CommandInput
                         placeholder="Search stations..."
-                        className="h-10 border-none bg-transparent text-base text-popover-foreground placeholder-muted-foreground [&>svg]:text-muted-foreground"
+                        className="h-10 border-none bg-transparent font-mono text-sm text-popover-foreground placeholder-muted-foreground [&>svg]:text-muted-foreground"
                         autoFocus={false}
                         tabIndex={-1}
                     />
@@ -115,7 +115,7 @@ export function StationPicker({
                                                 onStationSelect(station);
                                                 setOpen(false);
                                             }}
-                                            className="flex min-w-0 items-center justify-between font-mono text-sm tracking-wide text-popover-foreground uppercase backdrop-blur-sm transition-all duration-200 hover:bg-accent/20 hover:text-accent-foreground data-[selected=true]:bg-accent/30 data-[selected=true]:text-accent-foreground"
+                                            className="flex min-w-0 items-center justify-between font-mono text-sm tracking-wide text-popover-foreground uppercase transition-all duration-200 hover:bg-accent/20 hover:text-accent-foreground data-[selected=true]:bg-accent/30 data-[selected=true]:text-accent-foreground"
                                         >
                                             <span className="min-w-0 flex-1 truncate">
                                                 {station.stop_name}
