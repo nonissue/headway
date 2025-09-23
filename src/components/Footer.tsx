@@ -10,7 +10,7 @@ export function Footer({ lastUpdated, onRefresh }: FooterProps) {
     if (!lastUpdated) return null;
 
     return (
-        <div className="relative z-10 flex items-center justify-between border-t border-border/30 p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+        <div className="relative z-10 flex items-center justify-between border-t border-border/30 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:p-4 sm:pb-4">
             <div className="relative">
                 <CreatorBadgeInline
                     name="Andy Williams"
@@ -20,7 +20,7 @@ export function Footer({ lastUpdated, onRefresh }: FooterProps) {
                     note="Built with GTFS data; times are estimates and may change."
                     startYear={2025}
                     triggerLabel="About"
-                    className="rounded-lg border-0 bg-muted/50 px-3 py-2 backdrop-blur-sm"
+                    className="rounded-lg border border-border bg-secondary/80 px-3 py-2 text-secondary-foreground backdrop-blur-sm hover:cursor-pointer hover:bg-primary/20"
                 />
             </div>
 
@@ -39,10 +39,10 @@ export function Footer({ lastUpdated, onRefresh }: FooterProps) {
             <button
                 onClick={onRefresh}
                 type="button"
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-muted/50 to-accent/20 px-3 py-2 text-xs font-bold tracking-wider text-foreground uppercase backdrop-blur-sm transition-all duration-300 hover:from-accent/30 hover:to-accent/40"
+                className="flex items-center gap-2 rounded-lg border border-border bg-primary/20 px-3 py-2 text-xs font-bold tracking-wider text-primary uppercase transition-all duration-300 hover:cursor-pointer hover:bg-primary/40"
             >
-                <RefreshCw className="h-3.5 w-3.5 text-accent-foreground transition-transform duration-300 hover:rotate-180" />
-                <span className="font-[500]">Refresh</span>
+                <RefreshCw className="h-3.5 w-3.5 text-primary/50 transition-transform duration-300 hover:rotate-180" />
+                <span className="font-[500] hidden sm:inline">Refresh</span>
             </button>
         </div>
     );
