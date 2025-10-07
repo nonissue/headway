@@ -52,9 +52,9 @@ export const useLocationManager = ({
                 (error) => {
                     console.warn('Geolocation error:', error.message);
                     onStatusChange('Unable to retrieve your location.');
-                    console.warn(
-                        'useLocationManager: using TEST_COORDS (navigator.geolocation failed)'
-                    );
+                    // console.warn(
+                    //     'useLocationManager: using TEST_COORDS (navigator.geolocation failed)'
+                    // );
                     onLocationSuccess(
                         TEST_COORDS.lat,
                         TEST_COORDS.lon,
@@ -70,14 +70,14 @@ export const useLocationManager = ({
     useEffect(() => {
         const initializeLocation = async () => {
             // Prevent multiple initializations
-            if (hasInitializedRef.current) {
-                console.log('initializeLocation: already initialized, skipping');
-                return;
-            }
+            // if (hasInitializedRef.current) {
+            //     console.log('initializeLocation: already initialized, skipping');
+            //     return;
+            // }
 
             const permissionState = await checkLocationPermission();
 
-            console.error('initializeLocation called');
+            // console.error('initializeLocation called');
 
             if (permissionState === 'granted') {
                 onStatusChange('Location access granted');
@@ -98,13 +98,13 @@ export const useLocationManager = ({
 
         const handleVisibilityChange = () => {
             if (!document.hidden) {
-                console.log('App became visible - refreshing location');
+                // console.log('App became visible - refreshing location');
                 initializeLocation();
             }
         };
 
         const handleFocus = () => {
-            console.log('App focused - refreshing location');
+            // console.log('App focused - refreshing location');
             initializeLocation();
         };
 
