@@ -6,6 +6,8 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
+@source "src/**/*.{ts,tsx,js,jsx}";
+
 @custom-variant dark (&:is(.dark *));
 
 /* iOS Safe Area Support */
