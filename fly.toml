@@ -28,10 +28,9 @@ primary_region = 'sea'
   cpu_kind = 'shared'
   cpus = 1
 
-[checks]
-  [checks.alive]
-    grace_period = "10s"
-    interval = "30s"
-    method = "GET"
-    timeout = "5s"
-    path = "/api/health"
+[[http_service.checks]]
+  interval = "30s"
+  timeout = "5s"
+  grace_period = "10s"
+  method = "GET"
+  path = "/api/health"
