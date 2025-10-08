@@ -71,17 +71,17 @@ export function StationPicker({
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                        'max-w-full justify-between border border-border bg-background/50 text-card-foreground transition-all duration-1000 hover:border-primary/40 hover:bg-background hover:text-accent-foreground',
+                        'max-w-full justify-between border border-border/50 bg-gradient-to-r from-foreground/[8%] to-foreground/[4%] text-card-foreground shadow-sm transition-all duration-300 hover:border-primary/40 hover:from-foreground/[10%] hover:to-foreground/[6%] hover:text-accent-foreground',
                         className
                     )}
                 >
                     <div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
-                        <MapPin className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                        <MapPin className="h-4 w-4 flex-shrink-0 text-primary" />
                         <span className="min-w-0 truncate font-mono text-sm tracking-wider uppercase">
                             {selectedStation?.stop_name || 'Select station...'}
                         </span>
                     </div>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-primary" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent
@@ -116,10 +116,11 @@ export function StationPicker({
                                                 setOpen(false);
                                             }}
                                             className={cn(
-                                                "flex min-w-0 items-center justify-between font-mono text-sm tracking-wide text-popover-foreground uppercase transition-all duration-200",
-                                                selectedStation?.stop_id === station.stop_id
-                                                    ? "bg-primary/20 hover:bg-primary/30"
-                                                    : "hover:bg-accent/20 hover:text-accent-foreground"
+                                                'flex min-w-0 items-center justify-between font-mono text-sm tracking-wide text-popover-foreground uppercase transition-all duration-200',
+                                                selectedStation?.stop_id ===
+                                                    station.stop_id
+                                                    ? 'bg-primary/20 hover:bg-primary/30'
+                                                    : 'hover:bg-accent/20 hover:text-accent-foreground'
                                             )}
                                         >
                                             <span className="min-w-0 flex-1 truncate">
