@@ -20,7 +20,7 @@ export function Footer({ lastUpdated, onRefresh }: FooterProps) {
                     note="Built with GTFS data; times are estimates and may change. "
                     startYear={2025}
                     triggerLabel="About"
-                    className="cursor-pointer rounded-lg border border-border bg-background px-3 py-2 text-secondary-foreground hover:ring-2 hover:ring-foreground"
+                    className="cursor-pointer rounded-lg border border-border bg-background px-3 py-2 text-secondary-foreground hover:ring-2 hover:ring-transit-blue"
                 />
             </div>
 
@@ -39,7 +39,7 @@ export function Footer({ lastUpdated, onRefresh }: FooterProps) {
             <button
                 onClick={onRefresh}
                 type="button"
-                className="group flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs font-bold tracking-wider text-primary uppercase transition-all duration-300 hover:cursor-pointer hover:ring-2 hover:ring-foreground"
+                className="group flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs font-bold tracking-wider text-primary uppercase transition-all duration-300 hover:cursor-pointer hover:ring-2 hover:ring-transit-blue"
             >
                 <RefreshCw className="h-3.5 w-3.5 text-primary transition-transform duration-300 group-hover:rotate-180" />
                 <span className="hidden font-[500]">Refresh</span>
