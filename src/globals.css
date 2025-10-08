@@ -133,15 +133,15 @@
     --transit-green: oklch(0.6 0.18 145); /* Valley Line */
     --transit-green-foreground: oklch(0.98 0 0);
 
-    /* Headsign colors - distinct colors for each destination */
-    --headsign-1: oklch(0.5 0.12 250); /* Blue */
-    --headsign-2: oklch(0.55 0.14 25); /* Red */
-    --headsign-3: oklch(0.5 0.12 145); /* Green */
-    --headsign-4: oklch(0.5 0.12 300); /* Purple */
-    --headsign-5: oklch(0.55 0.13 45); /* Orange */
-    --headsign-6: oklch(0.5 0.12 180); /* Cyan */
-    --headsign-7: oklch(0.55 0.11 85); /* Yellow */
-    --headsign-8: oklch(0.5 0.12 330); /* Pink */
+    /* Headsign colors - maximally distinct colors */
+    --headsign-1: oklch(0.45 0.25 265); /* Indigo/Blue */
+    --headsign-2: oklch(0.5 0.26 40); /* Orange */
+    --headsign-3: oklch(0.5 0.22 165); /* Teal/Cyan */
+    --headsign-4: oklch(0.45 0.25 330); /* Magenta/Pink */
+    --headsign-5: oklch(0.48 0.2 130); /* Green */
+    --headsign-6: oklch(0.45 0.26 25); /* Red */
+    --headsign-7: oklch(0.5 0.24 280); /* Purple */
+    --headsign-8: oklch(0.52 0.18 90); /* Yellow-Green */
 
     /* Borders & Inputs */
     --border: oklch(0.92 0.004 286.32);
