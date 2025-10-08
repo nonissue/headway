@@ -175,7 +175,7 @@ function App() {
                             <div className="flex flex-col items-center gap-4 text-center">
                                 <div className="relative">
                                     <Loader2 className="h-10 w-10 animate-spin text-ring" />
-                                    <div className="absolute inset-0 h-10 w-10 rounded-full border-2 border-ring/20"></div>
+                                    <div className="absolute inset-0 h-10 w-10 rounded-full"></div>
                                 </div>
                                 <div className="space-y-1">
                                     <div className="text-sm font-medium text-foreground">
