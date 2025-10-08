@@ -49,6 +49,8 @@
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
+
+    /* Map Tailwind utility classes to CSS variables */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-card: var(--card);
@@ -64,51 +66,96 @@
     --color-accent: var(--accent);
     --color-accent-foreground: var(--accent-foreground);
     --color-destructive: var(--destructive);
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-info: var(--info);
+    --color-info-foreground: var(--info-foreground);
+    --color-transit-blue: var(--transit-blue);
+    --color-transit-blue-foreground: var(--transit-blue-foreground);
+    --color-transit-red: var(--transit-red);
+    --color-transit-red-foreground: var(--transit-red-foreground);
+    --color-transit-green: var(--transit-green);
+    --color-transit-green-foreground: var(--transit-green-foreground);
+    --color-headsign-1: var(--headsign-1);
+    --color-headsign-2: var(--headsign-2);
+    --color-headsign-3: var(--headsign-3);
+    --color-headsign-4: var(--headsign-4);
+    --color-headsign-5: var(--headsign-5);
+    --color-headsign-6: var(--headsign-6);
+    --color-headsign-7: var(--headsign-7);
+    --color-headsign-8: var(--headsign-8);
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
-    --color-chart-1: var(--chart-1);
-    --color-chart-2: var(--chart-2);
-    --color-chart-3: var(--chart-3);
-    --color-chart-4: var(--chart-4);
-    --color-chart-5: var(--chart-5);
-    --color-sidebar: var(--sidebar);
-    --color-sidebar-foreground: var(--sidebar-foreground);
-    --color-sidebar-primary: var(--sidebar-primary);
-    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-    --color-sidebar-accent: var(--sidebar-accent);
-    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-    --color-sidebar-border: var(--sidebar-border);
-    --color-sidebar-ring: var(--sidebar-ring);
 }
 
 /*
 ---break--- */
 :root {
     --radius: 0.625rem;
+
+    /* Base colors */
     --background: oklch(1 0 0);
     --foreground: oklch(0.141 0.005 285.823);
     --card: oklch(1 0 0);
     --card-foreground: oklch(0.141 0.005 285.823);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.141 0.005 285.823);
+
+    /* Primary colors */
     --primary: oklch(0.21 0.006 285.885);
     --primary-foreground: oklch(0.985 0 0);
     --secondary: oklch(0.967 0.001 286.375);
     --secondary-foreground: oklch(0.21 0.006 285.885);
+
+    /* Muted & Accent */
     --muted: oklch(0.967 0.001 286.375);
     --muted-foreground: oklch(0.552 0.016 285.938);
     --accent: oklch(0.967 0.001 286.375);
     --accent-foreground: oklch(0.21 0.006 285.885);
+
+    /* Semantic colors */
     --destructive: oklch(0.577 0.245 27.325);
+    --success: oklch(0.65 0.18 145);
+    --success-foreground: oklch(0.98 0 0);
+    --warning: oklch(0.75 0.15 85);
+    --warning-foreground: oklch(0.2 0 0);
+    --info: oklch(0.6 0.2 250);
+    --info-foreground: oklch(0.98 0 0);
+
+    /* Transit route colors - Edmonton LRT */
+    --transit-blue: oklch(0.5 0.2 250); /* Capital Line */
+    --transit-blue-foreground: oklch(0.98 0 0);
+    --transit-red: oklch(0.6 0.25 25); /* Metro Line */
+    --transit-red-foreground: oklch(0.98 0 0);
+    --transit-green: oklch(0.6 0.18 145); /* Valley Line */
+    --transit-green-foreground: oklch(0.98 0 0);
+
+    /* Headsign colors - distinct colors for each destination */
+    --headsign-1: oklch(0.5 0.12 250); /* Blue */
+    --headsign-2: oklch(0.55 0.14 25); /* Red */
+    --headsign-3: oklch(0.5 0.12 145); /* Green */
+    --headsign-4: oklch(0.5 0.12 300); /* Purple */
+    --headsign-5: oklch(0.55 0.13 45); /* Orange */
+    --headsign-6: oklch(0.5 0.12 180); /* Cyan */
+    --headsign-7: oklch(0.55 0.11 85); /* Yellow */
+    --headsign-8: oklch(0.5 0.12 330); /* Pink */
+
+    /* Borders & Inputs */
     --border: oklch(0.92 0.004 286.32);
     --input: oklch(0.92 0.004 286.32);
     --ring: oklch(0.705 0.015 286.067);
+
+    /* Charts */
     --chart-1: oklch(0.646 0.222 41.116);
     --chart-2: oklch(0.6 0.118 184.704);
     --chart-3: oklch(0.398 0.07 227.392);
     --chart-4: oklch(0.828 0.189 84.429);
     --chart-5: oklch(0.769 0.188 70.08);
+
+    /* Sidebar */
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.141 0.005 285.823);
     --sidebar-primary: oklch(0.21 0.006 285.885);
@@ -117,35 +164,74 @@
     --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
     --sidebar-border: oklch(0.92 0.004 286.32);
     --sidebar-ring: oklch(0.705 0.015 286.067);
+
+    /* Custom */
     --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 /*
 ---break--- */
 .dark {
+    /* Base colors */
     --background: oklch(0.18 0.005 285.823);
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.16 0.006 285.885);
     --card-foreground: oklch(0.985 0 0);
     --popover: oklch(0.21 0.006 285.885);
     --popover-foreground: oklch(0.985 0 0);
+
+    /* Primary colors */
     --primary: oklch(0.92 0.004 286.32);
     --primary-foreground: oklch(0.21 0.006 285.885);
     --secondary: oklch(0.274 0.006 286.033);
     --secondary-foreground: oklch(0.985 0 0);
+
+    /* Muted & Accent */
     --muted: oklch(0.274 0.006 286.033);
     --muted-foreground: oklch(0.705 0.015 286.067);
     --accent: oklch(0.274 0.006 286.033);
     --accent-foreground: oklch(0.985 0 0);
+
+    /* Semantic colors */
     --destructive: oklch(0.704 0.191 22.216);
+    --success: oklch(0.55 0.2 150);
+    --success-foreground: oklch(0.98 0 0);
+    --warning: oklch(0.7 0.18 90);
+    --warning-foreground: oklch(0.98 0 0);
+    --info: oklch(0.55 0.22 255);
+    --info-foreground: oklch(0.98 0 0);
+
+    /* Transit route colors - Edmonton LRT */
+    --transit-blue: oklch(0.55 0.22 255); /* Capital Line */
+    --transit-blue-foreground: oklch(0.98 0 0);
+    --transit-red: oklch(0.65 0.27 30); /* Metro Line */
+    --transit-red-foreground: oklch(0.98 0 0);
+    --transit-green: oklch(0.65 0.2 150); /* Valley Line */
+    --transit-green-foreground: oklch(0.98 0 0);
+
+    /* Headsign colors - adjusted for dark mode */
+    --headsign-1: oklch(0.7 0.13 255); /* Blue */
+    --headsign-2: oklch(0.7 0.14 30); /* Red */
+    --headsign-3: oklch(0.7 0.13 150); /* Green */
+    --headsign-4: oklch(0.7 0.13 305); /* Purple */
+    --headsign-5: oklch(0.7 0.13 50); /* Orange */
+    --headsign-6: oklch(0.7 0.13 185); /* Cyan */
+    --headsign-7: oklch(0.72 0.12 90); /* Yellow */
+    --headsign-8: oklch(0.7 0.13 335); /* Pink */
+
+    /* Borders & Inputs */
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.552 0.016 285.938);
+
+    /* Charts */
     --chart-1: oklch(0.488 0.243 264.376);
     --chart-2: oklch(0.696 0.17 162.48);
     --chart-3: oklch(0.769 0.188 70.08);
     --chart-4: oklch(0.627 0.265 303.9);
     --chart-5: oklch(0.645 0.246 16.439);
+
+    /* Sidebar */
     --sidebar: oklch(0.21 0.006 285.885);
     --sidebar-foreground: oklch(0.985 0 0);
     --sidebar-primary: oklch(0.488 0.243 264.376);
@@ -154,6 +240,8 @@
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.552 0.016 285.938);
+
+    /* Custom */
     --glass-shadow: 0 8px 24px rgba(255, 255, 255, 0.04);
 }
 
@@ -161,7 +249,8 @@
 ---break--- */
 @layer base {
     * {
-        @apply border-border outline-ring/50;
+        border-color: var(--border);
+        outline-color: oklch(from var(--ring) l c h / 50%);
     }
     body {
         @apply bg-background text-foreground;
