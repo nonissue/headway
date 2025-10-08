@@ -6,6 +6,14 @@
 - View the app online at [next-departures](https://next-departures.fly.dev)
 - Relies heavily on `node-gtfs` to parse and import GTFS CSV data into an sqlite database.
 
+## Note to self (as of 25-10-06)
+
+```
+npx gtfs-import --configPath ./import-config.json
+npm run db:slim-filtered
+npm run deploy
+```
+
 ## Warning: GTFS data not updated automatically
 
 **The GTFS Schedule data will have to be manually updated periodically** — once a week should suffice.
