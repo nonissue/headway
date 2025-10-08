@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'; // npx shadcn@latest add popover
-import { Info, Mail, Github, Globe } from 'lucide-react';
+import { Info, Mail, Github, Globe, TramFront } from 'lucide-react';
 import { cn } from '@/components/lib/utils';
 
 type Props = {
@@ -45,12 +45,15 @@ export default function CreatorBadgeInline({
 
     return (
         <>
+            {/* OVERLAY IS SET IN DIALOG OVERLAY! */}
+            {/* no idea what this does */}
             {withBackdrop && (
                 <button
+                    type="button"
                     aria-hidden={!open}
                     onClick={() => setOpen(false)}
                     className={cn(
-                        'fixed inset-0 z-40 bg-zinc-950/60 backdrop-blur-[2px] transition-opacity duration-200',
+                        'fixed inset-0 z-40 bg-foreground transition-opacity duration-200',
                         open
                             ? 'pointer-events-auto opacity-100'
                             : 'pointer-events-none opacity-0'
@@ -59,64 +62,80 @@ export default function CreatorBadgeInline({
             )}
 
             <Dialog open={open} onOpenChange={setOpen}>
-                <button
-                    aria-hidden={!open}
-                    aria-label="Close info"
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                        'fixed inset-0 z-10', // below the badge (z-50 on container), above app
-                        'bg-zinc-950/70 backdrop-blur-[4px]',
-                        'transition-opacity duration-[400ms]',
-                        open
-                            ? 'pointer-events-auto opacity-100'
-                            : 'pointer-events-none opacity-0'
-                    )}
-                />
+                {/* this seems to cover just the departures section? */}
+                {open && (
+                    <button
+                        type="button"
+                        aria-hidden={!open}
+                        aria-label="Close info"
+                        onClick={() => setOpen(false)}
+                        className={cn(
+                            'fixed inset-0 z-50', // below the badge (z-50 on container), above app
+                            'bg-background/30 backdrop-blur-2xl',
+                            'transition-opacity duration-500',
+                            'pointer-events-auto opacity-100'
+                        )}
+                    />
+                )}
                 <DialogTrigger asChild>
-                    {/* Match your Refresh button vibe */}
                     <button
                         type="button"
                         className={cn(
-                            'flex items-center gap-x-3 border-r border-zinc-700 bg-zinc-800 px-4',
-                            'tracking-wide text-orange-300 uppercase transition hover:bg-orange-500 hover:text-black',
+                            'relative flex items-center gap-x-3 border-r border-border/30 px-6 py-4',
+                            'tracking-wide text-foreground uppercase transition-all duration-300',
                             className
                         )}
                         aria-label="Show creator info"
                     >
-                        <Info className="h-3.5 w-3.5 text-sky-300" />
-                        <span className="hidden font-mono text-sky-100 sm:inline">
+                        <Info className="h-4 w-4 text-primary transition-colors duration-300" />
+                        <span className="hidden font-mono text-xs font-medium text-foreground">
                             {triggerLabel}
                         </span>
-                        {/* <span className="text-amber-200">{triggerLabel}</span> */}
                     </button>
                 </DialogTrigger>
 
                 {/* Appears ABOVE the trigger, right-aligned */}
                 <DialogContent
                     className={cn(
-                        'rounded-sm border-zinc-800 bg-zinc-900 text-zinc-300 sm:max-w-[28rem]',
-                        'shadow-[0_0_0_1px_rgba(255,255,255,0.02)_inset,0_16px_40px_rgba(0,0,0,0.6)]'
+                        'fixed overflow-hidden rounded-2xl border border-border/50 bg-card/90 text-card-foreground backdrop-blur-xl backdrop-saturate-150 sm:max-w-[28rem]',
+                        'shadow-xl shadow-background/20'
                     )}
                 >
-                    <div className="mb-1 items-center justify-between">
-                        <div className="flex flex-row items-center gap-x-2">
-                            <div className="font-semibold text-orange-200">
-                                {name}
+                    {/* Glass effect overlay */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/0 via-transparent to-transparent"></div>
+
+                    <div className="relative z-10 mb-4 items-center justify-between">
+                        <div className="flex flex-row items-center gap-x-1">
+                            <div className="mr-2 flex flex-row items-center gap-x-2 font-sans text-lg font-bold text-foreground">
+                                {/* {name} */}
+                                <TramFront className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                Headway
                             </div>
-                            <div className="text-zinc-400">© {years}</div>
+                            <div className="rounded bg-foreground/10 px-1 py-0.5 font-sans text-xs font-[500] text-muted-foreground">
+                                By {name}
+                            </div>
+                            <div className="rounded bg-foreground/10 px-1 py-0.5 font-sans text-xs font-[500] text-muted-foreground">
+                                © {years}
+                            </div>
                         </div>
                         {note && (
-                            <div className="mt-1.5 text-zinc-400">{note}</div>
+                            <div className="my-4 leading-relaxed text-foreground/90">
+                                {note}
+                            </div>
                         )}
+                        <div className="rounded text-xs leading-relaxed text-blue-600 saturate-50 dark:text-blue-300">
+                            Note: On iOS, this website can be added to your
+                            homescreen as a progressive web app (PWA).
+                        </div>
                     </div>
 
-                    <div className="mt-0 flex flex-wrap items-center gap-1.5">
+                    <div className="relative z-10 mt-0 flex flex-wrap items-center justify-around gap-2 font-display font-[600]">
                         {email && (
                             <a
                                 href={`mailto:${email}`}
-                                className="inline-flex items-center gap-1 rounded-xs border border-zinc-800 bg-zinc-900 px-2 py-1 hover:border-zinc-700 hover:bg-zinc-800 hover:text-amber-200"
+                                className="inline-flex items-center gap-2 rounded-lg border border-card-foreground/20 px-3 py-2 text-sm font-medium transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
                             >
-                                <Mail className="h-3.5 w-3.5" />
+                                <Mail className="h-4 w-4" />
                                 Email
                             </a>
                         )}
@@ -125,9 +144,9 @@ export default function CreatorBadgeInline({
                                 href={website}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1 rounded-xs border border-zinc-800 bg-zinc-900 px-2 py-1 hover:border-zinc-700 hover:bg-zinc-800 hover:text-amber-200"
+                                className="inline-flex items-center gap-2 rounded-lg border border-card-foreground/20 px-3 py-2 text-sm font-medium transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
                             >
-                                <Globe className="h-3.5 w-3.5" />
+                                <Globe className="h-4 w-4" />
                                 Website
                             </a>
                         )}
@@ -136,9 +155,9 @@ export default function CreatorBadgeInline({
                                 href={github}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1 rounded-xs border border-zinc-800 bg-zinc-900 px-2 py-1 hover:border-zinc-700 hover:bg-zinc-800 hover:text-amber-200"
+                                className="inline-flex items-center gap-2 rounded-lg border border-card-foreground/20 px-3 py-2 text-sm font-medium transition-all duration-300 hover:border-accent/50 hover:bg-accent/20 hover:text-accent-foreground"
                             >
-                                <Github className="h-3.5 w-3.5" />
+                                <Github className="h-4 w-4" />
                                 GitHub
                             </a>
                         )}

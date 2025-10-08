@@ -23,6 +23,7 @@ export const loadDb = async (config: Config) => {
         console.error(
             `Unable to open sqlite database "${config.sqlitePath}" defined as \`sqlitePath\` config.json. Ensure the parent directory exists and import GTFS before running this app.`
         );
+        console.error(error);
         throw new Error('Error opening database');
     }
 
@@ -39,8 +40,8 @@ export const importGtfsDataToDb = async (config: Config) => {
 
     try {
         db = await loadDb(config);
-    } catch (error: any) {
-        throw new Error(error);
+    } catch (error: unknown) {
+        throw new Error(error instanceof Error ? error.message : String(error));
     }
 
     try {

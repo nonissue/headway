@@ -6,6 +6,7 @@
         "jsx": "react-jsx",
         "moduleResolution": "bundler",
         "strict": true,
+        "noImplicitAny": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
@@ -15,5 +16,5 @@
             "@/*": ["src/*"]
         }
     },
-    "include": ["src"]
+    "include": ["src", "eslint.config.mjs"]
 }

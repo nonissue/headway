@@ -1,11 +1,14 @@
-import { Hono } from 'hono';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import * as Sentry from '@sentry/node';
+import { Hono } from 'hono';
 
-/* 
+import { departures } from './api/departures.js';
+import { stations } from './api/stations.js';
+
+/*
 causes fly error?
 YES, the code below definitely caused a fly error. It deployed caused an error
 
@@ -39,8 +42,6 @@ Sentry.init({
     sendDefaultPii: true,
 });
 
-import { departures } from './api/departures.js';
-
 const app = new Hono();
 
 // Path setup for ESM
@@ -66,6 +67,7 @@ app.use('/api/*', async (c, next) => {
 
 // mount the /api/departures router under /api
 app.route('/api', departures);
+app.route('/api', stations);
 
 // simple health check
 // app.get('/', (c) => c.text('API is running.'));

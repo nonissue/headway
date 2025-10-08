@@ -1,19 +1,50 @@
-import { getStops, getStoptimes, Stop } from 'gtfs';
+import type { Stop } from 'gtfs';
+import type { ClockTime, GeoCoordinate } from '../types/global.js';
+import type { StopQuery } from '../types/gtfs.js';
+import { getStops, getStoptimes } from 'gtfs';
 import {
-    getServiceDate,
-    getGtfsServiceTime,
-    convertServiceTimeToClockTime,
-} from '../lib/time-utils.js';
-import { ClockTime, GeoCoordinate } from '../types/global.js';
-import {
-    DEFAULT_TIMEZONE,
-    SERVICE_DAY_START_HOUR,
-    STATION_SEARCH_BOUNDING_BOX_AREA,
     DEFAULT_LOOK_AHEAD_IN_MINS,
     DEFAULT_STOP_COUNT_LIMIT,
-    TEST_COORDS,
-    TEST_COORDS_SUPER_FAR,
+    DEFAULT_TIMEZONE,
+    SERVICE_DAY_START_HOUR,
 } from '../config.js';
+import {
+    convertServiceTimeToClockTime,
+    getGtfsServiceTime,
+    getServiceDate,
+} from '../lib/time-utils.js';
+
+/**
+ * Retrieves all LRT stations from GTFS stops.
+ * A "station" is a stop with `location_type=1`
+ * If coordinates are provided, sorts by distance automatically via GTFS library.
+ *
+ * @returns Promise<Stop[]> - an array of LRT station objects.
+ */
+export async function getAllStations(
+    coordinates?: GeoCoordinate
+): Promise<Stop[]> {
+    const query: StopQuery = { location_type: 1 };
+
+    // If coordinates provided, add them to query for distance-based sorting
+    if (coordinates?.lat && coordinates?.lon) {
+        query.stop_lat = coordinates.lat;
+        query.stop_lon = coordinates.lon;
+    }
+
+    const stations = await getStops(query, [], [], {
+        bounding_box_side_m: 999999999,
+    });
+
+    // Only sort alphabetically if no coordinates provided (GTFS handles distance sorting)
+    if (!coordinates?.lat || !coordinates?.lon) {
+        return stations.sort((a, b) =>
+            (a.stop_name || '').localeCompare(b.stop_name || '')
+        );
+    }
+
+    return stations;
+}
 
 /**
  * Retrieves closest "station" from GTFS stops.
@@ -21,10 +52,10 @@ import {
  *
  * @returns Promise<Stop[]> - an array of stop objects representing transit stations.
  */
-export const getClosestStation = async ({
+export async function getClosestStation({
     lat,
     lon,
-}: GeoCoordinate = {}): Promise<Stop> => {
+}: GeoCoordinate = {}): Promise<Stop> {
     const nearbyStations = await getStops(
         {
             location_type: 1,
@@ -41,25 +72,25 @@ export const getClosestStation = async ({
     );
 
     return nearbyStations[0];
-};
+}
 
-export const getStopsForParentStation = (parent_station_id: string): Stop[] => {
+export function getStopsForParentStation(parent_station_id: string): Stop[] {
     const platforms = getStops({
         parent_station: parent_station_id,
     });
 
     return [...platforms];
-};
+}
 
-export type StopDepartures = {
+export interface StopDepartures {
     stop_id: string;
     trip_id: string;
     stop_headsign: string | null;
     departure_time: string; // GTFS service time, may be >= 24:00:00
     departure_timestamp?: number; // present in some imports
-};
+}
 
-export type GetDeparturesForStopOptions = {
+export interface GetDeparturesForStopOptions {
     stopId: string | number;
     clockTime?: ClockTime; // "HH:mm:ss" (0–23h)
     baseTime?: Date; // default: now
@@ -69,7 +100,7 @@ export type GetDeparturesForStopOptions = {
     tz?: string; // default: DEFAULT_TIMEZONE
     serviceDayStartHour?: number; // default: 3
     debug?: boolean;
-};
+}
 
 /**
  * Returns upcoming departures for a stop within a time window.
@@ -118,24 +149,24 @@ export async function getDeparturesForStop({
         serviceDayStartHour,
     });
 
-    // if (debug) {
-    //     console.log(
-    //         JSON.stringify(
-    //             {
-    //                 stopId: id,
-    //                 serviceDate,
-    //                 startServiceTime,
-    //                 endServiceTime,
-    //                 lookaheadMins,
-    //                 limit,
-    //                 tz,
-    //                 serviceDayStartHour,
-    //             },
-    //             null,
-    //             2
-    //         )
-    //     );
-    // }
+    if (debug) {
+        console.warn(
+            JSON.stringify(
+                {
+                    stopId: id,
+                    serviceDate,
+                    startServiceTime,
+                    endServiceTime,
+                    lookaheadMins,
+                    limit,
+                    tz,
+                    serviceDayStartHour,
+                },
+                null,
+                2
+            )
+        );
+    }
 
     const rows = getStoptimes(
         {

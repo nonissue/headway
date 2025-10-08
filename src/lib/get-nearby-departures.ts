@@ -1,5 +1,5 @@
 import { GeoCoordinate } from '../types/global.js';
-import { TEST_COORDS, TEST_COORDS_FAR } from '../config.js';
+import { TEST_COORDS } from '../config.js';
 import {
     getClosestStation,
     getStopsForParentStation,
@@ -14,15 +14,15 @@ export const getNearbyDepartures = async ({ lat, lon }: GeoCoordinate = {}) => {
     let closestStation;
 
     if (!lat || !lon) {
-        console.warn(
-            'get-nearby-departures: using TEST_COORDS (for some reason)'
-        );
+        // console.warn(
+        //     'get-nearby-departures: using TEST_COORDS (for some reason)'
+        // );
 
         closestStation = await getClosestStation(TEST_COORDS);
     } else {
-        console.warn(
-            `get-nearby-departures: using user (?) location: {lat: ${lat}, lon: ${lon}}`
-        );
+        // console.warn(
+        //     `get-nearby-departures: using user (?) location: {lat: ${lat}, lon: ${lon}}`
+        // );
 
         closestStation = await getClosestStation({ lat, lon });
     }

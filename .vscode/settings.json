@@ -1,0 +1,36 @@
+{
+    // Disable the default formatter, use eslint instead
+    "prettier.enable": true,
+    "editor.formatOnSave": true,
+    // Auto fix
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": "never",
+        "source.organizeImports": "never"
+    },
+    "eslint.useFlatConfig": true,
+    "tailwindCSS.includeLanguages": {
+        "typescript": "typescript",
+        "javascript": "javascript",
+        "typescriptreact": "typescriptreact",
+        "javascriptreact": "javascriptreact"
+    },
+    "eslint.workingDirectories": [
+        {
+            "mode": "auto"
+        }
+    ],
+    // Tie default formatter to Prettier
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "tailwindCSS.experimental.configFile": "src/globals.css",
+    "css.lint.unknownAtRules": "ignore",
+    "css.validate": true,
+    "typescript.validate.enable": true
+}

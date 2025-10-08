@@ -1,155 +1,120 @@
+import type {
+    Departure,
+    DeparturesResponse,
+    ProcessedDeparture,
+    Station,
+} from './types/departures';
 // src/main.tsx
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import CreatorBadgeInline from './components/features/CreatorBadgePopover';
-import './style.css';
+// import { AnimatedBackground } from './components/AnimatedBackground';
+import { DeparturesTable } from './components/DeparturesTable';
+import { Footer } from './components/Footer';
+import { Header } from './components/Header';
+import { ThemeProvider } from './components/theme-provider';
+import './globals.css';
+import { useApiRequest } from './hooks/useApiRequest';
+import { useErrorHandler } from './hooks/useErrorHandler';
+import { useLocationManager } from './hooks/useLocationManager';
 import { convertServiceTimeToClockTime } from './lib/time-utils.js';
-import {
-    DEFAULT_STOP_COUNT_LIMIT,
-    TEST_COORDS,
-    TEST_COORDS_FAR,
-} from './config.js';
-import { History, RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
-interface Departure {
-    stop_id: string;
-    trip_id: string;
-    stop_headsign: string;
-    departure_time: string;
-    departure_timestamp: number;
-}
-
-const App = () => {
-    const [status, setStatus] = useState('Requesting location');
-
-    const [stationName, setStationName] = useState('');
+function App() {
     const [departures, setDepartures] = useState<Departure[][]>([]);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+    const [hasInitialized, setHasInitialized] = useState(false);
+    const [selectedStation, setSelectedStation] = useState<
+        Station | undefined
+    >();
+    const [userLocation, setUserLocation] = useState<
+        { lat: number; lon: number } | undefined
+    >();
+    const [animationKey, setAnimationKey] = useState(0);
 
-    const fetchDepartures = useCallback(
-        async (latitude: number, longitude: number) => {
+    const { error, clearError, hasError } = useErrorHandler();
+    const { fetchDepartures, fetchStationDepartures } = useApiRequest();
+
+    const handleFetchDepartures = useCallback(
+        async (latitude: number, longitude: number, isRefresh = false) => {
+            // Prevent multiple initial loads
+            if (!isRefresh && hasInitialized) {
+                return;
+            }
+
             try {
-                setLoading(true);
-                // setStatus('Finding nearest station...');
-                const res = await fetch(
-                    `/api/departures/nearby?lat=${latitude}&lon=${longitude}`
+                if (!isRefresh) {
+                    setIsLoading(true);
+                }
+                clearError();
+                setUserLocation({ lat: latitude, lon: longitude });
+
+                const data: DeparturesResponse = await fetchDepartures(
+                    latitude,
+                    longitude
                 );
 
-                const data = await res.json();
-
-                setStationName(data.closestStation.stop_name);
-
+                setSelectedStation(data.closestStation);
                 setDepartures(data.departures);
-
+                if (isRefresh) {
+                    setAnimationKey((prev) => prev + 1);
+                }
                 setLastUpdated(new Date());
 
-                setStatus('');
+                if (!hasInitialized) {
+                    setHasInitialized(true);
+                }
             } catch (error) {
-                setStatus('Failed to load departures.');
+                console.error(error);
             } finally {
-                setLoading(false);
+                if (!isRefresh) {
+                    setIsLoading(false);
+                }
             }
         },
-        []
+        [fetchDepartures, clearError, hasInitialized]
     );
 
-    // Check location permission status
-    const checkLocationPermission = useCallback(async () => {
-        if (!navigator.permissions) {
-            return null;
-        }
+    const handleFetchDeparturesForStation = useCallback(
+        async (station: Station) => {
+            try {
+                setIsLoading(true);
+                clearError();
 
-        try {
-            const permission = await navigator.permissions.query({
-                name: 'geolocation',
-            });
-            return permission.state;
-        } catch (error) {
-            console.warn('Could not query geolocation permission:', error);
-            return null;
-        }
-    }, []);
+                const data = await fetchStationDepartures(station.stop_id);
 
-    const getUserLocationAndFetch = useCallback(() => {
-        if (!navigator.geolocation) {
-            setStatus('Geolocation is not supported by your browser.');
-            return;
-        }
-
-        // Set timeout for geolocation request to avoid hanging
-        const options = {
-            enableHighAccuracy: false,
-            timeout: 10000,
-            maximumAge: 0, // Always get fresh location
-        };
-
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                console.warn(
-                    'main.tsx: using users location (position.coords)'
-                );
-                // fetchDepartures(TEST_COORDS_FAR.lat, TEST_COORDS_FAR.lon);
-                fetchDepartures(latitude, longitude);
-            },
-            (error) => {
-                console.warn('Geolocation error:', error.message);
-                setStatus('Unable to retrieve your location.');
-                console.warn(
-                    'main.tsx: using TEST_COORDS (navigator.geolocation failed?)'
-                );
-                fetchDepartures(TEST_COORDS.lat, TEST_COORDS.lon);
-            },
-            options
-        );
-    }, [fetchDepartures]);
-
-    useEffect(() => {
-        const initializeLocation = async () => {
-            // Check permission first
-            const permissionState = await checkLocationPermission();
-
-            if (permissionState === 'granted') {
-                setStatus('Location access granted');
-                getUserLocationAndFetch();
-            } else if (permissionState === 'denied') {
-                setStatus('Location access denied - using default location');
-                fetchDepartures(TEST_COORDS.lat, TEST_COORDS.lon);
-            } else {
-                // prompt or not determined - try to get location
-                getUserLocationAndFetch();
+                setSelectedStation(station);
+                setDepartures(data.departures);
+                setLastUpdated(new Date());
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setIsLoading(false);
             }
-        };
+        },
+        [fetchStationDepartures, clearError]
+    );
 
-        // Initialize location on first load
-        initializeLocation();
+    const { getUserLocationAndFetch } = useLocationManager({
+        onLocationSuccess: handleFetchDepartures,
+        onStatusChange: () => {},
+    });
 
-        // Refresh location when PWA becomes visible/focused
-        const handleVisibilityChange = () => {
-            if (!document.hidden) {
-                console.log('App became visible - refreshing location');
-                initializeLocation();
-            }
-        };
+    const handleRefresh = useCallback(async () => {
+        const startTime = Date.now();
+        await getUserLocationAndFetch(true);
 
-        const handleFocus = () => {
-            console.log('App focused - refreshing location');
-            initializeLocation();
-        };
+        // Ensure minimum 800ms for animation to be visible
+        const elapsed = Date.now() - startTime;
+        const minDuration = 800;
+        if (elapsed < minDuration) {
+            await new Promise((resolve) =>
+                setTimeout(resolve, minDuration - elapsed)
+            );
+        }
+    }, [getUserLocationAndFetch]);
 
-        // Listen for visibility and focus changes
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('focus', handleFocus);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('focus', handleFocus);
-        };
-    }, [getUserLocationAndFetch, checkLocationPermission, fetchDepartures]);
-
-    // Memoize processed departures to avoid recomputing time conversions on every render
-    const processedDepartures = useMemo(() => {
+    const processedDepartures = useMemo((): ProcessedDeparture[][] => {
         return departures.map((group) =>
             group.map((dep) => ({
                 ...dep,
@@ -159,166 +124,89 @@ const App = () => {
     }, [departures]);
 
     return (
-        <main className="flex min-h-dvh w-full flex-col items-center justify-start overflow-y-auto overscroll-none bg-gradient-to-bl from-zinc-950 via-zinc-950 to-zinc-950 px-4 font-mono text-white sm:min-h-screen sm:overflow-visible sm:overscroll-auto">
-            <div className="my-10 w-full max-w-xl px-4 sm:my-12">
-                <div className={`${loading && 'animate-pulse'}`}>
-                    <div className="rounded-xs border-2 border-b-0 border-zinc-700 bg-zinc-800/70 p-4">
-                        <div className="flex flex-col gap-y-1 text-center sm:gap-y-1">
-                            <span className="relative bg-gradient-to-r from-gray-700/0 via-zinc-700/0 to-gray-800/0 text-xs tracking-widest text-orange-300 uppercase">
-                                {stationName ? 'Closest Station: ' : 'Loading'}
-                            </span>
+        <main className="relative flex h-dvh w-full flex-col items-center justify-start overflow-hidden overscroll-none font-display text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-none">
+            {/* <AnimatedBackground /> */}
 
-                            <div className="font-mono text-xl font-semibold tracking-wider text-orange-200 uppercase drop-shadow-lg sm:text-xl">
-                                {stationName ? stationName : 'Loading'}
+            <div className="relative z-10 flex h-full w-full max-w-xl flex-col px-0 sm:my-8 sm:h-auto">
+                {/* Unified container with all components */}
+                <div
+                    className="relative flex h-full flex-col overflow-hidden border-0 border-border shadow-2xl ring-2 ring-border/40 backdrop-blur-3xl backdrop-saturate-150 sm:rounded-2xl sm:border-2"
+                    style={{
+                        boxShadow:
+                            'var(--glass-shadow, 0 12px 40px rgba(0,0,0,0.15))',
+                    }}
+                >
+                    {/* Frosted glass surface */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-foreground/5 via-foreground/5 to-foreground/5"></div>
+
+                    {/* Inner glass reflection */}
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent"></div>
+                    <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-foreground/5 to-transparent"></div>
+
+                    {/* Liquid glass morphing highlight */}
+                    {/* <div className="pointer-events-none absolute -top-1/2 -right-1/2 h-[200vh] w-[200vw] animate-[morph_24s_ease-in-out_infinite] rounded-full bg-gradient-to-br from-blue-400/20 to-purple-400/20 opacity-90 blur-sm dark:opacity-20"></div> */}
+                    {/* <div className="pointer-events-none absolute -bottom-1/2 -left-1/2 h-[100vh] w-[100vw] animate-[morph_24s_ease-in-out_infinite] rounded-full bg-gradient-to-br from-blue-400/20 to-purple-400/20 opacity-90 blur-sm dark:opacity-20"></div> */}
+                    {/* <div className="pointer-events-none absolute top-0 -right-1/6 h-[100vh] w-[100vw] scale-100 rounded-full bg-gradient-to-br from-blue-400/20 to-sky-500/10 opacity-20 blur-2xl dark:opacity-20"></div> */}
+                    {/* <div className="pointer-events-none absolute -bottom-1/2 left-0 h-[200vh] w-[200vw] animate-[morph_24s_ease-in-out_infinite] rounded-full bg-gradient-to-br from-blue-400/ to-indigo-400/50 opacity-40 blur-2xl dark:opacity-20"></div> */}
+
+                    <Header
+                        selectedStation={selectedStation}
+                        onStationSelect={handleFetchDeparturesForStation}
+                        userLocation={userLocation}
+                        isLoading={isLoading}
+                    />
+                    {hasError && (
+                        <div className="relative border-l-4 border-red-500 bg-red-50 p-4 text-center text-blue-400 dark:bg-red-900/20">
+                            <div className="mb-2 text-sm font-medium text-red-600 dark:text-red-400">
+                                {error?.message}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={clearError}
+                                className="text-xs text-red-600 underline hover:text-red-400 hover:no-underline dark:text-red-400"
+                            >
+                                Dismiss
+                            </button>
+                        </div>
+                    )}
+
+                    {isLoading ? (
+                        <div className="relative flex min-h-96 items-center justify-center p-8">
+                            <div className="flex flex-col items-center gap-4 text-center">
+                                <div className="relative">
+                                    <Loader2 className="h-10 w-10 animate-spin text-ring" />
+                                    <div className="absolute inset-0 h-10 w-10 rounded-full"></div>
+                                </div>
+                                <div className="space-y-1">
+                                    <div className="text-sm font-medium text-foreground">
+                                        {/* {status || 'Loading departures...'} */}
+                                        Loading
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    ) : (
+                        <>
+                            <div className="flex-1 overflow-hidden">
+                                <DeparturesTable
+                                    processedDepartures={processedDepartures}
+                                    animationKey={animationKey}
+                                />
+                            </div>
+                            <Footer
+                                lastUpdated={lastUpdated}
+                                onRefresh={handleRefresh}
+                            />
+                        </>
+                    )}
                 </div>
-                {loading ? (
-                    <div className="animate-pulse">
-                        {/* Loading skeleton */}
-                        <div className="space-y-0 divide-y-2 divide-orange-400/50 border-2 border-orange-400/50 bg-orange-100/10">
-                            {[...Array(2)].map((_, i) => (
-                                <div
-                                    key={i}
-                                    className="flex w-full items-stretch divide-y divide-dotted divide-orange-300/30"
-                                >
-                                    <div className="relative flex min-h-40 w-8 flex-col items-center justify-center border-r border-b-0 border-solid border-zinc-800">
-                                        <span className="sm:text-md rotate-[-90deg] text-xs font-light tracking-widest whitespace-nowrap text-amber-100/90 uppercase">
-                                            Platform {i + 1}
-                                        </span>
-                                    </div>
-                                    <div className="flex-1 divide-y divide-dotted divide-orange-100/20 bg-zinc-950/70 text-orange-300">
-                                        <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs text-orange-300 uppercase sm:text-sm">
-                                            <span>Time</span>
-                                            <span className="col-span-2">
-                                                Destination
-                                            </span>
-                                        </div>
-                                        {[
-                                            ...Array(DEFAULT_STOP_COUNT_LIMIT),
-                                        ].map((_, n) => (
-                                            <div
-                                                key={`${n}-${n}`}
-                                                className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-zinc-900 hover:text-black sm:py-2 sm:text-sm"
-                                            >
-                                                <div className="my-auto h-5 bg-zinc-700/50 font-mono tracking-wide text-orange-100"></div>
-                                                <div className="col-span-2 h-5 truncate bg-zinc-700/50 font-normal tracking-wide text-orange-100 uppercase"></div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="px-0 sm:px-0">
-                            <div className="flex items-center justify-between rounded-b-xs border-2 border-t-0 border-zinc-700 bg-zinc-900 text-orange-100/90">
-                                <span className="w-full text-center text-xs font-semibold uppercase sm:px-4 sm:text-left sm:text-sm">
-                                    <div className="h-5 bg-zinc-600/50 font-normal text-orange-100/70"></div>
-                                </span>
-                                <button
-                                    onClick={getUserLocationAndFetch}
-                                    className="flex items-center gap-x-3 border-l-0 border-zinc-700 bg-zinc-800 px-4 py-2 text-xs tracking-wide text-orange-300 uppercase transition hover:cursor-pointer hover:bg-orange-500 hover:text-black sm:py-3 sm:text-base"
-                                >
-                                    <RefreshCw className="h-3.5 w-3.5 text-amber-300" />
-                                    <span className="text-amber-200">
-                                        Refresh
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="animate-in fade-in-5 duration-[0.1s]">
-                        <div className="space-y-0 divide-y-2 divide-orange-400/50 border-2 border-orange-400/50 bg-orange-100/10">
-                            {processedDepartures.map((group, idx) =>
-                                group.length == 0 ? (
-                                    <></>
-                                ) : (
-                                    <div
-                                        key={idx}
-                                        className="flex w-full items-stretch divide-y divide-dotted divide-orange-300/30"
-                                    >
-                                        {/* Label column */}
-                                        <div className="relative flex min-h-40 w-8 flex-col items-center justify-center border-r border-b-0 border-solid border-zinc-800">
-                                            <span className="sm:text-md rotate-[-90deg] text-xs font-light tracking-widest whitespace-nowrap text-amber-100/90 uppercase">
-                                                Platform {idx + 1}
-                                            </span>
-                                        </div>
-
-                                        {/* Content column */}
-                                        <div className="flex-1 divide-y divide-dotted divide-orange-100/20 bg-zinc-950/70 text-orange-300">
-                                            <div className="grid grid-cols-3 gap-2 px-4 py-2 text-xs text-orange-300 uppercase sm:text-sm">
-                                                <span>Time</span>
-                                                <span className="col-span-2">
-                                                    Destination
-                                                </span>
-                                            </div>
-                                            {group.map((dep, i) => (
-                                                <div
-                                                    key={`${idx}-${i}`}
-                                                    className="grid grid-cols-3 gap-1 px-4 py-1 text-sm transition-all duration-150 ease-in-out hover:cursor-pointer hover:bg-zinc-900 hover:text-black sm:py-2 sm:text-sm"
-                                                >
-                                                    <div className="my-auto font-mono tracking-wide text-orange-100">
-                                                        {dep.displayTime}
-                                                    </div>
-                                                    <div className="col-span-2 truncate font-normal tracking-wide text-orange-100 uppercase">
-                                                        {dep.stop_headsign}
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )
-                            )}
-                        </div>
-
-                        {/* LAST REFRESH TIME AND REFRESH BUTTON */}
-                        <div className="flex flex-row text-xs sm:text-sm">
-                            {lastUpdated && (
-                                <div className="flex w-full items-stretch justify-between rounded-b-xs border-2 border-t-0 border-zinc-700 bg-zinc-900 tracking-wide text-orange-100/90">
-                                    {/* About button FIRST */}
-                                    <CreatorBadgeInline
-                                        name="Andy Williams"
-                                        email="andy@nonissue.org"
-                                        website="https://andy.ws"
-                                        github="https://github.com/nonissue/next-departures"
-                                        note="Built with GTFS data; times are estimates and may change."
-                                        startYear={2025}
-                                        triggerLabel="About"
-                                        // withBackdrop
-                                    />
-
-                                    {/* Updated-at text in the middle */}
-                                    {/* Center: Updated block fills space */}
-                                    <div className="flex items-center justify-center gap-x-1.5 uppercase sm:px-4 sm:py-3">
-                                        <History className="h-3.5 w-3.5 text-zinc-400" />
-
-                                        {lastUpdated?.toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            second: '2-digit', // remove if you want HH:mm
-                                            hour12: false,
-                                        })}
-                                    </div>
-
-                                    {/* Refresh button LAST */}
-                                    <button
-                                        onClick={getUserLocationAndFetch}
-                                        className="flex items-center gap-x-3 border-l border-zinc-700 bg-zinc-800 px-4 py-2 tracking-wide text-orange-300 uppercase transition hover:bg-orange-500 hover:text-black"
-                                    >
-                                        <RefreshCw className="h-3.5 w-3.5 text-amber-100" />
-                                        <span className="text-amber-200">
-                                            Refresh
-                                        </span>
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                )}
             </div>
         </main>
     );
-};
+}
 
-ReactDOM.createRoot(document.getElementById('root')!).render(<App />);
+ReactDOM.createRoot(document.getElementById('root')!).render(
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+        <App />
+    </ThemeProvider>
+);
