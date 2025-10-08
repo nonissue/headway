@@ -65,12 +65,14 @@ app.use('/api/*', async (c, next) => {
     await next();
 });
 
+// Health check endpoint for Fly.io
+app.get('/api/health', (c) => {
+    return c.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // mount the /api/departures router under /api
 app.route('/api', departures);
 app.route('/api', stations);
-
-// simple health check
-// app.get('/', (c) => c.text('API is running.'));
 
 app.notFound((c) => {
     return c.text(`Route not found ${c.req.path}`, 404);
