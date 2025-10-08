@@ -48,8 +48,8 @@ export const DeparturesTable = ({
                                     <div className="hidden w-1/3">
                                         Destination
                                     </div>
-                                    <div className="flex w-1/3 flex-0 flex-row items-center gap-x-1 font-display text-sm font-semibold tracking-normal capitalize">
-                                        <RailSymbol className="h-4 w-4" />
+                                    <div className="flex w-1/3 flex-0 flex-row items-center font-display text-sm font-semibold tracking-normal capitalize">
+                                        <RailSymbol className="mr-2 h-4 w-4" />
                                         Platform {platformIdx + 1}
                                     </div>
                                     <div className="hidden w-1/3 text-right">
