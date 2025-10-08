@@ -92,7 +92,7 @@ export function StationPicker({
                 <Command className="bg-transparent" shouldFilter={true}>
                     <CommandInput
                         placeholder="Search stations..."
-                        className="h-10 border-none bg-transparent font-mono text-sm text-popover-foreground placeholder-muted-foreground [&>svg]:text-muted-foreground"
+                        className="h-10 border-none bg-transparent font-mono text-base text-popover-foreground placeholder-muted-foreground [&>svg]:text-muted-foreground"
                         autoFocus={false}
                         tabIndex={-1}
                     />
@@ -103,7 +103,7 @@ export function StationPicker({
                             </div>
                         ) : (
                             <>
-                                <CommandEmpty className="text-muted-foreground">
+                                <CommandEmpty className="p-2 font-mono text-sm tracking-wide text-muted-foreground uppercase">
                                     No station found.
                                 </CommandEmpty>
                                 <CommandGroup>
@@ -115,7 +115,12 @@ export function StationPicker({
                                                 onStationSelect(station);
                                                 setOpen(false);
                                             }}
-                                            className="flex min-w-0 items-center justify-between font-mono text-sm tracking-wide text-popover-foreground uppercase transition-all duration-200 hover:bg-accent/20 hover:text-accent-foreground data-[selected=true]:bg-accent/30 data-[selected=true]:text-accent-foreground"
+                                            className={cn(
+                                                "flex min-w-0 items-center justify-between font-mono text-sm tracking-wide text-popover-foreground uppercase transition-all duration-200",
+                                                selectedStation?.stop_id === station.stop_id
+                                                    ? "bg-primary/20 hover:bg-primary/30"
+                                                    : "hover:bg-accent/20 hover:text-accent-foreground"
+                                            )}
                                         >
                                             <span className="min-w-0 flex-1 truncate">
                                                 {station.stop_name}
