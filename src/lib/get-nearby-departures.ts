@@ -6,6 +6,18 @@ import {
     getDeparturesForStop,
 } from '../lib/stop-utils.js';
 
+/* 
+
+Kind of opaquely (jankily?) glues together the logical pieces we need to accomplish our goal 
+of fetching the departures (from two stops or 'platforms') for the closest LRT station to
+the provided coordinates
+
+1. getClosestStation: Find the closest LRT station to specified coordinates
+2. getStopsForParentStation: Lookup what 'stops' are the children of that 'parent'
+3. getDeparturesForStop: Collect the departures for the 'stations' platform(s) 
+
+*/
+
 export const getNearbyDepartures = async ({ lat, lon }: GeoCoordinate = {}) => {
     if (!lat || !lon) {
         throw new Error('lat & lon are required to find nearby departures');
@@ -14,23 +26,19 @@ export const getNearbyDepartures = async ({ lat, lon }: GeoCoordinate = {}) => {
     let closestStation;
 
     if (!lat || !lon) {
-        // console.warn(
-        //     'get-nearby-departures: using TEST_COORDS (for some reason)'
-        // );
-
         closestStation = await getClosestStation(TEST_COORDS);
     } else {
-        // console.warn(
-        //     `get-nearby-departures: using user (?) location: {lat: ${lat}, lon: ${lon}}`
-        // );
-
         closestStation = await getClosestStation({ lat, lon });
     }
 
     const stops = await getStopsForParentStation(closestStation.stop_id);
 
     const departures = await Promise.all(
-        stops.map((stop) => getDeparturesForStop({ stopId: stop.stop_id }))
+        stops.map((stop) =>
+            getDeparturesForStop({
+                stopId: stop.stop_id,
+            })
+        )
     );
 
     const [departuresA, departuresB] = [
