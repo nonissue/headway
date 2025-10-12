@@ -42,7 +42,7 @@
     --font-sans--font-variation-settings: 'opsz' 32;
     --font-sans--font-optical-sizing: auto;
 
-    --font-mono: 'DM Mono', mono;
+    /* --font-mono: 'DM Mono', mono; */
     /* --font-mono--font-weight: 400; */
 
     --radius-sm: calc(var(--radius) - 4px);
@@ -86,6 +86,14 @@
     --color-headsign-6: var(--headsign-6);
     --color-headsign-7: var(--headsign-7);
     --color-headsign-8: var(--headsign-8);
+    --color-headsign-1-bg: var(--headsign-1-bg);
+    --color-headsign-2-bg: var(--headsign-2-bg);
+    --color-headsign-3-bg: var(--headsign-3-bg);
+    --color-headsign-4-bg: var(--headsign-4-bg);
+    --color-headsign-5-bg: var(--headsign-5-bg);
+    --color-headsign-6-bg: var(--headsign-6-bg);
+    --color-headsign-7-bg: var(--headsign-7-bg);
+    --color-headsign-8-bg: var(--headsign-8-bg);
     --color-border: var(--border);
     --color-input: var(--input);
     --color-ring: var(--ring);
@@ -142,6 +150,17 @@
     --headsign-6: oklch(0.45 0.26 25); /* Red */
     --headsign-7: oklch(0.5 0.24 280); /* Purple */
     --headsign-8: oklch(0.52 0.18 90); /* Yellow-Green */
+
+    /* Headsign background colors with transparency */
+    --headsign-badge-transparency: 12%;
+    --headsign-1-bg: oklch(0.45 0.25 265 / var(--headsign-badge-transparency));
+    --headsign-2-bg: oklch(0.5 0.26 40 / var(--headsign-badge-transparency));
+    --headsign-3-bg: oklch(0.5 0.22 165 / var(--headsign-badge-transparency));
+    --headsign-4-bg: oklch(0.45 0.25 330 / var(--headsign-badge-transparency));
+    --headsign-5-bg: oklch(0.48 0.2 130 / var(--headsign-badge-transparency));
+    --headsign-6-bg: oklch(0.45 0.26 25 / var(--headsign-badge-transparency));
+    --headsign-7-bg: oklch(0.5 0.24 280 / var(--headsign-badge-transparency));
+    --headsign-8-bg: oklch(0.52 0.18 90 / var(--headsign-badge-transparency));
 
     /* Borders & Inputs */
     --border: oklch(0.92 0.004 286.32);
@@ -218,6 +237,17 @@
     --headsign-6: oklch(0.7 0.13 185); /* Cyan */
     --headsign-7: oklch(0.72 0.12 90); /* Yellow */
     --headsign-8: oklch(0.7 0.13 335); /* Pink */
+
+    /* Headsign background colors with transparency - dark mode */
+    --headsign-badge-transparency: 12%;
+    --headsign-1-bg: oklch(0.7 0.13 255 / var(--headsign-badge-transparency));
+    --headsign-2-bg: oklch(0.7 0.14 30 / var(--headsign-badge-transparency));
+    --headsign-3-bg: oklch(0.7 0.13 150 / var(--headsign-badge-transparency));
+    --headsign-4-bg: oklch(0.7 0.13 305 / var(--headsign-badge-transparency));
+    --headsign-5-bg: oklch(0.7 0.13 50 / var(--headsign-badge-transparency));
+    --headsign-6-bg: oklch(0.7 0.13 185 / var(--headsign-badge-transparency));
+    --headsign-7-bg: oklch(0.72 0.12 90 / var(--headsign-badge-transparency));
+    --headsign-8-bg: oklch(0.7 0.13 335 / var(--headsign-badge-transparency));
 
     /* Borders & Inputs */
     --border: oklch(1 0 0 / 10%);

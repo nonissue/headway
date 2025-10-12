@@ -10,17 +10,57 @@ interface DeparturesTableProps {
 // Simple hash function to generate consistent colors for headsigns
 const getHeadsignColorClasses = (
     headsign: string
-): { border: string; bg: string } => {
+): { border: string; bg: string; bgBadge: string; text: string } => {
     // 8 distinct colors for different destinations
     const colors = [
-        { border: 'border-headsign-1', bg: 'bg-headsign-1' }, // Blue
-        { border: 'border-headsign-2', bg: 'bg-headsign-2' }, // Red
-        { border: 'border-headsign-3', bg: 'bg-headsign-3' }, // Green
-        { border: 'border-headsign-4', bg: 'bg-headsign-4' }, // Purple
-        { border: 'border-headsign-5', bg: 'bg-headsign-5' }, // Orange
-        { border: 'border-headsign-6', bg: 'bg-headsign-6' }, // Cyan
-        { border: 'border-headsign-7', bg: 'bg-headsign-7' }, // Yellow
-        { border: 'border-headsign-8', bg: 'bg-headsign-8' }, // Pink
+        {
+            border: 'border-headsign-1',
+            bg: 'bg-headsign-1',
+            bgBadge: 'bg-headsign-1-bg',
+            text: 'text-headsign-1',
+        }, // Blue
+        {
+            border: 'border-headsign-2',
+            bg: 'bg-headsign-2',
+            bgBadge: 'bg-headsign-2-bg',
+            text: 'text-headsign-2',
+        }, // Red
+        {
+            border: 'border-headsign-3',
+            bg: 'bg-headsign-3',
+            bgBadge: 'bg-headsign-3-bg',
+            text: 'text-headsign-3',
+        }, // Green
+        {
+            border: 'border-headsign-4',
+            bg: 'bg-headsign-4',
+            bgBadge: 'bg-headsign-4-bg',
+            text: 'text-headsign-4',
+        }, // Purple
+        {
+            border: 'border-headsign-5',
+            bg: 'bg-headsign-5',
+            bgBadge: 'bg-headsign-5-bg',
+            text: 'text-headsign-5',
+        }, // Orange
+        {
+            border: 'border-headsign-6',
+            bg: 'bg-headsign-6',
+            bgBadge: 'bg-headsign-6-bg',
+            text: 'text-headsign-6',
+        }, // Cyan
+        {
+            border: 'border-headsign-7',
+            bg: 'bg-headsign-7',
+            bgBadge: 'bg-headsign-7-bg',
+            text: 'text-headsign-7',
+        }, // Yellow
+        {
+            border: 'border-headsign-8',
+            bg: 'bg-headsign-8',
+            bgBadge: 'bg-headsign-8-bg',
+            text: 'text-headsign-8',
+        }, // Pink
     ];
 
     // Simple hash based on headsign characters
@@ -89,7 +129,11 @@ export const DeparturesTable = ({
                             >
                                 <div className="relative border-b border-l-4 border-border/50 border-l-foreground/20 bg-gradient-to-b from-foreground/[8%] via-foreground/[5%] to-foreground/[2%] px-4 py-4 shadow-sm backdrop-blur-md">
                                     <div className="flex items-center justify-between gap-4">
-                                        <div className="font-display text-sm font-bold tracking-[0.15em] text-foreground uppercase">
+                                        <div
+                                            className={cn(
+                                                'font-display text-xl font-bold transition-all sm:text-2xl'
+                                            )}
+                                        >
                                             {direction.split(' · ')[0]}
                                         </div>
                                         <div className="flex flex-wrap justify-end gap-2 text-right">
@@ -108,11 +152,10 @@ export const DeparturesTable = ({
                                                     <span
                                                         key={dest}
                                                         className={cn(
-                                                            'max-w-32 truncate rounded-full border border-border bg-muted px-2.5 py-1 font-display text-xs font-semibold transition-all',
-                                                            colorClasses.bg.replace(
-                                                                'bg-',
-                                                                'text-'
-                                                            )
+                                                            'max-w-28 truncate rounded-full border-0 px-3 py-1 font-display text-sm font-bold backdrop-blur-lg transition-all',
+                                                            colorClasses.border,
+                                                            colorClasses.bgBadge,
+                                                            colorClasses.text
                                                         )}
                                                     >
                                                         {dest}
@@ -139,7 +182,7 @@ export const DeparturesTable = ({
                                                     // eslint-disable-next-line @eslint-react/no-array-index-key
                                                     key={`${animationKey}-${platformIdx}-${i}`}
                                                     className={cn(
-                                                        'relative grid animate-in grid-cols-3 gap-1 py-2.5 pr-4 pl-4 text-sm opacity-0 duration-200 direction-reverse fade-in-100 fill-mode-forwards',
+                                                        'relative grid animate-in grid-cols-3 gap-1 py-2.5 pr-4 pl-5 opacity-0 duration-200 direction-reverse fade-in-100 fill-mode-forwards',
                                                         'hover:cursor-pointer hover:bg-accent/20 hover:text-accent-foreground'
                                                     )}
                                                     style={{
@@ -154,7 +197,7 @@ export const DeparturesTable = ({
                                                     />
                                                     <div
                                                         className={cn(
-                                                            'col-span-2 truncate font-display text-sm font-[600] tracking-wide brightness-75 group-hover:text-accent-foreground sm:text-base dark:brightness-100',
+                                                            'col-span-2 truncate font-display text-lg font-[600] tracking-wide brightness-100 group-hover:text-accent-foreground sm:text-lg dark:brightness-100',
                                                             colorClasses.bg.replace(
                                                                 'bg-',
                                                                 'text-'
@@ -165,7 +208,8 @@ export const DeparturesTable = ({
                                                     </div>
                                                     <div
                                                         className={cn(
-                                                            'col-span-1 my-auto text-right font-mono text-sm opacity-90 group-hover:text-accent-foreground sm:text-sm'
+                                                            'col-span-1 my-auto text-right font-mono text-base font-[500] opacity-90 brightness-75 saturate-50 group-hover:text-accent-foreground sm:text-lg dark:brightness-125'
+                                                            // colorClasses.text
                                                         )}
                                                     >
                                                         {dep.displayTime}
