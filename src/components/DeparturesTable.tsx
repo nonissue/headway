@@ -124,6 +124,11 @@ export const DeparturesTable = ({
                                 </div>
                                 <ScrollArea className="h-0 flex-1 sm:min-h-[30dvh]">
                                     <div className="divide-y divide-dotted divide-foreground/10">
+                                        <div
+                                            className={cn(
+                                                'absolute top-0 bottom-0 left-0 w-1 bg-foreground/20'
+                                            )}
+                                        />
                                         {group.map((dep, i) => {
                                             const colorClasses =
                                                 getHeadsignColorClasses(
