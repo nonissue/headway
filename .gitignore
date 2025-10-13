@@ -21,6 +21,7 @@ dev-dist/
 
 
 /db
+scripts/local-archive
 
 # Sentry Config File
 .env.sentry-build-plugin
