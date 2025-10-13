@@ -7,10 +7,10 @@
         "dev:server": "tsx watch src/server.ts",
         "dev:client": "vite --host",
         "dev": "concurrently \"npm:dev:server\" \"npm:dev:client\"",
-        "build": "vite build",
+        "build:client": "vite build",
         "build:server": "tsc",
-        "build:all": "npm run build && npm run build:server",
-        "preview": "npm run build:all; node dist/server.js",
+        "build": "npm run build:client && npm run build:server",
+        "preview": "npm run build; node dist/server.js",
         "serve": "node dist/server.js",
         "db:update": "npm run db:import && npm run db:slim",
         "db:import": "npx gtfs-import --configPath import-config.json;",
@@ -18,7 +18,7 @@
         "db:slim-filtered": "echo 'deprecated: use `npm run db:slim`'",
         "test": "vitest",
         "test:coverage": "vitest run --coverage",
-        "deploy": "npm run build:all && fly deploy"
+        "deploy": "npm run build && fly deploy"
     },
     "dependencies": {
         "@hono/node-server": "^1.17.1",

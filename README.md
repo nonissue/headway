@@ -6,12 +6,28 @@
 - View the app online at [next-departures](https://next-departures.fly.dev)
 - Relies heavily on `node-gtfs` to parse and import GTFS CSV data into an sqlite database.
 
-## Note to self (as of 25-10-06)
+## Note to self (as of 25-10-10)
 
-```
-npx gtfs-import --configPath ./import-config.json
-npm run db:slim-filtered
+```bash
+# npm run db:update performs the following:
+# npx gtfs-import --configPath ./import-config.json
+# sqlite3 db/gtfs.db < scripts/build_lrt_only_db.sql
+npm run db:update
+
+# npm run deploy
+#   ↳ npm run build && fly deploy
+# `npm run build` consists of:
+#   ↳ npm run build:client
+#   ↳ npm run build:server
 npm run deploy
+```
+
+Other useful package.json scripts:
+
+**Build and serve the build locally for evaluting:**
+
+```bash
+npm run preview
 ```
 
 ## Warning: GTFS data not updated automatically
@@ -25,7 +41,7 @@ See "How to build and deploy" for instructions on how this is accomplished.
 ## How to get started with development
 
 1. Fill out `import-config.json` and `app-config.json`
-2. Run `npm run db:import` _(note: this can take a minute or two)_
+2. Run `npm run db:update` _(note: this can take a minute or two)_
 3. Run `npm run dev`
 
 ## How to build and deploy
@@ -51,15 +67,18 @@ This runs `npm run build:all && fly deploy` - builds everything locally then dep
 
 ### Project DB Setup
 
-See also `package.json` script `npm run db:import` described below.
+See also `package.json` script `npm run db:update` described below.
 
 ```bash
 # imports gtfs data into sqlite db './db/gtfs.db'
+# you can also run:
+# npm run db:import
 npx gtfs-import --configPath import-config.json
 
 # creates a slim version of our `./db/gtfs.db` at `./db/gtfs_lrt_only.db`
-# *should* leave original alone...
-npx tsx ./src/lib/db/build-lrt-only.ts --source ./db/gtfs.db --out ./data/gtfs_lrt_only.db --force
+# you can also run:
+# npm run db:slim
+sqlite3 db/gtfs.db < scripts/build_lrt_only_db.sql
 ```
 
 ### Alternative Database Scripts
