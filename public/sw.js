@@ -1,6 +1,6 @@
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open('headway-v1').then((cache) =>
+        caches.open('headway').then((cache) =>
             cache.addAll([
                 '/', // shell route
                 '/offline.html', // simple offline fallback page you create
@@ -17,7 +17,7 @@ self.addEventListener('activate', (event) => {
             .then((keys) =>
                 Promise.all(
                     keys
-                        .filter((k) => k !== 'nexttrain-v1')
+                        .filter((k) => k !== 'headway')
                         .map((k) => caches.delete(k))
                 )
             )
@@ -35,7 +35,7 @@ self.addEventListener('fetch', (event) => {
                 .then((network) => {
                     const copy = network.clone();
                     caches
-                        .open('nexttrain-v1')
+                        .open('headway')
                         .then((cache) => cache.put(request, copy));
                     return network;
                 })

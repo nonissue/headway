@@ -22,34 +22,24 @@ export default defineConfig({
                 enabled: true,
                 type: 'module',
             },
+            pwaAssets: {
+                image: 'public/favicon.svg',
+                overrideManifestIcons: true,
+            },
             manifest: {
-                name: 'NextTrain',
-                short_name: 'NextTrain',
+                name: 'Headway',
+                short_name: 'Headway',
+                description:
+                    'Quickly access nearby LRT departure times in Edmonton',
+                id: '/',
                 start_url: '/',
                 scope: '/',
                 display: 'standalone',
-                background_color: '#0a0a0a',
-                theme_color: '#0a0a0a',
-                icons: [
-                    {
-                        src: '/icons/icon-192.png',
-                        sizes: '192x192',
-                        type: 'image/png',
-                    },
-                    {
-                        src: '/icons/icon-512.png',
-                        sizes: '512x512',
-                        type: 'image/png',
-                    },
-                    {
-                        src: '/icons/maskable-512.png',
-                        sizes: '512x512',
-                        type: 'image/png',
-                        purpose: 'any maskable',
-                    },
-                ],
+                background_color: '#242424',
+                theme_color: '#242424',
+                orientation: 'portrait',
             },
-            includeAssets: ['icons/apple-touch-icon-180.png'],
+            includeAssets: ['favicon.svg'],
             workbox: {
                 navigateFallback: '/offline.html',
                 skipWaiting: true,
