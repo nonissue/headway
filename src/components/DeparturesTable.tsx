@@ -152,7 +152,7 @@ export const DeparturesTable = ({
                                                     <span
                                                         key={dest}
                                                         className={cn(
-                                                            'max-w-28 truncate rounded-full border-0 px-3 py-1 font-display text-sm font-bold backdrop-blur-lg transition-all',
+                                                            'max-w-24 truncate rounded-full border-0 px-3 py-1 font-display text-sm font-bold backdrop-blur-lg transition-all',
                                                             colorClasses.border,
                                                             colorClasses.bgBadge,
                                                             colorClasses.text
