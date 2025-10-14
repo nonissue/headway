@@ -1,10 +1,6 @@
 import { Hono } from 'hono';
 import { closeDb } from 'gtfs';
-import {
-    getDeparturesForStop,
-    getStopsForParentStation,
-    getAllStations,
-} from '../lib/stop-utils.js';
+import { getAllStations, getDeparturesForStation } from '../lib/stop-utils.js';
 import { getConfig } from '../lib/file-utils.js';
 import { loadDb } from '../lib/db-utils.js';
 import { Config } from '../types/global.js';
@@ -77,17 +73,12 @@ stations.get('/:stationId/departures', async (c) => {
             return c.json({ error: 'Station ID is required' }, 400);
         }
 
-        // Get all stops for this parent station
-        const stops = await getStopsForParentStation(stationId);
-
-        // Get departures for each stop (platform)
-        const departures = await Promise.all(
-            stops.map((stop) => getDeparturesForStop({ stopId: stop.stop_id }))
-        );
+        const { station, platforms } = await getDeparturesForStation(stationId);
 
         return c.json({
-            stationId,
-            departures: departures,
+            stationId: station.stop_id,
+            station,
+            platforms,
             timestamp: new Date().toISOString(),
         });
     } catch (err) {

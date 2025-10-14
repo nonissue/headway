@@ -54,8 +54,8 @@ function App() {
                     longitude
                 );
 
-                setSelectedStation(data.closestStation);
-                setDepartures(data.departures);
+                setSelectedStation(data.station);
+                setDepartures(data.platforms.map((platform) => platform.departures));
                 if (isRefresh) {
                     setAnimationKey((prev) => prev + 1);
                 }
@@ -83,8 +83,10 @@ function App() {
 
                 const data = await fetchStationDepartures(station.stop_id);
 
-                setSelectedStation(station);
-                setDepartures(data.departures);
+                setSelectedStation(data.station);
+                setDepartures(
+                    data.platforms.map((platform) => platform.departures)
+                );
                 setLastUpdated(new Date());
             } catch (error) {
                 console.error(error);

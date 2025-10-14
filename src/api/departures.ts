@@ -27,7 +27,10 @@ departures.get('/nearby', async (c) => {
 
         const result = await getNearbyDepartures({ lat, lon });
 
-        return c.json(result);
+        return c.json({
+            ...result,
+            timestamp: new Date().toISOString(),
+        });
     } catch (err) {
         console.error('Error in /api/departures:', err);
 

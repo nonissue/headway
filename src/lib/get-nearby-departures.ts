@@ -1,55 +1,28 @@
 import { GeoCoordinate } from '../types/global.js';
-import { TEST_COORDS } from '../config.js';
 import {
     getClosestStation,
-    getStopsForParentStation,
-    getDeparturesForStop,
+    getDeparturesForStation,
 } from '../lib/stop-utils.js';
 
-/* 
+/*
+Glue together the pieces required to fetch all platform departures for the
+closest LRT station to the provided coordinates:
 
-Kind of opaquely (jankily?) glues together the logical pieces we need to accomplish our goal 
-of fetching the departures (from two stops or 'platforms') for the closest LRT station to
-the provided coordinates
-
-1. getClosestStation: Find the closest LRT station to specified coordinates
-2. getStopsForParentStation: Lookup what 'stops' are the children of that 'parent'
-3. getDeparturesForStop: Collect the departures for the 'stations' platform(s) 
-
+1. getClosestStation: find the nearest station to the specified coordinates
+2. getDeparturesForStation: expand the station into platforms + departures
 */
 
 export const getNearbyDepartures = async ({ lat, lon }: GeoCoordinate = {}) => {
-    if (!lat || !lon) {
+    if (lat == null || lon == null) {
         throw new Error('lat & lon are required to find nearby departures');
     }
 
-    let closestStation;
+    const closestStation = await getClosestStation({ lat, lon });
 
-    if (!lat || !lon) {
-        closestStation = await getClosestStation(TEST_COORDS);
-    } else {
-        closestStation = await getClosestStation({ lat, lon });
-    }
+    const { platforms } = await getDeparturesForStation(closestStation);
 
-    const stops = await getStopsForParentStation(closestStation.stop_id);
-
-    const departures = await Promise.all(
-        stops.map((stop) =>
-            getDeparturesForStop({
-                stopId: stop.stop_id,
-            })
-        )
-    );
-
-    const [departuresA, departuresB] = [
-        departures[0] ?? [],
-        departures[1] ?? [],
-    ];
-
-    const result = {
-        closestStation: closestStation,
-        departures: [[...departuresA], [...departuresB]],
+    return {
+        station: closestStation,
+        platforms,
     };
-
-    return result;
 };

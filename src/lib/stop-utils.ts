@@ -14,6 +14,49 @@ import {
     getServiceDate,
 } from '../lib/time-utils.js';
 
+function normalizeStopLabel(value: string): string {
+    return value
+        .toLowerCase()
+        .replace(/\bstation\b/g, '')
+        .replace(/[^\w\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+interface StopContext {
+    platformStop?: Stop;
+    parentStation?: Stop;
+    normalizedStationName: string | null;
+}
+
+function getStopContext(stopId: string): StopContext {
+    const platformStop = getStops({ stop_id: stopId })[0];
+    const parentStation =
+        platformStop?.parent_station != null
+            ? getStops({ stop_id: platformStop.parent_station })[0]
+            : undefined;
+    const rawName = parentStation?.stop_name ?? platformStop?.stop_name ?? null;
+
+    return {
+        platformStop,
+        parentStation,
+        normalizedStationName: rawName ? normalizeStopLabel(rawName) : null,
+    };
+}
+
+function filterTerminatingTrips(
+    stoptimes: StopDepartures[],
+    normalizedStationName: string | null
+): StopDepartures[] {
+    if (!normalizedStationName) return stoptimes;
+
+    return stoptimes.filter((departure) => {
+        if (!departure.stop_headsign) return true;
+        const normalizedHeadsign = normalizeStopLabel(departure.stop_headsign);
+        return normalizedHeadsign !== normalizedStationName;
+    });
+}
+
 /**
  * Retrieves all LRT stations from GTFS stops.
  * A "station" is a stop with `location_type=1`
@@ -27,7 +70,10 @@ export async function getAllStations(
     const query: StopQuery = { location_type: 1 };
 
     // If coordinates provided, add them to query for distance-based sorting
-    if (coordinates?.lat && coordinates?.lon) {
+    if (
+        coordinates?.lat != null &&
+        coordinates?.lon != null
+    ) {
         query.stop_lat = coordinates.lat;
         query.stop_lon = coordinates.lon;
     }
@@ -37,7 +83,10 @@ export async function getAllStations(
     });
 
     // Only sort alphabetically if no coordinates provided (GTFS handles distance sorting)
-    if (!coordinates?.lat || !coordinates?.lon) {
+    if (
+        coordinates?.lat == null ||
+        coordinates?.lon == null
+    ) {
         return stations.sort((a, b) =>
             (a.stop_name || '').localeCompare(b.stop_name || '')
         );
@@ -74,9 +123,9 @@ export async function getClosestStation({
     return nearbyStations[0];
 }
 
-export function getStopsForParentStation(parent_station_id: string): Stop[] {
+export function getStopsForParentStation(parentStationId: string): Stop[] {
     const platforms = getStops({
-        parent_station: parent_station_id,
+        parent_station: parentStationId,
     });
 
     return [...platforms];
@@ -100,6 +149,16 @@ export interface GetDeparturesForStopOptions {
     tz?: string; // default: DEFAULT_TIMEZONE
     serviceDayStartHour?: number; // default: 3
     debug?: boolean;
+}
+
+export interface PlatformDepartures {
+    stop: Stop;
+    departures: StopDepartures[];
+}
+
+export interface StationDeparturesResult {
+    station: Stop;
+    platforms: PlatformDepartures[];
 }
 
 /**
@@ -168,7 +227,7 @@ export async function getDeparturesForStop({
         );
     }
 
-    const rows = getStoptimes(
+    const stoptimes = getStoptimes(
         {
             stop_id: id,
             date: serviceDate, // e.g., 20250801 (number or "YYYYMMDD")
@@ -185,32 +244,42 @@ export async function getDeparturesForStop({
         [['departure_time', 'ASC']]
     ) as StopDepartures[];
 
-    // Filter out terminating trips where headsign matches the current station
-    const filteredRows = rows.filter((row) => {
-        const headsign = row.stop_headsign?.toLowerCase() || '';
-        // Get the stop's parent station name to check if this is a terminating trip
-        const stopInfo = getStops({ stop_id: id })[0];
-        if (stopInfo?.parent_station) {
-            const parentStation = getStops({
-                stop_id: stopInfo.parent_station,
-            })[0];
-            const stationName = parentStation?.stop_name?.toLowerCase() || '';
-            // Filter out trips where headsign contains the station name (terminating trips)
-            if (stationName && headsign.includes(stationName.split(' ')[0])) {
-                return false;
-            }
-        }
-        return true;
-    });
+    const { normalizedStationName } = getStopContext(id);
+    const departures = filterTerminatingTrips(stoptimes, normalizedStationName);
 
-    // Defensive: ensure sorted (some feeds return same-second ties)
-    filteredRows.sort((a, b) => {
-        // Prefer numeric timestamp if present; fallback to string time
+    // Defensive: ensure sorted (feeds occasionally return identical timestamps)
+    departures.sort((a, b) => {
         if (a.departure_timestamp != null && b.departure_timestamp != null) {
             return a.departure_timestamp - b.departure_timestamp;
         }
         return a.departure_time.localeCompare(b.departure_time);
     });
 
-    return filteredRows.slice(0, Math.max(1, limit));
+    return departures.slice(0, Math.max(1, limit));
+}
+
+export async function getDeparturesForStation(
+    stationOrId: Stop | string | number
+): Promise<StationDeparturesResult> {
+    const station =
+        typeof stationOrId === 'object'
+            ? stationOrId
+            : getStops({ stop_id: String(stationOrId).trim() })[0];
+
+    if (!station) {
+        throw new Error('getDeparturesForStation: station not found');
+    }
+
+    const childStops = getStopsForParentStation(station.stop_id);
+    const platforms = await Promise.all(
+        childStops.map(async (stop) => ({
+            stop,
+            departures: await getDeparturesForStop({ stopId: stop.stop_id }),
+        }))
+    );
+
+    return {
+        station,
+        platforms,
+    };
 }

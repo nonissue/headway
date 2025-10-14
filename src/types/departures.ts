@@ -23,14 +23,21 @@ export interface ApiResponse<T> {
     timestamp?: string;
 }
 
+export interface PlatformDepartures {
+    stop: Station;
+    departures: Departure[];
+}
+
 export interface DeparturesResponse {
-    closestStation: Station;
-    departures: Departure[][];
+    station: Station;
+    platforms: PlatformDepartures[];
+    timestamp?: string;
 }
 
 export interface StationDeparturesResponse {
     stationId: string;
-    departures: Departure[][];
+    station: Station;
+    platforms: PlatformDepartures[];
     timestamp: string;
 }
 

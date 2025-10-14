@@ -41,7 +41,11 @@ export function StationPicker({
 
                 // Build URL with optional coordinates for distance-based sorting
                 let url = '/api/stations';
-                if (userLocation && userLocation.lat && userLocation.lon) {
+                if (
+                    userLocation &&
+                    userLocation.lat != null &&
+                    userLocation.lon != null
+                ) {
                     url += `?lat=${userLocation.lat}&lon=${userLocation.lon}`;
                 }
 
