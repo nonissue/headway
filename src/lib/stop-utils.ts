@@ -70,10 +70,7 @@ export async function getAllStations(
     const query: StopQuery = { location_type: 1 };
 
     // If coordinates provided, add them to query for distance-based sorting
-    if (
-        coordinates?.lat != null &&
-        coordinates?.lon != null
-    ) {
+    if (coordinates?.lat != null && coordinates?.lon != null) {
         query.stop_lat = coordinates.lat;
         query.stop_lon = coordinates.lon;
     }
@@ -83,10 +80,7 @@ export async function getAllStations(
     });
 
     // Only sort alphabetically if no coordinates provided (GTFS handles distance sorting)
-    if (
-        coordinates?.lat == null ||
-        coordinates?.lon == null
-    ) {
+    if (coordinates?.lat == null || coordinates?.lon == null) {
         return stations.sort((a, b) =>
             (a.stop_name || '').localeCompare(b.stop_name || '')
         );
@@ -108,16 +102,12 @@ export async function getClosestStation({
     const nearbyStations = await getStops(
         {
             location_type: 1,
-            // stop_lat: TEST_COORDS_SUPER_FAR.lat,
-            // stop_lon: TEST_COORDS_SUPER_FAR.lon,
             stop_lat: lat,
             stop_lon: lon,
         },
         [],
         [],
         { bounding_box_side_m: 999999999 }
-        // stop_lat: lat,
-        // stop_lon: lon,
     );
 
     return nearbyStations[0];
