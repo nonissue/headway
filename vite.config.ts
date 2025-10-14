@@ -11,10 +11,7 @@ export default defineConfig({
         react(),
         tsconfigPaths(),
         tailwindcss(),
-        sentryVitePlugin({
-            org: 'andy-williams',
-            project: 'next-departures',
-        }),
+
         VitePWA({
             registerType: 'autoUpdate',
             disable: process.env.NODE_ENV === 'development',
@@ -58,6 +55,10 @@ export default defineConfig({
                     },
                 ],
             },
+        }),
+        sentryVitePlugin({
+            org: 'andy-williams',
+            project: 'next-departures',
         }),
     ],
     server: {
