@@ -12,6 +12,7 @@ FROM base AS deps
 # Install only production dependencies for better caching
 COPY package-lock.json package.json ./
 RUN npm ci --omit=dev
+RUN npm prune --omit=dev --omit=optional
 
 # === Final Image ===
 FROM base
