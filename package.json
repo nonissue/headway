@@ -18,7 +18,7 @@
         "db:slim-filtered": "echo 'deprecated: use `npm run db:slim`'",
         "test": "vitest",
         "test:coverage": "vitest run --coverage",
-        "deploy": "npm run build && fly deploy"
+        "deploy": "npm run build && fly deploy --dns-checks=false"
     },
     "dependencies": {
         "@hono/node-server": "^1.17.1",
