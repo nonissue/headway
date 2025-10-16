@@ -6,6 +6,9 @@
 app = 'next-departures'
 primary_region = 'sea'
 
+[deploy]
+  strategy = "immediate"
+
 [build]
 
 [[mounts]]
