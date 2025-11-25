@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is "headway" (formerly next-departures), a web application that shows upcoming departure times for Edmonton LRT stations based on GTFS schedule data. The app finds the user's geographically closest LRT station and displays departure times.
 
+**Live URLs:**
+- Primary: https://headway.andy.ws
+- Fly.io: https://next-departures.fly.dev
+
 ## Development Commands
 
 ### Core Development
@@ -40,7 +44,8 @@ This is "headway" (formerly next-departures), a web application that shows upcom
 - **Frontend**: React 19 with Vite, TailwindCSS v4, TypeScript
 - **Backend**: Hono framework running on Node.js
 - **Database**: SQLite with better-sqlite3, GTFS data via node-gtfs
-- **Deployment**: Fly.io
+- **Deployment**: Fly.io with custom domain (headway.andy.ws)
+- **Analytics**: Umami (free cloud plan, privacy-friendly)
 
 ### Key Components
 
@@ -132,6 +137,39 @@ Enhanced with cache-busting for development:
 - `clientsClaim: true` - New SW takes control immediately
 - API endpoints use `NetworkFirst` caching strategy
 - No-cache headers on API responses to prevent stale data
+
+## Deployment & Analytics
+
+### Custom Domain Setup
+
+The app is deployed to Fly.io and accessible via two URLs:
+
+- **Primary domain**: `headway.andy.ws` (custom domain)
+- **Fly.io domain**: `next-departures.fly.dev` (original)
+
+**DNS Configuration:**
+- CNAME record: `headway.andy.ws` → `qxezk2y.next-departures.fly.dev`
+- ACME challenge: `_acme-challenge.headway` → `headway.andy.ws.qxezk2y.flydns.net.`
+
+**SSL Certificate:**
+- Managed by Fly.io
+- Issued by Let's Encrypt
+- Auto-renewal enabled
+- Check status: `fly certs show headway.andy.ws`
+
+Both domains serve the same app with valid HTTPS certificates.
+
+### Analytics (Umami)
+
+Privacy-friendly analytics via [Umami Cloud](https://umami.is) (free plan).
+
+**Implementation:**
+- Tracking script added to `index.html` in `<head>` section
+- Script loads from `cloud.umami.is` with `defer` attribute
+- Client-side only, no server configuration needed
+- Website ID: `aac8d5e9-5e2d-4107-8844-f484b9e45eb2`
+
+**Note on iOS tracking**: iOS content blockers and Safari's tracking protection may prevent analytics from loading. This is expected behavior and respects user privacy preferences.
 
 ## Recent Bug Fixes (September 2025)
 

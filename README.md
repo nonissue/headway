@@ -3,8 +3,11 @@
 (formerly next-departures)
 
 - Shows upcoming departure times based on ETS GTFS Schedule data for geographically closest LRT station.
-- View the app online at [next-departures](https://next-departures.fly.dev)
+- View the app online at:
+  - **Primary URL**: [headway.andy.ws](https://headway.andy.ws)
+  - **Fly.io URL**: [next-departures.fly.dev](https://next-departures.fly.dev)
 - Relies heavily on `node-gtfs` to parse and import GTFS CSV data into an sqlite database.
+- Analytics powered by [Umami](https://umami.is) (free cloud plan)
 
 ## Note to self (as of 25-10-10)
 
@@ -111,9 +114,20 @@ sqlite3 -batch db/gtfs.db < scripts/build_lrt_only.sql
 
 ```bash
 # Builds and deploys our app to fly.io so it is live
-# https://next-departures.fly.dev
+# https://headway.andy.ws (primary)
+# https://next-departures.fly.dev (fly.io)
 fly deploy
 ```
+
+**Custom Domain Setup:**
+The app is accessible via both:
+- `headway.andy.ws` - Custom domain with SSL certificate managed by Fly.io
+- `next-departures.fly.dev` - Original Fly.io domain
+
+DNS is configured with CNAME records pointing to Fly.io infrastructure. SSL certificates auto-renew via Let's Encrypt.
+
+**Analytics:**
+Privacy-friendly analytics powered by Umami (free cloud plan). Tracking script is loaded client-side from `cloud.umami.is`. No server configuration required.
 
 ### Package.json scripts
 
