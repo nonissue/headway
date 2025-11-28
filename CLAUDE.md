@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is "headway" (formerly next-departures), a web application that shows upcoming departure times for Edmonton LRT stations based on GTFS schedule data. The app finds the user's geographically closest LRT station and displays departure times.
 
 **Live URLs:**
+
 - Primary: https://headway.andy.ws
 - Fly.io: https://next-departures.fly.dev
 
@@ -17,6 +18,8 @@ This is "headway" (formerly next-departures), a web application that shows upcom
 - `npm run dev` - Start both server and client in development mode (uses concurrently)
 - `npm run dev:server` - Start only the Express/Hono server with tsx watch
 - `npm run dev:client` - Start only the Vite dev server
+
+Automatically use context7 for code generation and library documentation.
 
 ### Building
 
@@ -148,10 +151,12 @@ The app is deployed to Fly.io and accessible via two URLs:
 - **Fly.io domain**: `next-departures.fly.dev` (original)
 
 **DNS Configuration:**
+
 - CNAME record: `headway.andy.ws` → `qxezk2y.next-departures.fly.dev`
 - ACME challenge: `_acme-challenge.headway` → `headway.andy.ws.qxezk2y.flydns.net.`
 
 **SSL Certificate:**
+
 - Managed by Fly.io
 - Issued by Let's Encrypt
 - Auto-renewal enabled
@@ -164,6 +169,7 @@ Both domains serve the same app with valid HTTPS certificates.
 Privacy-friendly analytics via [Umami Cloud](https://umami.is) (free plan).
 
 **Implementation:**
+
 - Tracking script added to `index.html` in `<head>` section
 - Script loads from `cloud.umami.is` with `defer` attribute
 - Client-side only, no server configuration needed
