@@ -32,5 +32,6 @@
     "tailwindCSS.experimental.configFile": "src/globals.css",
     "css.lint.unknownAtRules": "ignore",
     "css.validate": true,
+    "biome.enabled": false,
     "typescript.validate.enable": true
 }
