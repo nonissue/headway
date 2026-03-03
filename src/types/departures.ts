@@ -1,13 +1,14 @@
 export interface Departure {
     stop_id: string;
     trip_id: string;
-    stop_headsign: string;
+    stop_headsign: string | null;
     departure_time: string;
-    departure_timestamp: number;
+    departure_timestamp?: number;
 }
 
 export interface ProcessedDeparture extends Departure {
     displayTime: string;
+    displayHeadsign: string;
 }
 
 export interface Station {
@@ -15,12 +16,6 @@ export interface Station {
     stop_name: string;
     stop_lat?: number;
     stop_lon?: number;
-}
-
-export interface ApiResponse<T> {
-    data?: T;
-    error?: string;
-    timestamp?: string;
 }
 
 export interface PlatformDepartures {
@@ -31,13 +26,28 @@ export interface PlatformDepartures {
 export interface DeparturesResponse {
     station: Station;
     platforms: PlatformDepartures[];
-    timestamp?: string;
+    timestamp: string;
 }
 
 export interface StationDeparturesResponse {
-    stationId: string;
     station: Station;
     platforms: PlatformDepartures[];
+    timestamp: string;
+}
+
+export interface StationsResponse {
+    stations: Station[];
+    timestamp: string;
+}
+
+export interface StopDeparturesResponse {
+    stopId: string;
+    departures: Departure[];
+    timestamp: string;
+}
+
+export interface ApiErrorResponse {
+    error: string;
     timestamp: string;
 }
 

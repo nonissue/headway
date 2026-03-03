@@ -43,7 +43,7 @@ export const useApiRequest = () => {
                         );
                     }
 
-                    const data = await response.json();
+                    const data: T = await response.json();
                     return data;
                 } catch (error) {
                     clearTimeout(timeoutId);

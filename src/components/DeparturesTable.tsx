@@ -78,7 +78,7 @@ const getPlatformDirection = (departures: ProcessedDeparture[]): string => {
     if (!departures || departures.length === 0) return 'Platform';
 
     // Get unique destinations for this platform
-    const destinations = [...new Set(departures.map((d) => d.stop_headsign))];
+    const destinations = [...new Set(departures.map((d) => d.displayHeadsign))];
 
     // Common northbound/eastbound destinations
     const northbound = ['NAIT', 'Clareview', 'Gorman'];
@@ -140,7 +140,7 @@ export const DeparturesTable = ({
                                             {[
                                                 ...new Set(
                                                     group.map(
-                                                        (d) => d.stop_headsign
+                                                        (d) => d.displayHeadsign
                                                     )
                                                 ),
                                             ].map((dest) => {
@@ -175,7 +175,7 @@ export const DeparturesTable = ({
                                         {group.map((dep, i) => {
                                             const colorClasses =
                                                 getHeadsignColorClasses(
-                                                    dep.stop_headsign
+                                                    dep.displayHeadsign
                                                 );
                                             return (
                                                 <div
@@ -204,7 +204,7 @@ export const DeparturesTable = ({
                                                             )
                                                         )}
                                                     >
-                                                        {dep.stop_headsign}
+                                                        {dep.displayHeadsign}
                                                     </div>
                                                     <div
                                                         className={cn(

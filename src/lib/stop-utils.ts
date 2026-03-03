@@ -124,7 +124,7 @@ export function getStopsForParentStation(parentStationId: string): Stop[] {
 export interface StopDepartures {
     stop_id: string;
     trip_id: string;
-    stop_headsign: string | null;
+    stop_headsign: string | null | undefined;
     departure_time: string; // GTFS service time, may be >= 24:00:00
     departure_timestamp?: number; // present in some imports
 }

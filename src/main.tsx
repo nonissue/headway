@@ -55,7 +55,9 @@ function App() {
                 );
 
                 setSelectedStation(data.station);
-                setDepartures(data.platforms.map((platform) => platform.departures));
+                setDepartures(
+                    data.platforms.map((platform) => platform.departures)
+                );
                 if (isRefresh) {
                     setAnimationKey((prev) => prev + 1);
                 }
@@ -121,6 +123,8 @@ function App() {
             group.map((dep) => ({
                 ...dep,
                 displayTime: convertServiceTimeToClockTime(dep.departure_time),
+                displayHeadsign:
+                    dep.stop_headsign?.trim() || 'Unknown destination',
             }))
         );
     }, [departures]);

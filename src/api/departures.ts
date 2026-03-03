@@ -1,10 +1,17 @@
 import { Hono } from 'hono';
-import { closeDb } from 'gtfs';
 import { getNearbyDepartures } from '../lib/get-nearby-departures.js';
 import { getDeparturesForStop } from '../lib/stop-utils.js';
-import { getConfig } from '../lib/file-utils.js';
-import { loadDb } from '../lib/db-utils.js';
-import { Config } from '../types/global.js';
+import {
+    createTimestamp,
+    toDepartureDto,
+    toPlatformDto,
+    toStationDto,
+} from '../lib/api-mappers.js';
+import type {
+    ApiErrorResponse,
+    DeparturesResponse,
+    StopDeparturesResponse,
+} from '../types/departures.js';
 
 export const departures = new Hono().basePath('/departures');
 
@@ -12,31 +19,36 @@ export const departures = new Hono().basePath('/departures');
  * GET /api/departures/nearby?lat=…&lon=…
  */
 departures.get('/nearby', async (c) => {
-    let db;
-
     try {
-        const config: Config = await getConfig();
-        db = await loadDb(config);
-
         const lat = parseFloat(c.req.query('lat') ?? '');
         const lon = parseFloat(c.req.query('lon') ?? '');
 
         if (Number.isNaN(lat) || Number.isNaN(lon)) {
-            return c.json({ error: 'Invalid latitude or longitude' }, 400);
+            const response: ApiErrorResponse = {
+                error: 'Invalid latitude or longitude',
+                timestamp: createTimestamp(),
+            };
+
+            return c.json(response, 400);
         }
 
         const result = await getNearbyDepartures({ lat, lon });
+        const response: DeparturesResponse = {
+            station: toStationDto(result.station),
+            platforms: result.platforms.map(toPlatformDto),
+            timestamp: createTimestamp(),
+        };
 
-        return c.json({
-            ...result,
-            timestamp: new Date().toISOString(),
-        });
+        return c.json(response);
     } catch (err) {
         console.error('Error in /api/departures:', err);
 
-        return c.json({ error: 'Failed to fetch departures' }, 500);
-    } finally {
-        if (db) closeDb(db);
+        const response: ApiErrorResponse = {
+            error: 'Failed to fetch departures',
+            timestamp: createTimestamp(),
+        };
+
+        return c.json(response, 500);
     }
 });
 
@@ -44,29 +56,32 @@ departures.get('/nearby', async (c) => {
  * GET /api/departures/:stopId
  */
 departures.get('/:stopId', async (c) => {
-    let db;
-
     try {
-        const config: Config = await getConfig();
-        db = await loadDb(config);
-
         const stopId = c.req.param('stopId');
 
-        const result = await getDeparturesForStop({
+        const departures = await getDeparturesForStop({
             stopId,
             clockTime: '08:00:00',
             lookaheadMins: 200,
             limit: 100,
         });
+        const response: StopDeparturesResponse = {
+            stopId,
+            departures: departures.map(toDepartureDto),
+            timestamp: createTimestamp(),
+        };
 
-        return c.json(result);
+        return c.json(response);
     } catch (err) {
         console.error(
             `Error in /api/departures/${c.req.param('stopId')}:`,
             err
         );
-        return c.json({ error: 'Failed to fetch departures for stop' }, 500);
-    } finally {
-        if (db) closeDb(db);
+        const response: ApiErrorResponse = {
+            error: 'Failed to fetch departures for stop',
+            timestamp: createTimestamp(),
+        };
+
+        return c.json(response, 500);
     }
 });

@@ -15,7 +15,11 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import { Station, LocationCoordinates } from '../types/departures';
+import {
+    LocationCoordinates,
+    Station,
+    StationsResponse,
+} from '../types/departures';
 
 interface StationPickerProps {
     selectedStation?: Station;
@@ -55,7 +59,7 @@ export function StationPicker({
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
 
-                const data = await response.json();
+                const data: StationsResponse = await response.json();
                 setStations(data.stations || []);
             } catch (error) {
                 console.error('Failed to fetch stations:', error);
