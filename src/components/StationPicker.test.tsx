@@ -17,25 +17,37 @@ vi.mock('@/components/ui/button', () => ({
 }));
 
 vi.mock('@/components/ui/popover', () => ({
-    Popover: ({ children }: { children: unknown }) => <div>{children}</div>,
-    PopoverTrigger: ({ children }: { children: unknown }) => <div>{children}</div>,
-    PopoverContent: ({ children }: { children: unknown }) => <div>{children}</div>,
+    Popover: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+    PopoverTrigger: ({ children }: { children: React.ReactNode }) => (
+        <div>{children}</div>
+    ),
+    PopoverContent: ({ children }: { children: React.ReactNode }) => (
+        <div>{children}</div>
+    ),
 }));
 
 vi.mock('@/components/ui/command', () => ({
-    Command: ({ children }: { children: unknown }) => <div>{children}</div>,
+    Command: ({ children }: { children: React.ReactNode }) => (
+        <div>{children}</div>
+    ),
     CommandInput: (props: React.InputHTMLAttributes<HTMLInputElement>) => (
         <input {...props} />
     ),
-    CommandList: ({ children }: { children: unknown }) => <div>{children}</div>,
-    CommandEmpty: ({ children }: { children: unknown }) => <div>{children}</div>,
-    CommandGroup: ({ children }: { children: unknown }) => <div>{children}</div>,
+    CommandList: ({ children }: { children: React.ReactNode }) => (
+        <div>{children}</div>
+    ),
+    CommandEmpty: ({ children }: { children: React.ReactNode }) => (
+        <div>{children}</div>
+    ),
+    CommandGroup: ({ children }: { children: React.ReactNode }) => (
+        <div>{children}</div>
+    ),
     CommandItem: ({
         children,
         onSelect,
         value,
     }: {
-        children: unknown;
+        children: React.ReactNode;
         onSelect?: (value: string) => void;
         value: string;
     }) => (

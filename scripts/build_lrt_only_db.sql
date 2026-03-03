@@ -38,7 +38,7 @@ DROP TABLE IF EXISTS slim.shapes;
 CREATE TEMP TABLE keep_routes AS
 SELECT route_id, agency_id
 FROM main.routes
-WHERE route_type IN (0, 2);  -- 0=Tram/Light Rail, 2=Rail, 109=Light Rail (extended)
+WHERE route_type IN (0, 2);  -- ETS LRT routes currently import as 0=Tram/Light Rail, 2=Rail
 
 CREATE TEMP TABLE keep_trips AS
 SELECT trip_id, route_id, service_id, shape_id
@@ -75,9 +75,6 @@ WHERE s.parent_station IS NOT NULL
   -- NEW: Exclude operational parent stations
   AND s.parent_station NOT IN (SELECT stop_id FROM operational_stops);
 
-CREATE TEMP TABLE keep_services AS
-SELECT DISTINCT service_id FROM keep_trips;
-
 -- Optional sets (only created if needed later)
 CREATE TEMP TABLE keep_shapes AS
 SELECT DISTINCT shape_id FROM keep_trips WHERE shape_id IS NOT NULL;
@@ -88,6 +85,11 @@ SELECT DISTINCT kt.trip_id
 FROM keep_trips kt
 JOIN main.stop_times st ON kt.trip_id = st.trip_id
 WHERE st.stop_id IN (SELECT stop_id FROM keep_stops);
+
+CREATE TEMP TABLE keep_services AS
+SELECT DISTINCT kt.service_id
+FROM keep_trips kt
+JOIN passenger_trips pt ON pt.trip_id = kt.trip_id;
 
 -- 2) Copy filtered tables into the target db
 .print --- Copying filtered tables into slim db ---
@@ -109,14 +111,9 @@ CREATE TABLE slim.stops       AS SELECT * FROM main.stops
 CREATE TABLE slim.calendar_dates AS SELECT * FROM main.calendar_dates
  WHERE service_id IN (SELECT service_id FROM keep_services);
 
- -- --- NEW: ensure a calendar table exists in the slim DB ---
--- Create an empty GTFS-compatible schema (works even if source has no calendar)
-CREATE TABLE slim.calendar (
-  service_id TEXT,
-  monday INTEGER, tuesday INTEGER, wednesday INTEGER,
-  thursday INTEGER, friday INTEGER, saturday INTEGER, sunday INTEGER,
-  start_date TEXT, end_date TEXT
-);
+-- Preserve recurring service rows if the feed ever starts using calendar.txt again.
+CREATE TABLE slim.calendar AS SELECT * FROM main.calendar
+ WHERE service_id IN (SELECT service_id FROM keep_services);
 
 -- Keep agency/feed_info (lightweight metadata; adjust if you want stricter)
 CREATE TABLE slim.agency      AS SELECT * FROM main.agency;

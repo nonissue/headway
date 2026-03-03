@@ -1,16 +1,21 @@
 // @vitest-environment jsdom
 
+import type { ReactNode } from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/components/ui/dialog', () => ({
-    Dialog: ({ children }: { children: unknown }) => <div>{children}</div>,
-    DialogTrigger: ({ children }: { children: unknown }) => <div>{children}</div>,
-    DialogContent: ({ children }: { children: unknown }) => (
+    Dialog: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    DialogTrigger: ({ children }: { children: ReactNode }) => (
+        <div>{children}</div>
+    ),
+    DialogContent: ({ children }: { children: ReactNode }) => (
         <div data-testid="dialog-content">{children}</div>
     ),
-    DialogDescription: ({ children }: { children: unknown }) => <p>{children}</p>,
-    DialogTitle: ({ children }: { children: unknown }) => <h2>{children}</h2>,
+    DialogDescription: ({ children }: { children: ReactNode }) => (
+        <p>{children}</p>
+    ),
+    DialogTitle: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
 }));
 
 import { AboutDialog } from './AboutDialog';

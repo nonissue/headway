@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 
+import type { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { DepartureGroup } from '../types/departures.js';
@@ -9,7 +10,7 @@ vi.mock('@/components/ui/scroll-area', () => ({
         children,
         className,
     }: {
-        children: unknown;
+        children: ReactNode;
         className?: string;
     }) => (
         <div data-testid="scroll-area" className={className}>

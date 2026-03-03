@@ -1,11 +1,20 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite';
+import { coverageConfigDefaults, defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
     plugins: [tsconfigPaths()],
     test: {
-        coverage: { enabled: true },
+        coverage: {
+            enabled: true,
+            exclude: [
+                ...coverageConfigDefaults.exclude,
+                'src/components/ui/command.tsx',
+                'src/components/ui/dialog.tsx',
+                'src/components/ui/popover.tsx',
+                'src/components/ui/scroll-area.tsx',
+            ],
+        },
         open: true,
         ui: true,
     },
