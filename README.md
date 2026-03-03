@@ -6,6 +6,7 @@
 - View the app online at:
     - **Primary URL**: [headway.andy.ws](https://headway.andy.ws)
     - **Fly.io URL**: [next-departures.fly.dev](https://next-departures.fly.dev)
+- Best mobile experience is on iPhone when installed from Safari as a standalone PWA via **Share -> Add to Home Screen**.
 - Relies heavily on `node-gtfs` to parse and import GTFS CSV data into an sqlite database.
 - Analytics powered by [Umami](https://umami.is) (free cloud plan)
 
@@ -122,6 +123,11 @@ npm run build
 # Builds the project and runs the compiled server
 npm run preview
 ```
+
+## UI Notes
+
+- The About surface uses a bottom drawer on smaller viewports and a dialog on larger screens.
+- Safari/iOS shell styling is expected to follow the app's CSS theme tokens and page backgrounds; avoid reintroducing separate runtime browser-chrome color hacks unless there is a concrete regression.
 
 ### Firefox spoof Geolocation for testing
 

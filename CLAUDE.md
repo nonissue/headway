@@ -10,6 +10,7 @@ This repository contains Headway, a Vite + React + Hono app that shows upcoming 
 - `src/api/departures.ts` and `src/api/stations.ts`: API route handlers that map server/domain data into shared response DTOs.
 - `src/types/departures.ts`: Shared client/server API response shapes.
 - `src/lib/stop-utils.ts` and `src/lib/time-utils.ts`: GTFS stop queries and time conversion logic.
+- `src/components/AboutDialog.tsx`: Responsive About surface. Uses a drawer on small screens and a dialog on larger screens.
 
 ## Commands
 
@@ -29,4 +30,5 @@ This repository contains Headway, a Vite + React + Hono app that shows upcoming 
 - The server opens the GTFS SQLite DB once at startup and reuses it for requests.
 - Geolocation falls back to `TEST_COORDS` from `src/config.ts` if the browser lookup fails.
 - PWA support is managed by `vite-plugin-pwa`; do not add a second manual service worker.
+- Safari/iOS chrome styling should track the actual CSS theme/background tokens. Avoid reintroducing ad hoc runtime theme-color syncing unless you are fixing a verified browser-chrome mismatch.
 - Historical notes were condensed after the hook/API refactor so this file stays aligned with the current code.
