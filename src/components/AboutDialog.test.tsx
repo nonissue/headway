@@ -1,31 +1,90 @@
 // @vitest-environment jsdom
 
-import type { ReactNode } from 'react';
+import { createElement, isValidElement, type ReactNode } from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+function withInjectedTriggerProps(
+    children: ReactNode,
+    injectedProps: Record<string, string>
+) {
+    if (!isValidElement(children)) {
+        return children;
+    }
+
+    const childProps = (children.props ?? {}) as Record<string, unknown>;
+
+    return createElement(
+        children.type,
+        {
+            ...childProps,
+            ...injectedProps,
+        } as Record<string, unknown>
+    );
+}
 
 vi.mock('@/components/ui/dialog', () => ({
     Dialog: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-    DialogTrigger: ({ children }: { children: ReactNode }) => (
-        <div>{children}</div>
-    ),
+    DialogTrigger: ({ children }: { children: ReactNode }) =>
+        withInjectedTriggerProps(children, {
+            'data-trigger-probe': 'dialog',
+        }),
     DialogContent: ({ children }: { children: ReactNode }) => (
         <div data-testid="dialog-content">{children}</div>
     ),
+    DialogHeader: ({ children }: { children: ReactNode }) => <div>{children}</div>,
     DialogDescription: ({ children }: { children: ReactNode }) => (
         <p>{children}</p>
     ),
     DialogTitle: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
 }));
 
+vi.mock('@/components/ui/drawer', () => ({
+    Drawer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    DrawerTrigger: ({ children }: { children: ReactNode }) =>
+        withInjectedTriggerProps(children, {
+            'data-trigger-probe': 'drawer',
+        }),
+    DrawerContent: ({ children }: { children: ReactNode }) => (
+        <div data-testid="drawer-content">{children}</div>
+    ),
+    DrawerHeader: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    DrawerFooter: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    DrawerClose: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    DrawerDescription: ({ children }: { children: ReactNode }) => (
+        <p>{children}</p>
+    ),
+    DrawerTitle: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
+}));
+
 import { AboutDialog } from './AboutDialog';
 
+function mockMatchMedia(matches: boolean) {
+    Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        value: vi.fn().mockImplementation(() => ({
+            matches,
+            media: '(min-width: 640px)',
+            onchange: null,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+            addListener: vi.fn(),
+            removeListener: vi.fn(),
+            dispatchEvent: vi.fn(),
+        })),
+    });
+}
+
 describe('AboutDialog', () => {
+    beforeEach(() => {
+        mockMatchMedia(true);
+    });
+
     afterEach(() => {
         cleanup();
     });
 
-    it('renders the trigger, metadata, and available links', () => {
+    it('renders the improved desktop dialog layout with metadata and links', () => {
         render(
             <AboutDialog
                 name="Andy"
@@ -41,10 +100,19 @@ describe('AboutDialog', () => {
         expect(
             screen.getByRole('button', { name: 'Show app information' })
         ).toBeTruthy();
-        expect(screen.getByText('Headway')).toBeTruthy();
-        expect(screen.getByText('By Andy')).toBeTruthy();
-        expect(screen.getByText('2025-2026')).toBeTruthy();
+        expect(
+            screen.getByRole('button', { name: 'Show app information' }).getAttribute(
+                'data-trigger-probe'
+            )
+        ).toBe('dialog');
+        expect(screen.getByTestId('dialog-content')).toBeTruthy();
+        expect(screen.queryByTestId('drawer-content')).toBeNull();
+        expect(
+            screen.getByText('Fast LRT departures without the bus-feed noise.')
+        ).toBeTruthy();
         expect(screen.getByText('Built with GTFS data.')).toBeTruthy();
+        expect(screen.getByText('Andy')).toBeTruthy();
+        expect(screen.getByText(/2025-2026/)).toBeTruthy();
         expect(
             screen.getByRole('link', { name: 'Email' }).getAttribute('href')
         ).toBe('mailto:andy@example.com');
@@ -53,17 +121,30 @@ describe('AboutDialog', () => {
         ).toBe('https://example.com');
         expect(
             screen.getByRole('link', { name: 'GitHub' }).getAttribute('href')
-        ).toBe(
-            'https://github.com/example/repo'
-        );
+        ).toBe('https://github.com/example/repo');
     });
 
-    it('omits optional sections when contact props are not provided', () => {
-        render(<AboutDialog name="Andy" />);
+    it('renders the drawer version on small viewports and omits optional links', () => {
+        mockMatchMedia(false);
 
+        render(<AboutDialog name="Andy" startYear={2025} />);
+
+        expect(screen.getByTestId('drawer-content')).toBeTruthy();
+        expect(screen.queryByTestId('dialog-content')).toBeNull();
+        expect(screen.getByRole('button', { name: 'Show app information' })).toBeTruthy();
+        expect(
+            screen.getByRole('button', { name: 'Show app information' }).getAttribute(
+                'data-trigger-probe'
+            )
+        ).toBe('drawer');
+        expect(screen.getByRole('button', { name: 'Close' })).toBeTruthy();
+        expect(
+            screen.getByText(
+                'Built from ETS GTFS schedule data and trimmed down to the rail service the app actually needs.'
+            )
+        ).toBeTruthy();
         expect(screen.queryByRole('link', { name: 'Email' })).toBeNull();
         expect(screen.queryByRole('link', { name: 'Website' })).toBeNull();
         expect(screen.queryByRole('link', { name: 'GitHub' })).toBeNull();
-        expect(screen.getByText('2026')).toBeTruthy();
     });
 });
