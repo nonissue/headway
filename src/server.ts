@@ -48,6 +48,23 @@ const app = new Hono();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientPath = path.join(__dirname, '../dist/client');
 
+app.get('/stats.js', async (c) => {
+    const upstream = await fetch('https://cloud.umami.is/script.js');
+
+    if (!upstream.ok || !upstream.body) {
+        return c.text('Failed to load analytics script', 502);
+    }
+
+    const contentType =
+        upstream.headers.get('content-type') ??
+        'application/javascript; charset=utf-8';
+
+    c.header('Content-Type', contentType);
+    c.header('Cache-Control', 'public, max-age=3600');
+
+    return c.body(upstream.body);
+});
+
 // Serve static files from Vite build
 app.use(
     '*',
