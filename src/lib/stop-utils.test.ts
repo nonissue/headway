@@ -2,7 +2,9 @@
 
 import { it, describe, beforeEach, afterEach, expect, vi } from 'vitest';
 import {
+    getAllStations,
     getClosestStation,
+    getDeparturesForStation,
     getStopsForParentStation,
     getDeparturesForStop,
 } from './stop-utils.js';
@@ -18,6 +20,49 @@ import { getStops, getStoptimes } from 'gtfs';
 describe('stop-utils', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+    });
+
+    describe('getAllStations', () => {
+        it('sorts stations alphabetically when no coordinates are provided', async () => {
+            vi.mocked(getStops).mockResolvedValue([
+                { stop_id: '2', stop_name: 'Southgate' },
+                { stop_id: '1', stop_name: 'Central' },
+            ]);
+
+            await expect(getAllStations()).resolves.toEqual([
+                { stop_id: '1', stop_name: 'Central' },
+                { stop_id: '2', stop_name: 'Southgate' },
+            ]);
+            expect(getStops).toHaveBeenCalledWith(
+                { location_type: 1 },
+                [],
+                [],
+                { bounding_box_side_m: 999999999 }
+            );
+        });
+
+        it('forwards coordinates and preserves GTFS distance ordering', async () => {
+            const stations = [
+                { stop_id: '2', stop_name: 'Southgate' },
+                { stop_id: '1', stop_name: 'Central' },
+            ];
+
+            vi.mocked(getStops).mockResolvedValue(stations);
+
+            await expect(
+                getAllStations({ lat: 53.5, lon: -113.5 })
+            ).resolves.toBe(stations);
+            expect(getStops).toHaveBeenCalledWith(
+                {
+                    location_type: 1,
+                    stop_lat: 53.5,
+                    stop_lon: -113.5,
+                },
+                [],
+                [],
+                { bounding_box_side_m: 999999999 }
+            );
+        });
     });
 
     describe('getClosestStation', () => {
@@ -321,6 +366,46 @@ describe('stop-utils', () => {
             );
         });
 
+        it('sorts by departure time when timestamps are unavailable', async () => {
+            const mockStopInfo = {
+                stop_id: '12345',
+                parent_station: 'Q1234',
+                stop_name: 'Test Station',
+            };
+
+            const mockParentStation = {
+                stop_id: 'Q1234',
+                stop_name: 'Test Station',
+            };
+
+            vi.mocked(getStops)
+                .mockReturnValueOnce([mockStopInfo])
+                .mockReturnValueOnce([mockParentStation]);
+            vi.mocked(getStoptimes).mockReturnValue([
+                {
+                    stop_id: '12345',
+                    trip_id: 'trip2',
+                    stop_headsign: 'Second',
+                    departure_time: '16:00:00',
+                    stop_sequence: 2,
+                },
+                {
+                    stop_id: '12345',
+                    trip_id: 'trip1',
+                    stop_headsign: 'First',
+                    departure_time: '15:45:00',
+                    stop_sequence: 1,
+                },
+            ]);
+
+            const result = await getDeparturesForStop({ stopId: '12345' });
+
+            expect(result.map((departure) => departure.trip_id)).toEqual([
+                'trip1',
+                'trip2',
+            ]);
+        });
+
         it('handles missing parent station gracefully', async () => {
             const mockStopInfo = {
                 stop_id: '12345',
@@ -345,6 +430,186 @@ describe('stop-utils', () => {
 
             expect(result).toHaveLength(1);
             expect(result[0].stop_headsign).toBe('Destination');
+        });
+
+        it('logs debug service window details when requested', async () => {
+            const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+            vi.mocked(getStops).mockReturnValueOnce([
+                {
+                    stop_id: '12345',
+                    parent_station: undefined,
+                    stop_name: 'Test Station',
+                },
+            ]);
+            vi.mocked(getStoptimes).mockReturnValue([]);
+
+            await getDeparturesForStop({
+                stopId: '12345',
+                clockTime: '08:00:00',
+                debug: true,
+            });
+
+            expect(warnSpy).toHaveBeenCalledTimes(1);
+            expect(warnSpy.mock.calls[0]?.[0]).toContain('"stopId": "12345"');
+        });
+    });
+
+    describe('getDeparturesForStation', () => {
+        it('loads the station by id and returns departures for each platform', async () => {
+            const station = {
+                stop_id: 'Q7018',
+                stop_name: 'Century Park Station',
+            };
+            const childStops = [
+                {
+                    stop_id: '49821',
+                    parent_station: 'Q7018',
+                    stop_name: 'Platform 1',
+                },
+                {
+                    stop_id: '49822',
+                    parent_station: 'Q7018',
+                    stop_name: 'Platform 2',
+                },
+            ];
+
+            vi.mocked(getStops).mockImplementation((query) => {
+                if (!query) {
+                    return [];
+                }
+
+                if ('parent_station' in query && query.parent_station === 'Q7018') {
+                    return childStops;
+                }
+
+                if ('stop_id' in query && query.stop_id === 'Q7018') {
+                    return [station];
+                }
+
+                if ('stop_id' in query && query.stop_id === '49821') {
+                    return [childStops[0]];
+                }
+
+                if ('stop_id' in query && query.stop_id === '49822') {
+                    return [childStops[1]];
+                }
+
+                return [];
+            });
+            vi.mocked(getStoptimes).mockImplementation((query) => {
+                if (!query) {
+                    return [];
+                }
+
+                if (query.stop_id === '49821') {
+                    return [
+                        {
+                            stop_id: '49821',
+                            trip_id: 'trip-1',
+                            stop_headsign: 'NAIT',
+                            departure_time: '08:05:00',
+                            stop_sequence: 1,
+                        },
+                    ];
+                }
+
+                if (query.stop_id === '49822') {
+                    return [
+                        {
+                            stop_id: '49822',
+                            trip_id: 'trip-2',
+                            stop_headsign: 'Clareview',
+                            departure_time: '08:10:00',
+                            stop_sequence: 1,
+                        },
+                    ];
+                }
+
+                return [];
+            });
+
+            await expect(getDeparturesForStation('Q7018')).resolves.toEqual({
+                station,
+                platforms: [
+                    {
+                        stop: childStops[0],
+                        departures: [
+                            {
+                                stop_id: '49821',
+                                trip_id: 'trip-1',
+                                stop_headsign: 'NAIT',
+                                departure_time: '08:05:00',
+                                stop_sequence: 1,
+                            },
+                        ],
+                    },
+                    {
+                        stop: childStops[1],
+                        departures: [
+                            {
+                                stop_id: '49822',
+                                trip_id: 'trip-2',
+                                stop_headsign: 'Clareview',
+                                departure_time: '08:10:00',
+                                stop_sequence: 1,
+                            },
+                        ],
+                    },
+                ],
+            });
+        });
+
+        it('accepts a station object without refetching it first', async () => {
+            const station = {
+                stop_id: 'Q7005',
+                stop_name: 'Clareview Station',
+            };
+            const childStop = {
+                stop_id: '79772',
+                parent_station: 'Q7005',
+                stop_name: 'Platform 1',
+            };
+
+            vi.mocked(getStops).mockImplementation((query) => {
+                if (!query) {
+                    return [];
+                }
+
+                if ('parent_station' in query && query.parent_station === 'Q7005') {
+                    return [childStop];
+                }
+
+                if ('stop_id' in query && query.stop_id === '79772') {
+                    return [childStop];
+                }
+
+                return [];
+            });
+            vi.mocked(getStoptimes).mockReturnValue([
+                {
+                    stop_id: '79772',
+                    trip_id: 'trip-1',
+                    stop_headsign: 'Downtown',
+                    departure_time: '08:15:00',
+                    stop_sequence: 1,
+                },
+            ]);
+
+            const result = await getDeparturesForStation(station);
+
+            expect(result.station).toBe(station);
+            expect(vi.mocked(getStops).mock.calls[0]?.[0]).toEqual({
+                parent_station: 'Q7005',
+            });
+        });
+
+        it('throws when the station id cannot be resolved', async () => {
+            vi.mocked(getStops).mockReturnValue([]);
+
+            await expect(getDeparturesForStation('missing')).rejects.toThrow(
+                'getDeparturesForStation: station not found'
+            );
         });
     });
 });

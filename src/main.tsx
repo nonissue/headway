@@ -13,7 +13,7 @@ import { Loader2 } from 'lucide-react';
 const ANALYTICS_SCRIPT_ID = 'headway-analytics';
 const UMAMI_WEBSITE_ID = 'aac8d5e9-5e2d-4107-8844-f484b9e45eb2';
 
-function App() {
+export function App() {
     const {
         animationKey,
         clearError,
@@ -123,8 +123,16 @@ function App() {
     );
 }
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <App />
-    </ThemeProvider>
-);
+export function mountApp(rootElement = document.getElementById('root')) {
+    if (!rootElement) {
+        return;
+    }
+
+    ReactDOM.createRoot(rootElement).render(
+        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+            <App />
+        </ThemeProvider>
+    );
+}
+
+mountApp();
