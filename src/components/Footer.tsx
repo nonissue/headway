@@ -1,5 +1,5 @@
 import { History, RefreshCw } from 'lucide-react';
-import CreatorBadgeInline from './features/CreatorBadgePopover';
+import { AboutDialog } from './AboutDialog';
 
 interface FooterProps {
     lastUpdated: Date | null;
@@ -12,7 +12,7 @@ export function Footer({ lastUpdated, onRefresh }: FooterProps) {
     return (
         <div className="relative z-0 flex items-center justify-between border-t border-l-4 border-border/50 border-l-foreground/20 bg-gradient-to-t from-foreground/[8%] via-foreground/[5%] to-foreground/[2%] px-4 py-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-sm backdrop-blur-md sm:p-4 sm:pb-4">
             <div className="relative">
-                <CreatorBadgeInline
+                <AboutDialog
                     name="Andy Williams"
                     email="andy@nonissue.org"
                     website="https://andy.ws"

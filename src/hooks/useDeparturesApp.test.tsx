@@ -4,9 +4,11 @@ import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { TEST_COORDS } from '../config.js';
 import type {
+    DepartureGroup,
     DeparturesResponse,
     Station,
     StationDeparturesResponse,
+    StationsResponse,
 } from '../types/departures.js';
 import { useDeparturesApp } from './useDeparturesApp.js';
 
@@ -83,6 +85,25 @@ function createStationResponse(
     };
 }
 
+function createStationsResponse(
+    overrides: Partial<StationsResponse> = {}
+): StationsResponse {
+    return {
+        stations: [
+            {
+                stop_id: 'station-nearby',
+                stop_name: 'Nearby Station',
+            },
+            {
+                stop_id: 'station-alt',
+                stop_name: 'Alternate Station',
+            },
+        ],
+        timestamp: DEFAULT_TIMESTAMP,
+        ...overrides,
+    };
+}
+
 function mockGeolocationSuccess(
     coords: { lat: number; lon: number } = GEOLOCATION_COORDS
 ) {
@@ -132,6 +153,7 @@ function mockGeolocationFailure(message = 'Permission denied') {
 describe('useDeparturesApp', () => {
     beforeEach(() => {
         vi.stubGlobal('fetch', vi.fn());
+        vi.spyOn(console, 'error').mockImplementation(() => {});
     });
 
     afterEach(() => {
@@ -142,47 +164,74 @@ describe('useDeparturesApp', () => {
 
     it('loads nearby departures from geolocation on mount', async () => {
         mockGeolocationSuccess();
-        vi.mocked(fetch).mockResolvedValueOnce(
-            createJsonResponse(createNearbyResponse())
-        );
+        vi.mocked(fetch)
+            .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
+            .mockResolvedValueOnce(createJsonResponse(createStationsResponse()));
 
         const { result } = renderHook(() => useDeparturesApp());
 
         await waitFor(() => {
             expect(result.current.isLoading).toBe(false);
+            expect(result.current.isStationsLoading).toBe(false);
         });
 
-        expect(fetch).toHaveBeenCalledTimes(1);
-        expect(fetch).toHaveBeenCalledWith(
+        expect(fetch).toHaveBeenCalledTimes(2);
+        expect(fetch).toHaveBeenNthCalledWith(
+            1,
             `/api/departures/nearby?lat=${GEOLOCATION_COORDS.lat}&lon=${GEOLOCATION_COORDS.lon}`,
             expect.objectContaining({
                 signal: expect.any(AbortSignal),
             })
         );
+        expect(fetch).toHaveBeenNthCalledWith(
+            2,
+            `/api/stations?lat=${GEOLOCATION_COORDS.lat}&lon=${GEOLOCATION_COORDS.lon}`,
+            expect.objectContaining({
+                signal: expect.any(AbortSignal),
+            })
+        );
         expect(result.current.selectedStation?.stop_id).toBe('station-nearby');
+        expect(result.current.stations).toEqual(
+            createStationsResponse().stations
+        );
         expect(result.current.userLocation).toEqual(GEOLOCATION_COORDS);
-        expect(result.current.processedDepartures[0][0].displayTime).toBe(
-            '01:05:00'
-        );
-        expect(result.current.processedDepartures[0][0].displayHeadsign).toBe(
-            'Unknown destination'
-        );
+        expect(result.current.departureGroups).toEqual<DepartureGroup[]>([
+            {
+                heading: 'Unknown destination',
+                destinations: ['Unknown destination'],
+                departures: [
+                    expect.objectContaining({
+                        displayTime: '01:05:00',
+                        displayHeadsign: 'Unknown destination',
+                    }),
+                ],
+            },
+        ]);
     });
 
     it('falls back to test coordinates when geolocation fails', async () => {
         mockGeolocationFailure();
-        vi.mocked(fetch).mockResolvedValueOnce(
-            createJsonResponse(createNearbyResponse())
-        );
+        vi.mocked(fetch)
+            .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
+            .mockResolvedValueOnce(createJsonResponse(createStationsResponse()));
 
         const { result } = renderHook(() => useDeparturesApp());
 
         await waitFor(() => {
             expect(result.current.isLoading).toBe(false);
+            expect(result.current.isStationsLoading).toBe(false);
         });
 
-        expect(fetch).toHaveBeenCalledWith(
+        expect(fetch).toHaveBeenNthCalledWith(
+            1,
             `/api/departures/nearby?lat=${TEST_COORDS.lat}&lon=${TEST_COORDS.lon}`,
+            expect.objectContaining({
+                signal: expect.any(AbortSignal),
+            })
+        );
+        expect(fetch).toHaveBeenNthCalledWith(
+            2,
+            `/api/stations?lat=${TEST_COORDS.lat}&lon=${TEST_COORDS.lon}`,
             expect.objectContaining({
                 signal: expect.any(AbortSignal),
             })
@@ -202,6 +251,7 @@ describe('useDeparturesApp', () => {
 
         vi.mocked(fetch)
             .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
+            .mockResolvedValueOnce(createJsonResponse(createStationsResponse()))
             .mockResolvedValueOnce(
                 createJsonResponse(createStationResponse(selectedStation))
             );
@@ -223,13 +273,14 @@ describe('useDeparturesApp', () => {
         });
 
         expect(fetch).toHaveBeenNthCalledWith(
-            2,
+            3,
             `/api/stations/${selectedStation.stop_id}/departures`,
             expect.objectContaining({
                 signal: expect.any(AbortSignal),
             })
         );
-        expect(result.current.processedDepartures[0][0].displayHeadsign).toBe(
+        expect(result.current.departureGroups[0].heading).toBe('Northbound');
+        expect(result.current.departureGroups[0].departures[0].displayHeadsign).toBe(
             'Clareview'
         );
     });
@@ -238,7 +289,9 @@ describe('useDeparturesApp', () => {
         mockGeolocationSuccess();
         vi.mocked(fetch)
             .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
-            .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()));
+            .mockResolvedValueOnce(createJsonResponse(createStationsResponse()))
+            .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
+            .mockResolvedValueOnce(createJsonResponse(createStationsResponse()));
 
         const { result } = renderHook(() => useDeparturesApp());
 
@@ -255,7 +308,9 @@ describe('useDeparturesApp', () => {
         await waitFor(() => {
             expect(result.current.animationKey).toBe(1);
         });
-        expect(fetch).toHaveBeenCalledTimes(2);
+        await waitFor(() => {
+            expect(fetch).toHaveBeenCalledTimes(4);
+        });
     });
 
     it('surfaces API errors and clears them on demand', async () => {

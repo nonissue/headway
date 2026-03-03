@@ -11,6 +11,12 @@ export interface ProcessedDeparture extends Departure {
     displayHeadsign: string;
 }
 
+export interface DepartureGroup {
+    heading: string;
+    destinations: string[];
+    departures: ProcessedDeparture[];
+}
+
 export interface Station {
     stop_id: string;
     stop_name: string;

@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TEST_COORDS } from '../config.js';
+import { createDepartureGroups } from '../lib/departure-display.js';
 import { convertServiceTimeToClockTime } from '../lib/time-utils.js';
 import type {
     ApiErrorResponse,
     Departure,
+    DepartureGroup,
     DeparturesResponse,
     LocationCoordinates,
     ProcessedDeparture,
     Station,
     StationDeparturesResponse,
+    StationsResponse,
 } from '../types/departures.js';
 
 interface AppError {
@@ -105,11 +108,21 @@ function getCurrentLocation(): Promise<LocationCoordinates> {
     });
 }
 
+function buildStationsUrl(location?: LocationCoordinates): string {
+    if (!location) {
+        return '/api/stations';
+    }
+
+    return `/api/stations?lat=${location.lat}&lon=${location.lon}`;
+}
+
 export function useDeparturesApp() {
     const [departures, setDepartures] = useState<Departure[][]>([]);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isStationsLoading, setIsStationsLoading] = useState(true);
     const [selectedStation, setSelectedStation] = useState<Station>();
+    const [stations, setStations] = useState<Station[]>([]);
     const [userLocation, setUserLocation] = useState<LocationCoordinates>();
     const [animationKey, setAnimationKey] = useState(0);
     const [error, setError] = useState<AppError | null>(null);
@@ -176,6 +189,26 @@ export function useDeparturesApp() {
         [applyDeparturesResponse, clearError]
     );
 
+    const loadStations = useCallback(async (location?: LocationCoordinates) => {
+        setIsStationsLoading(true);
+
+        try {
+            const response = await fetchJson<StationsResponse>(
+                buildStationsUrl(location),
+                {
+                    timeoutMs: 10000,
+                }
+            );
+
+            setStations(response.stations);
+        } catch (error) {
+            console.error('Failed to fetch stations:', error);
+            setStations([]);
+        } finally {
+            setIsStationsLoading(false);
+        }
+    }, []);
+
     const resolveLocation =
         useCallback(async (): Promise<LocationCoordinates> => {
             try {
@@ -214,6 +247,14 @@ export function useDeparturesApp() {
     }, [loadNearbyDepartures, resolveLocation]);
 
     useEffect(() => {
+        if (!userLocation) {
+            return;
+        }
+
+        void loadStations(userLocation);
+    }, [loadStations, userLocation]);
+
+    useEffect(() => {
         let ignore = false;
 
         void (async () => {
@@ -231,8 +272,8 @@ export function useDeparturesApp() {
         };
     }, [loadNearbyDepartures, resolveLocation]);
 
-    const processedDepartures = useMemo((): ProcessedDeparture[][] => {
-        return departures.map((group) =>
+    const departureGroups = useMemo((): DepartureGroup[] => {
+        const processedDepartures: ProcessedDeparture[][] = departures.map((group) =>
             group.map((departure) => ({
                 ...departure,
                 displayTime: convertServiceTimeToClockTime(
@@ -242,19 +283,23 @@ export function useDeparturesApp() {
                     departure.stop_headsign?.trim() || 'Unknown destination',
             }))
         );
+
+        return createDepartureGroups(processedDepartures);
     }, [departures]);
 
     return {
         animationKey,
         clearError,
+        departureGroups,
         error,
         hasError: error !== null,
         isLoading,
+        isStationsLoading,
         lastUpdated,
-        processedDepartures,
         refresh,
         selectedStation,
         selectStation,
+        stations,
         userLocation,
     };
 }

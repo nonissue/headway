@@ -1,117 +1,21 @@
 import { cn } from '@/components/lib/utils';
-import { ProcessedDeparture } from '../types/departures';
+import { getHeadsignColorClasses } from '../lib/departure-display.js';
+import type { DepartureGroup } from '../types/departures';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface DeparturesTableProps {
-    processedDepartures: ProcessedDeparture[][];
+    departureGroups: DepartureGroup[];
     animationKey?: number;
 }
 
-// Simple hash function to generate consistent colors for headsigns
-const getHeadsignColorClasses = (
-    headsign: string
-): { border: string; bg: string; bgBadge: string; text: string } => {
-    // 8 distinct colors for different destinations
-    const colors = [
-        {
-            border: 'border-headsign-1',
-            bg: 'bg-headsign-1',
-            bgBadge: 'bg-headsign-1-bg',
-            text: 'text-headsign-1',
-        }, // Blue
-        {
-            border: 'border-headsign-2',
-            bg: 'bg-headsign-2',
-            bgBadge: 'bg-headsign-2-bg',
-            text: 'text-headsign-2',
-        }, // Red
-        {
-            border: 'border-headsign-3',
-            bg: 'bg-headsign-3',
-            bgBadge: 'bg-headsign-3-bg',
-            text: 'text-headsign-3',
-        }, // Green
-        {
-            border: 'border-headsign-4',
-            bg: 'bg-headsign-4',
-            bgBadge: 'bg-headsign-4-bg',
-            text: 'text-headsign-4',
-        }, // Purple
-        {
-            border: 'border-headsign-5',
-            bg: 'bg-headsign-5',
-            bgBadge: 'bg-headsign-5-bg',
-            text: 'text-headsign-5',
-        }, // Orange
-        {
-            border: 'border-headsign-6',
-            bg: 'bg-headsign-6',
-            bgBadge: 'bg-headsign-6-bg',
-            text: 'text-headsign-6',
-        }, // Cyan
-        {
-            border: 'border-headsign-7',
-            bg: 'bg-headsign-7',
-            bgBadge: 'bg-headsign-7-bg',
-            text: 'text-headsign-7',
-        }, // Yellow
-        {
-            border: 'border-headsign-8',
-            bg: 'bg-headsign-8',
-            bgBadge: 'bg-headsign-8-bg',
-            text: 'text-headsign-8',
-        }, // Pink
-    ];
-
-    // Simple hash based on headsign characters
-    let hash = 0;
-    for (let i = 0; i < headsign.length; i++) {
-        hash = (hash << 5) - hash + headsign.charCodeAt(i);
-        hash = hash & hash; // Convert to 32bit integer
-    }
-
-    return colors[Math.abs(hash) % colors.length];
-};
-
-// Determine platform direction based on common destinations
-const getPlatformDirection = (departures: ProcessedDeparture[]): string => {
-    if (!departures || departures.length === 0) return 'Platform';
-
-    // Get unique destinations for this platform
-    const destinations = [...new Set(departures.map((d) => d.displayHeadsign))];
-
-    // Common northbound/eastbound destinations
-    const northbound = ['NAIT', 'Clareview', 'Gorman'];
-    // Common southbound/westbound destinations
-    const southbound = ['Century Park', 'Mill Woods', 'Health Sciences'];
-
-    const hasNorthbound = destinations.some((dest) =>
-        northbound.some((nb) => dest.includes(nb))
-    );
-    const hasSouthbound = destinations.some((dest) =>
-        southbound.some((sb) => dest.includes(sb))
-    );
-
-    if (hasNorthbound) return `Northbound · ${destinations.join(', ')}`;
-    if (hasSouthbound) return `Southbound · ${destinations.join(', ')}`;
-
-    // Fallback: just show destinations
-    return destinations.join(', ');
-};
-
 export const DeparturesTable = ({
-    processedDepartures,
+    departureGroups,
     animationKey = 0,
 }: DeparturesTableProps) => {
-    const nonEmptyGroups = processedDepartures.filter(
-        (group) => group.length > 0
-    );
-
     return (
         <div className="relative flex h-full max-w-xl flex-col">
             <div className="relative flex h-full flex-col">
-                {nonEmptyGroups.map((group, platformIdx) => {
-                    const direction = getPlatformDirection(group);
+                {departureGroups.map((group, platformIdx) => {
                     return (
                         <div
                             // eslint-disable-next-line @eslint-react/no-array-index-key
@@ -134,16 +38,10 @@ export const DeparturesTable = ({
                                                 'font-display text-xl font-bold transition-all sm:text-2xl'
                                             )}
                                         >
-                                            {direction.split(' · ')[0]}
+                                            {group.heading}
                                         </div>
                                         <div className="flex flex-wrap justify-end gap-2 text-right">
-                                            {[
-                                                ...new Set(
-                                                    group.map(
-                                                        (d) => d.displayHeadsign
-                                                    )
-                                                ),
-                                            ].map((dest) => {
+                                            {group.destinations.map((dest) => {
                                                 const colorClasses =
                                                     getHeadsignColorClasses(
                                                         dest
@@ -172,7 +70,7 @@ export const DeparturesTable = ({
                                                 'absolute top-0 bottom-0 left-0 w-1 bg-foreground/20'
                                             )}
                                         />
-                                        {group.map((dep, i) => {
+                                        {group.departures.map((dep, i) => {
                                             const colorClasses =
                                                 getHeadsignColorClasses(
                                                     dep.displayHeadsign

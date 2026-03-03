@@ -1,18 +1,20 @@
-import type { LocationCoordinates, Station } from '../types/departures';
+import type { Station } from '../types/departures';
 import { StationPicker } from './StationPicker';
 import { ThemeToggle } from './theme-toggle';
 
 interface HeaderProps {
+    stations: Station[];
     selectedStation: Station | undefined;
+    isStationsLoading: boolean;
     onStationSelect: (station: Station) => void;
-    userLocation: LocationCoordinates | undefined;
     isLoading?: boolean;
 }
 
 export function Header({
+    stations,
     selectedStation,
+    isStationsLoading,
     onStationSelect,
-    userLocation,
     isLoading = false,
 }: HeaderProps) {
     return (
@@ -25,8 +27,9 @@ export function Header({
                 {selectedStation ? (
                     <StationPicker
                         selectedStation={selectedStation}
+                        stations={stations}
+                        isLoading={isStationsLoading}
                         onStationSelect={onStationSelect}
-                        userLocation={userLocation}
                         className="w-full"
                     />
                 ) : (

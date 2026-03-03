@@ -15,61 +15,24 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-    LocationCoordinates,
-    Station,
-    StationsResponse,
-} from '../types/departures';
+import { Station } from '../types/departures';
 
 interface StationPickerProps {
     selectedStation?: Station;
+    stations: Station[];
+    isLoading?: boolean;
     onStationSelect: (station: Station) => void;
-    userLocation?: LocationCoordinates;
     className?: string;
 }
 
 export function StationPicker({
     selectedStation,
+    stations,
+    isLoading = false,
     onStationSelect,
-    userLocation,
     className,
 }: StationPickerProps) {
     const [open, setOpen] = React.useState(false);
-    const [stations, setStations] = React.useState<Station[]>([]);
-    const [loading, setLoading] = React.useState(true);
-
-    React.useEffect(() => {
-        const fetchStations = async () => {
-            try {
-                setLoading(true);
-
-                // Build URL with optional coordinates for distance-based sorting
-                let url = '/api/stations';
-                if (
-                    userLocation &&
-                    userLocation.lat != null &&
-                    userLocation.lon != null
-                ) {
-                    url += `?lat=${userLocation.lat}&lon=${userLocation.lon}`;
-                }
-
-                const response = await fetch(url);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data: StationsResponse = await response.json();
-                setStations(data.stations || []);
-            } catch (error) {
-                console.error('Failed to fetch stations:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchStations();
-    }, [userLocation]);
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -105,7 +68,7 @@ export function StationPicker({
                         tabIndex={-1}
                     />
                     <CommandList className="bg-transparent">
-                        {loading ? (
+                        {isLoading ? (
                             <div className="p-2 text-sm text-muted-foreground">
                                 Loading stations...
                             </div>

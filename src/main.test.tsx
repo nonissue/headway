@@ -9,8 +9,7 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type {
-    LocationCoordinates,
-    ProcessedDeparture,
+    DepartureGroup,
     Station,
 } from './types/departures.js';
 
@@ -35,14 +34,14 @@ vi.mock('./components/Header', () => ({
 
 vi.mock('./components/DeparturesTable', () => ({
     DeparturesTable: ({
-        processedDepartures,
+        departureGroups,
         animationKey,
     }: {
-        processedDepartures: ProcessedDeparture[][];
+        departureGroups: DepartureGroup[];
         animationKey?: number;
     }) => (
         <div>
-            Departures:{processedDepartures.length}:key:{animationKey ?? 0}
+            Departures:{departureGroups.length}:key:{animationKey ?? 0}
         </div>
     ),
 }));
@@ -73,22 +72,21 @@ const baseStation: Station = {
     stop_name: 'Central Station',
 };
 
-const baseLocation: LocationCoordinates = {
-    lat: 53.5,
-    lon: -113.5,
-};
-
-const baseDepartures: ProcessedDeparture[][] = [
-    [
-        {
-            stop_id: 'platform-1',
-            trip_id: 'trip-1',
-            stop_headsign: 'NAIT',
-            departure_time: '08:15:00',
-            displayTime: '08:15:00',
-            displayHeadsign: 'NAIT',
-        },
-    ],
+const baseDepartureGroups: DepartureGroup[] = [
+    {
+        heading: 'Northbound',
+        destinations: ['NAIT'],
+        departures: [
+            {
+                stop_id: 'platform-1',
+                trip_id: 'trip-1',
+                stop_headsign: 'NAIT',
+                departure_time: '08:15:00',
+                displayTime: '08:15:00',
+                displayHeadsign: 'NAIT',
+            },
+        ],
+    },
 ];
 
 function mockHookState(
@@ -104,12 +102,14 @@ function mockHookState(
         error: null,
         hasError: false,
         isLoading: false,
+        isStationsLoading: false,
         lastUpdated: new Date('2026-03-03T12:34:56.000Z'),
-        processedDepartures: baseDepartures,
+        departureGroups: baseDepartureGroups,
         refresh,
         selectedStation: baseStation,
         selectStation,
-        userLocation: baseLocation,
+        stations: [baseStation],
+        userLocation: { lat: 53.5, lon: -113.5 },
         ...overrides,
     });
 
@@ -135,8 +135,8 @@ describe('App', () => {
             isLoading: true,
             lastUpdated: null,
             selectedStation: undefined,
-            processedDepartures: [],
-            userLocation: undefined,
+            departureGroups: [],
+            stations: [],
         });
 
         render(<App />);
