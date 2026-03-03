@@ -26,10 +26,8 @@ import {
     Drawer,
     DrawerClose,
     DrawerContent,
-    DrawerDescription,
     DrawerFooter,
     DrawerHeader,
-    DrawerTitle,
     DrawerTrigger,
 } from '@/components/ui/drawer';
 
@@ -39,7 +37,6 @@ interface AboutDialogProps {
     website?: string;
     github?: string;
     note?: string;
-    startYear?: number;
     triggerLabel?: string;
     className?: string;
 }
@@ -90,30 +87,24 @@ function useIsDesktop() {
     );
 }
 
-function AboutFacts({ name, years }: { name: string; years: string }) {
+function AboutFacts({ name }: { name: string }) {
     return (
         <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+            <div className="p-0">
                 <p className="text-[0.65rem] font-medium tracking-[0.25em] text-muted-foreground uppercase">
                     Built By
                 </p>
                 <p className="mt-2 font-display text-xl font-semibold tracking-tight text-foreground">
                     {name}
                 </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                    Running since {years}.
-                </p>
             </div>
 
-            <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
+            <div className="rounded-2xl">
                 <p className="text-[0.65rem] font-medium tracking-[0.25em] text-muted-foreground uppercase">
                     Coverage
                 </p>
                 <p className="mt-2 font-display text-xl font-semibold tracking-tight text-foreground">
                     Edmonton LRT
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                    Rail-only GTFS data, intentionally slimmed down.
                 </p>
             </div>
         </div>
@@ -136,7 +127,7 @@ function AboutLinks({ links }: { links: AboutLink[] }) {
                         href={link.href}
                         target={link.external ? '_blank' : undefined}
                         rel={link.external ? 'noreferrer' : undefined}
-                        className="flex items-center justify-between rounded-2xl border border-border/60 bg-background/80 px-4 py-3 text-sm font-medium text-foreground transition-colors hover:bg-accent/40 hover:text-accent-foreground"
+                        className="flex items-center justify-between rounded-2xl border border-border/60 bg-background/80 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent/40 hover:text-accent-foreground"
                     >
                         <span className="flex items-center gap-3">
                             <Icon className="h-4 w-4 text-primary" />
@@ -186,10 +177,10 @@ function AboutTrigger({
                 'relative flex items-center gap-x-2 px-3 py-2 tracking-wide text-foreground uppercase transition-all duration-300',
                 className
             )}
-            aria-label={ariaLabel ?? 'Show app information'}
+            aria-label={ariaLabel ?? triggerLabel}
         >
             <Info className="h-4 w-4 text-primary transition-colors duration-300" />
-            <span className="hidden font-mono text-xs font-medium text-foreground sm:block">
+            <span className="sr-only">
                 {triggerLabel}
             </span>
         </button>
@@ -198,12 +189,10 @@ function AboutTrigger({
 
 function AboutDialogBody({
     name,
-    years,
     note,
     links,
 }: {
     name: string;
-    years: string;
     note: string;
     links: AboutLink[];
 }) {
@@ -212,7 +201,7 @@ function AboutDialogBody({
             <div className="space-y-6 p-6 sm:p-8">
                 <DialogHeader className="gap-4 text-left">
                     <div className="flex items-center gap-3">
-                        <div className="rounded-2xl border border-border/60 bg-primary p-3">
+                        <div className="rounded-2xl border border-border/60 bg-primary/10 p-3">
                             <TramFront className="h-5 w-5 text-primary" />
                         </div>
                         <p className="text-[0.65rem] font-medium tracking-[0.35em] text-muted-foreground uppercase">
@@ -221,7 +210,7 @@ function AboutDialogBody({
                     </div>
                     <div className="space-y-3">
                         <DialogTitle className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                            Fast LRT departures without the bus-feed noise.
+                            Know when to go.
                         </DialogTitle>
                         <DialogDescription className="max-w-xl text-base leading-relaxed text-muted-foreground">
                             {note}
@@ -229,7 +218,7 @@ function AboutDialogBody({
                     </div>
                 </DialogHeader>
 
-                <AboutFacts name={name} years={years} />
+                <AboutFacts name={name} />
             </div>
 
             <div className="space-y-6 border-t border-border/60 bg-muted/20 p-6 sm:p-8 md:border-t-0 md:border-l">
@@ -247,13 +236,9 @@ function AboutDialogBody({
 
 function AboutDrawerBody({
     name,
-    years,
-    note,
     links,
 }: {
     name: string;
-    years: string;
-    note: string;
     links: AboutLink[];
 }) {
     return (
@@ -263,22 +248,14 @@ function AboutDrawerBody({
                     <div className="rounded-2xl border border-border/60 bg-primary/10 p-3">
                         <TramFront className="h-5 w-5 text-primary" />
                     </div>
-                    <p className="text-[0.65rem] font-medium tracking-[0.35em] text-muted-foreground uppercase">
+                    <p className="text-[0.8rem] font-medium tracking-[0.35em] text-muted-foreground uppercase">
                         Headway
                     </p>
-                </div>
-                <div className="space-y-3">
-                    <DrawerTitle className="font-display text-2xl font-semibold tracking-tight">
-                        Fast LRT departures without the bus-feed noise.
-                    </DrawerTitle>
-                    <DrawerDescription className="text-sm leading-relaxed text-muted-foreground">
-                        {note}
-                    </DrawerDescription>
                 </div>
             </DrawerHeader>
 
             <div className="space-y-6 px-5 py-5">
-                <AboutFacts name={name} years={years} />
+                <AboutFacts name={name} />
                 <div className="space-y-3">
                     <p className="text-[0.65rem] font-medium tracking-[0.25em] text-muted-foreground uppercase">
                         Links
@@ -303,15 +280,11 @@ export function AboutDialog({
     website,
     github,
     note,
-    startYear,
     triggerLabel = 'About',
     className,
 }: AboutDialogProps) {
     const [open, setOpen] = useState(false);
     const isDesktop = useIsDesktop();
-    const year = new Date().getFullYear();
-    const years =
-        startYear && startYear < year ? `${startYear}-${year}` : `${year}`;
     const description = note?.trim() || DEFAULT_NOTE;
     const links: AboutLink[] = [
         ...(email
@@ -352,7 +325,6 @@ export function AboutDialog({
                 <DialogContent className="overflow-hidden border-border/60 bg-card/95 p-0 text-card-foreground backdrop-blur-xl sm:max-w-2xl">
                     <AboutDialogBody
                         name={name}
-                        years={years}
                         note={description}
                         links={links}
                     />
@@ -370,11 +342,9 @@ export function AboutDialog({
                 />
             </DrawerTrigger>
 
-            <DrawerContent className="border-border/60 bg-card/98 text-card-foreground">
+            <DrawerContent className="border-border/60 bg-card/90 text-card-foreground">
                 <AboutDrawerBody
                     name={name}
-                    years={years}
-                    note={description}
                     links={links}
                 />
             </DrawerContent>

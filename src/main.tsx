@@ -45,15 +45,15 @@ export function App() {
         <main className="relative flex h-dvh w-full flex-col items-center justify-start overflow-hidden overscroll-none font-display text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-none">
             <div className="relative z-10 flex h-full w-full max-w-xl flex-col px-0 sm:my-8 sm:h-auto">
                 <div
-                    className="relative flex h-full flex-col overflow-hidden border-0 border-border shadow-2xl ring-2 ring-border/40 backdrop-blur-3xl backdrop-saturate-150 sm:rounded-md sm:border-2"
-                    style={{
-                        boxShadow:
-                            'var(--glass-shadow, 0 12px 40px rgba(0,0,0,0.15))',
-                    }}
+                    className="relative flex h-full flex-col overflow-hidden border-0 border-foreground/10 shadow-2xl ring-2 ring-border/40 backdrop-blur-3xl sm:rounded-md sm:border-2 sm:shadow-md"
+                    // style={{
+                    //     boxShadow:
+                    //         'var(--glass-shadow, 0 12px 40px rgba(0,0,0,0.15))',
+                    // }}
                 >
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-foreground/5 via-foreground/5 to-foreground/5"></div>
+                    {/* <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-foreground/5 via-foreground/5 to-foreground/5"></div>
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent"></div>
-                    <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-foreground/5 to-transparent"></div>
+                    <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-foreground/5 to-transparent"></div> */}
 
                     <Header
                         stations={stations}

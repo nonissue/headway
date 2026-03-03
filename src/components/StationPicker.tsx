@@ -42,7 +42,7 @@ export function StationPicker({
                     role="combobox"
                     aria-expanded={open}
                     className={cn(
-                        'max-w-full justify-between border border-border/50 bg-gradient-to-r from-foreground/[8%] to-foreground/[4%] text-card-foreground shadow-sm transition-all duration-300 hover:border-primary/40 hover:from-foreground/[10%] hover:to-foreground/[6%] hover:text-accent-foreground',
+                        'max-w-full justify-between border border-muted-foreground/50 bg-gradient-to-r from-background to-muted text-card-foreground transition-all duration-300 hover:border-primary/40 hover:from-foreground/[10%] hover:to-foreground/[6%] hover:text-accent-foreground',
                         className
                     )}
                 >

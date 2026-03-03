@@ -33,7 +33,9 @@ describe('Footer', () => {
         expect(screen.getByText('about-dialog')).toBeTruthy();
         expect(screen.getByText(expectedTime)).toBeTruthy();
 
-        fireEvent.click(screen.getByRole('button', { name: /refresh/i }));
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Refresh departures' })
+        );
 
         expect(onRefresh).toHaveBeenCalledTimes(1);
     });

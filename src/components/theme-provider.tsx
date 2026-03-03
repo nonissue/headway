@@ -65,8 +65,8 @@ export function ThemeProvider({
     defaultTheme = 'system',
     storageKey = 'vite-ui-theme',
 }: ThemeProviderProps) {
-    const [theme, setTheme] = useState<Theme>(
-        () => readStoredTheme(storageKey, defaultTheme)
+    const [theme, setTheme] = useState<Theme>(() =>
+        readStoredTheme(storageKey, defaultTheme)
     );
 
     useEffect(() => {
@@ -79,14 +79,6 @@ export function ThemeProvider({
         const actualTheme = resolveTheme(theme);
 
         root.classList.add(actualTheme);
-
-        const themeColorMetas = document.querySelectorAll(
-            'meta[name="theme-color"]'
-        );
-        const themeColor = actualTheme === 'dark' ? '#1f1f23' : '#ffffff';
-        themeColorMetas.forEach((meta) => {
-            meta.setAttribute('content', themeColor);
-        });
     }, [theme]);
 
     const handleSetTheme = useCallback(
@@ -108,7 +100,9 @@ export function ThemeProvider({
         [handleSetTheme, theme]
     );
 
-    return <ThemeProviderContext value={value}>{children}</ThemeProviderContext>;
+    return (
+        <ThemeProviderContext value={value}>{children}</ThemeProviderContext>
+    );
 }
 
 export const useTheme = () => {

@@ -14,13 +14,10 @@ function withInjectedTriggerProps(
 
     const childProps = (children.props ?? {}) as Record<string, unknown>;
 
-    return createElement(
-        children.type,
-        {
-            ...childProps,
-            ...injectedProps,
-        } as Record<string, unknown>
-    );
+    return createElement(children.type, {
+        ...childProps,
+        ...injectedProps,
+    } as Record<string, unknown>);
 }
 
 vi.mock('@/components/ui/dialog', () => ({
@@ -32,7 +29,9 @@ vi.mock('@/components/ui/dialog', () => ({
     DialogContent: ({ children }: { children: ReactNode }) => (
         <div data-testid="dialog-content">{children}</div>
     ),
-    DialogHeader: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    DialogHeader: ({ children }: { children: ReactNode }) => (
+        <div>{children}</div>
+    ),
     DialogDescription: ({ children }: { children: ReactNode }) => (
         <p>{children}</p>
     ),
@@ -48,9 +47,15 @@ vi.mock('@/components/ui/drawer', () => ({
     DrawerContent: ({ children }: { children: ReactNode }) => (
         <div data-testid="drawer-content">{children}</div>
     ),
-    DrawerHeader: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-    DrawerFooter: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-    DrawerClose: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+    DrawerHeader: ({ children }: { children: ReactNode }) => (
+        <div>{children}</div>
+    ),
+    DrawerFooter: ({ children }: { children: ReactNode }) => (
+        <div>{children}</div>
+    ),
+    DrawerClose: ({ children }: { children: ReactNode }) => (
+        <div>{children}</div>
+    ),
     DrawerDescription: ({ children }: { children: ReactNode }) => (
         <p>{children}</p>
     ),
@@ -84,7 +89,7 @@ describe('AboutDialog', () => {
         cleanup();
     });
 
-    it('renders the improved desktop dialog layout with metadata and links', () => {
+    it('renders the current desktop dialog layout with metadata and links', () => {
         render(
             <AboutDialog
                 name="Andy"
@@ -92,27 +97,21 @@ describe('AboutDialog', () => {
                 website="https://example.com"
                 github="https://github.com/example/repo"
                 note="Built with GTFS data."
-                startYear={2025}
                 triggerLabel="Info"
             />
         );
 
+        expect(screen.getByRole('button', { name: 'Info' })).toBeTruthy();
         expect(
-            screen.getByRole('button', { name: 'Show app information' })
-        ).toBeTruthy();
-        expect(
-            screen.getByRole('button', { name: 'Show app information' }).getAttribute(
-                'data-trigger-probe'
-            )
+            screen
+                .getByRole('button', { name: 'Info' })
+                .getAttribute('data-trigger-probe')
         ).toBe('dialog');
         expect(screen.getByTestId('dialog-content')).toBeTruthy();
         expect(screen.queryByTestId('drawer-content')).toBeNull();
-        expect(
-            screen.getByText('Fast LRT departures without the bus-feed noise.')
-        ).toBeTruthy();
+        expect(screen.getByText('Know when to go.')).toBeTruthy();
         expect(screen.getByText('Built with GTFS data.')).toBeTruthy();
         expect(screen.getByText('Andy')).toBeTruthy();
-        expect(screen.getByText(/2025-2026/)).toBeTruthy();
         expect(
             screen.getByRole('link', { name: 'Email' }).getAttribute('href')
         ).toBe('mailto:andy@example.com');
@@ -127,22 +126,20 @@ describe('AboutDialog', () => {
     it('renders the drawer version on small viewports and omits optional links', () => {
         mockMatchMedia(false);
 
-        render(<AboutDialog name="Andy" startYear={2025} />);
+        render(<AboutDialog name="Andy" />);
 
         expect(screen.getByTestId('drawer-content')).toBeTruthy();
         expect(screen.queryByTestId('dialog-content')).toBeNull();
-        expect(screen.getByRole('button', { name: 'Show app information' })).toBeTruthy();
+        expect(screen.getByRole('button', { name: 'About' })).toBeTruthy();
         expect(
-            screen.getByRole('button', { name: 'Show app information' }).getAttribute(
-                'data-trigger-probe'
-            )
+            screen
+                .getByRole('button', { name: 'About' })
+                .getAttribute('data-trigger-probe')
         ).toBe('drawer');
         expect(screen.getByRole('button', { name: 'Close' })).toBeTruthy();
-        expect(
-            screen.getByText(
-                'Built from ETS GTFS schedule data and trimmed down to the rail service the app actually needs.'
-            )
-        ).toBeTruthy();
+        expect(screen.getByText('Headway')).toBeTruthy();
+        expect(screen.getByText('Andy')).toBeTruthy();
+        expect(screen.getByText('Install Tip')).toBeTruthy();
         expect(screen.queryByRole('link', { name: 'Email' })).toBeNull();
         expect(screen.queryByRole('link', { name: 'Website' })).toBeNull();
         expect(screen.queryByRole('link', { name: 'GitHub' })).toBeNull();

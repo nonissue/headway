@@ -36,7 +36,7 @@ describe('theme provider', () => {
     beforeEach(() => {
         const storage = new Map<string, string>();
 
-        document.head.innerHTML = '<meta name="theme-color" content="#ffffff" />';
+        document.head.innerHTML = '';
         document.documentElement.className = '';
         Object.defineProperty(window, 'localStorage', {
             configurable: true,
@@ -75,11 +75,6 @@ describe('theme provider', () => {
         await waitFor(() => {
             expect(document.documentElement.classList.contains('dark')).toBe(true);
         });
-        expect(
-            document
-                .querySelector('meta[name="theme-color"]')
-                ?.getAttribute('content')
-        ).toBe('#1f1f23');
     });
 
     it('toggles from system to dark and persists the new theme', async () => {
