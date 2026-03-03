@@ -1,11 +1,5 @@
-import type {
-    Departure,
-    DeparturesResponse,
-    ProcessedDeparture,
-    Station,
-} from './types/departures';
 // src/main.tsx
-import { useCallback, useMemo, useState } from 'react';
+import { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 // import { AnimatedBackground } from './components/AnimatedBackground';
 import { DeparturesTable } from './components/DeparturesTable';
@@ -13,121 +7,39 @@ import { Footer } from './components/Footer';
 import { Header } from './components/Header';
 import { ThemeProvider } from './components/theme-provider';
 import './globals.css';
-import { useApiRequest } from './hooks/useApiRequest';
-import { useErrorHandler } from './hooks/useErrorHandler';
-import { useLocationManager } from './hooks/useLocationManager';
-import { convertServiceTimeToClockTime } from './lib/time-utils.js';
+import { useDeparturesApp } from './hooks/useDeparturesApp';
 import { Loader2 } from 'lucide-react';
 
+const ANALYTICS_SCRIPT_ID = 'headway-analytics';
+const UMAMI_WEBSITE_ID = 'aac8d5e9-5e2d-4107-8844-f484b9e45eb2';
+
 function App() {
-    const [departures, setDepartures] = useState<Departure[][]>([]);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [hasInitialized, setHasInitialized] = useState(false);
-    const [selectedStation, setSelectedStation] = useState<
-        Station | undefined
-    >();
-    const [userLocation, setUserLocation] = useState<
-        { lat: number; lon: number } | undefined
-    >();
-    const [animationKey, setAnimationKey] = useState(0);
+    const {
+        animationKey,
+        clearError,
+        error,
+        hasError,
+        isLoading,
+        lastUpdated,
+        processedDepartures,
+        refresh,
+        selectedStation,
+        selectStation,
+        userLocation,
+    } = useDeparturesApp();
 
-    const { error, clearError, hasError } = useErrorHandler();
-    const { fetchDepartures, fetchStationDepartures } = useApiRequest();
-
-    const handleFetchDepartures = useCallback(
-        async (latitude: number, longitude: number, isRefresh = false) => {
-            // Prevent multiple initial loads
-            if (!isRefresh && hasInitialized) {
-                return;
-            }
-
-            try {
-                if (!isRefresh) {
-                    setIsLoading(true);
-                }
-                clearError();
-                setUserLocation({ lat: latitude, lon: longitude });
-
-                const data: DeparturesResponse = await fetchDepartures(
-                    latitude,
-                    longitude
-                );
-
-                setSelectedStation(data.station);
-                setDepartures(
-                    data.platforms.map((platform) => platform.departures)
-                );
-                if (isRefresh) {
-                    setAnimationKey((prev) => prev + 1);
-                }
-                setLastUpdated(new Date());
-
-                if (!hasInitialized) {
-                    setHasInitialized(true);
-                }
-            } catch (error) {
-                console.error(error);
-            } finally {
-                if (!isRefresh) {
-                    setIsLoading(false);
-                }
-            }
-        },
-        [fetchDepartures, clearError, hasInitialized]
-    );
-
-    const handleFetchDeparturesForStation = useCallback(
-        async (station: Station) => {
-            try {
-                setIsLoading(true);
-                clearError();
-
-                const data = await fetchStationDepartures(station.stop_id);
-
-                setSelectedStation(data.station);
-                setDepartures(
-                    data.platforms.map((platform) => platform.departures)
-                );
-                setLastUpdated(new Date());
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setIsLoading(false);
-            }
-        },
-        [fetchStationDepartures, clearError]
-    );
-
-    const { getUserLocationAndFetch } = useLocationManager({
-        onLocationSuccess: handleFetchDepartures,
-        onStatusChange: () => {},
-    });
-
-    const handleRefresh = useCallback(async () => {
-        const startTime = Date.now();
-        await getUserLocationAndFetch(true);
-
-        // Ensure minimum 800ms for animation to be visible
-        const elapsed = Date.now() - startTime;
-        const minDuration = 800;
-        if (elapsed < minDuration) {
-            await new Promise((resolve) =>
-                setTimeout(resolve, minDuration - elapsed)
-            );
+    useEffect(() => {
+        if (document.getElementById(ANALYTICS_SCRIPT_ID)) {
+            return;
         }
-    }, [getUserLocationAndFetch]);
 
-    const processedDepartures = useMemo((): ProcessedDeparture[][] => {
-        return departures.map((group) =>
-            group.map((dep) => ({
-                ...dep,
-                displayTime: convertServiceTimeToClockTime(dep.departure_time),
-                displayHeadsign:
-                    dep.stop_headsign?.trim() || 'Unknown destination',
-            }))
-        );
-    }, [departures]);
+        const script = document.createElement('script');
+        script.id = ANALYTICS_SCRIPT_ID;
+        script.defer = true;
+        script.src = '/stats.js';
+        script.dataset.websiteId = UMAMI_WEBSITE_ID;
+        document.head.appendChild(script);
+    }, []);
 
     return (
         <main className="relative flex h-dvh w-full flex-col items-center justify-start overflow-hidden overscroll-none font-display text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-none">
@@ -157,7 +69,7 @@ function App() {
 
                     <Header
                         selectedStation={selectedStation}
-                        onStationSelect={handleFetchDeparturesForStation}
+                        onStationSelect={selectStation}
                         userLocation={userLocation}
                         isLoading={isLoading}
                     />
@@ -201,7 +113,7 @@ function App() {
                             </div>
                             <Footer
                                 lastUpdated={lastUpdated}
-                                onRefresh={handleRefresh}
+                                onRefresh={refresh}
                             />
                         </>
                     )}

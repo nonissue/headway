@@ -2,7 +2,7 @@
     "name": "headway",
     "type": "module",
     "author": "Andy andy@nonissue.org",
-    "main": "./dist/index.js",
+    "main": "./dist/server.js",
     "scripts": {
         "dev:server": "tsx watch src/server.ts",
         "dev:client": "vite --host",
@@ -13,9 +13,8 @@
         "preview": "npm run build; node dist/server.js",
         "serve": "node dist/server.js",
         "db:update": "npm run db:import && npm run db:slim",
-        "db:import": "npx gtfs-import --configPath import-config.json;",
+        "db:import": "npx gtfs-import --configPath import-config.json",
         "db:slim": "sqlite3 db/gtfs.db < scripts/build_lrt_only_db.sql",
-        "db:slim-filtered": "echo 'deprecated: use `npm run db:slim`'",
         "test": "vitest",
         "test:coverage": "vitest run --coverage",
         "deploy": "npm run build && fly deploy --dns-checks=false"

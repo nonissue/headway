@@ -4,8 +4,8 @@
 
 - Shows upcoming departure times based on ETS GTFS Schedule data for geographically closest LRT station.
 - View the app online at:
-  - **Primary URL**: [headway.andy.ws](https://headway.andy.ws)
-  - **Fly.io URL**: [next-departures.fly.dev](https://next-departures.fly.dev)
+    - **Primary URL**: [headway.andy.ws](https://headway.andy.ws)
+    - **Fly.io URL**: [next-departures.fly.dev](https://next-departures.fly.dev)
 - Relies heavily on `node-gtfs` to parse and import GTFS CSV data into an sqlite database.
 - Analytics powered by [Umami](https://umami.is) (free cloud plan)
 
@@ -55,7 +55,7 @@ See "How to build and deploy" for instructions on how this is accomplished.
 2. Run `npm run db:update` _(note: this can take a minute or two)_
     - fetches gtfs data and imports it into `db/gtfs.db`
     - creates new slim database from `db/gtfs.db` at `data/gtfs_lrt_only.db`
-3. Run `npm run build:all` _(builds locally for faster deployment)_
+3. Run `npm run build` _(builds the client and server locally)_
 4. Run `fly deploy` _(uses pre-built artifacts, much faster than remote build)_
 
 ### Quick Deploy Command
@@ -64,7 +64,7 @@ See "How to build and deploy" for instructions on how this is accomplished.
 npm run deploy
 ```
 
-This runs `npm run build:all && fly deploy` - builds everything locally then deploys.
+This runs `npm run build && fly deploy` - builds everything locally then deploys.
 
 ## Project Initialization Commands
 
@@ -84,32 +84,6 @@ npx gtfs-import --configPath import-config.json
 sqlite3 db/gtfs.db < scripts/build_lrt_only_db.sql
 ```
 
-### Alternative Database Scripts
-
-_run this as of 25-09-19_
-
-For creating the slim database with **operational stop filtering** (recommended):
-
-```bash
-# Creates filtered slim database excluding operational/maintenance stops
-# Outputs to ./data/gtfs_lrt_only.db
-npm run db:slim-filtered
-```
-
-Or run the SQL script directly:
-
-```bash
-sqlite3 db/gtfs.db < scripts/build_lrt_only_filtered.sql
-```
-
-The original (unfiltered) SQL script is also available but not recommended for production:
-
-```bash
-# creates a slim version of our `./db/gtfs.db` at `./db/gtfs_lrt_only.db`
-# *should* leave original alone...
-sqlite3 -batch db/gtfs.db < scripts/build_lrt_only.sql
-```
-
 ### Deployment
 
 ```bash
@@ -121,13 +95,14 @@ fly deploy
 
 **Custom Domain Setup:**
 The app is accessible via both:
+
 - `headway.andy.ws` - Custom domain with SSL certificate managed by Fly.io
 - `next-departures.fly.dev` - Original Fly.io domain
 
 DNS is configured with CNAME records pointing to Fly.io infrastructure. SSL certificates auto-renew via Let's Encrypt.
 
 **Analytics:**
-Privacy-friendly analytics powered by Umami (free cloud plan). Tracking script is loaded client-side from `cloud.umami.is`. No server configuration required.
+Privacy-friendly analytics powered by Umami (free cloud plan). The app injects the analytics script client-side and proxies it through `/stats.js`.
 
 ### Package.json scripts
 
@@ -138,13 +113,13 @@ Privacy-friendly analytics powered by Umami (free cloud plan). Tracking script i
 # and is what we deploy to production
 npm run db:update
 
-# Starts our express api server & vite ui at the same time
+# Starts the Hono API server and Vite client together
 npm run dev
 
 # Builds front end and API
-npm run build:all
+npm run build
 
-# Builds are project and runs our static entrypoint with node
+# Builds the project and runs the compiled server
 npm run preview
 ```
 
