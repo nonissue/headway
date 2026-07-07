@@ -1,138 +1,80 @@
-# headway
+# Headway
 
-(formerly next-departures)
+A mobile-first PWA that finds your nearest Edmonton LRT station and shows upcoming departures.
 
-- Shows upcoming departure times based on ETS GTFS Schedule data for geographically closest LRT station.
-- View the app online at:
-    - **Primary URL**: [headway.andy.ws](https://headway.andy.ws)
-    - **Fly.io URL**: [next-departures.fly.dev](https://next-departures.fly.dev)
-- Best mobile experience is on iPhone when installed from Safari as a standalone PWA via **Share -> Add to Home Screen**.
-- Relies heavily on `node-gtfs` to parse and import GTFS CSV data into an sqlite database.
-- Analytics powered by [Umami](https://umami.is) (free cloud plan)
+**Live at [headway.andy.ws](https://headway.andy.ws)** (also at [next-departures.fly.dev](https://next-departures.fly.dev)).
 
-## Note to self (as of 25-10-10)
+## What it is
 
-```bash
-# npm run db:update performs the following:
-# npx gtfs-import --configPath ./import-config.json
-# sqlite3 db/gtfs.db < scripts/build_lrt_only_db.sql
-npm run db:update
+I wanted a faster way to answer "when's my next train?" than opening a transit app and tapping through menus. Headway uses your location to pick the closest LRT station, then shows the upcoming departures in both directions, computed from the official ETS GTFS schedule data.
 
-# npm run deploy
-#   ↳ npm run build && fly deploy
-# `npm run build` consists of:
-#   ↳ npm run build:client
-#   ↳ npm run build:server
-npm run deploy
-```
+It works best installed as a PWA on a phone (on iOS: Safari → Share → Add to Home Screen), but it's a normal web app and runs fine in any browser. If geolocation fails or is denied, it falls back to a default location, and you can always pick a station manually.
 
-Other useful package.json scripts:
+<img src="docs/screenshot.png" width="390" alt="Headway showing northbound departures from Corona Station">
 
-**Build and serve the build locally for evaluting:**
+## How it works
+
+- **Client**: React 19 + Vite 6, Tailwind CSS 4, with Radix UI / vaul for the dialog and drawer components. `vite-plugin-pwa` handles the service worker, manifest, and offline fallback.
+- **Server**: A small [Hono](https://hono.dev) server (Node 20) that serves the built client and exposes a JSON API for stations and departures.
+- **Data**: ETS GTFS schedule data, imported into SQLite with [node-gtfs](https://github.com/BlinkTagInc/node-gtfs) and then slimmed down to an LRT-only database (~a few MB) that's queried directly with `better-sqlite3`. The server opens the database once at startup and reuses the connection.
+- **Hosting**: Fly.io, with Sentry for error reporting and Umami for privacy-friendly analytics (proxied through `/stats.js`).
+
+The slim LRT-only database is checked into the repo at `data/gtfs_lrt_only.db`, so the app runs out of the box without importing anything.
+
+## Getting started
 
 ```bash
-npm run preview
-```
-
-## Warning: GTFS data not updated automatically
-
-**The GTFS Schedule data will have to be manually updated periodically** — once a week should suffice.
-
-I have not automated this process yet.
-
-See "How to build and deploy" for instructions on how this is accomplished.
-
-## How to get started with development
-
-1. Fill out `import-config.json` and `app-config.json`
-2. Run `npm run db:update` _(note: this can take a minute or two)_
-3. Run `npm run dev`
-
-## How to build and deploy
-
-**Important**: For fast deployment, build locally first rather than letting Fly.io build remotely.
-
-1. Fill out `import-config.json` and `app-config.json`
-2. Run `npm run db:update` _(note: this can take a minute or two)_
-    - fetches gtfs data and imports it into `db/gtfs.db`
-    - creates new slim database from `db/gtfs.db` at `data/gtfs_lrt_only.db`
-3. Run `npm run build` _(builds the client and server locally)_
-4. Run `fly deploy` _(uses pre-built artifacts, much faster than remote build)_
-
-### Quick Deploy Command
-
-```bash
-npm run deploy
-```
-
-This runs `npm run build && fly deploy` - builds everything locally then deploys.
-
-## Project Initialization Commands
-
-### Project DB Setup
-
-See also `package.json` script `npm run db:update` described below.
-
-```bash
-# imports gtfs data into sqlite db './db/gtfs.db'
-# you can also run:
-# npm run db:import
-npx gtfs-import --configPath import-config.json
-
-# creates a slim version of our `./db/gtfs.db` at `./db/gtfs_lrt_only.db`
-# you can also run:
-# npm run db:slim
-sqlite3 db/gtfs.db < scripts/build_lrt_only_db.sql
-```
-
-### Deployment
-
-```bash
-# Builds and deploys our app to fly.io so it is live
-# https://headway.andy.ws (primary)
-# https://next-departures.fly.dev (fly.io)
-fly deploy
-```
-
-**Custom Domain Setup:**
-The app is accessible via both:
-
-- `headway.andy.ws` - Custom domain with SSL certificate managed by Fly.io
-- `next-departures.fly.dev` - Original Fly.io domain
-
-DNS is configured with CNAME records pointing to Fly.io infrastructure. SSL certificates auto-renew via Let's Encrypt.
-
-**Analytics:**
-Privacy-friendly analytics powered by Umami (free cloud plan). The app injects the analytics script client-side and proxies it through `/stats.js`.
-
-### Package.json scripts
-
-```bash
-# 1. Fetches latest ETS transit data
-# 2. Parses it into SQLite database initial Sqlite DB
-# 3. Runs sql script to create our "slim" DB which is what our app uses
-# and is what we deploy to production
-npm run db:update
-
-# Starts the Hono API server and Vite client together
+npm install
 npm run dev
-
-# Builds front end and API
-npm run build
-
-# Builds the project and runs the compiled server
-npm run preview
 ```
 
-## UI Notes
+That starts the Hono API server (port 3000) and the Vite dev server (port 5173) together; open http://localhost:5173.
 
-- The About surface uses a bottom drawer on smaller viewports and a dialog on larger screens.
-- Safari/iOS shell styling is expected to follow the app's CSS theme tokens and page backgrounds; avoid reintroducing separate runtime browser-chrome color hacks unless there is a concrete regression.
+Other useful scripts:
 
-### Firefox spoof Geolocation for testing
+```bash
+npm run build     # build client and server into dist/
+npm run preview   # build, then run the compiled server locally
+npm run deploy    # build locally, then fly deploy
+```
 
-`about:config` -> `geo.provider.testing` -> `true`
-`about:config` -> `geo.provider.network.url` -> `data:application/json,{"location": {"lat": 53.50584, "lng": -113.52845}, "accuracy": 27000.0}`
-`about:config` -> `geo.wifi.uri` -> `data:application/json,{"location": {"lat": 53.50584, "lng": -113.52845}, "accuracy": 27000.0}`
+### Updating the GTFS data
 
-https://security.stackexchange.com/questions/147166/how-can-you-fake-geolocation-in-firefox
+The schedule data does not update itself — I refresh it manually (roughly weekly) with:
+
+```bash
+npm run db:update
+```
+
+That downloads the latest ETS GTFS feed and imports it into `db/gtfs.db` (`db:import`), then runs a SQL script to produce the slim LRT-only database at `data/gtfs_lrt_only.db` (`db:slim`). It takes a minute or two. Both steps read their config from `import-config.json` and `app-config.json`, which are checked in and already point at the ETS feed.
+
+### Testing geolocation
+
+To fake your location in Firefox, set these in `about:config`:
+
+```
+geo.provider.testing        → true
+geo.provider.network.url    → data:application/json,{"location": {"lat": 53.50584, "lng": -113.52845}, "accuracy": 27000.0}
+```
+
+## Testing
+
+Vitest with jsdom, covering the time/stop utility logic, the API route handlers, the server bootstrap, the app controller hook, and the React components.
+
+```bash
+npm run test            # watch mode
+npm run test:coverage   # single run with coverage
+```
+
+As of July 2026: **102 tests across 20 files, all passing**, with **92.1% statement coverage** (87.5% branches, 96.2% functions).
+
+## Deployment
+
+Deployed to Fly.io. Building locally first is much faster than a remote build:
+
+```bash
+npm run db:update   # optional: refresh schedule data
+npm run deploy      # npm run build && fly deploy
+```
+
+The custom domain (`headway.andy.ws`) is a CNAME to Fly.io with an auto-renewing Let's Encrypt certificate.
