@@ -27,3 +27,4 @@ scripts/local-archive
 .env.sentry-build-plugin
 
 .claude/
+backups/
