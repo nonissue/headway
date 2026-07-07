@@ -1,0 +1,54 @@
+# Weekly GTFS data refresh: downloads the latest ETS feed, rebuilds the slim
+# LRT-only database, commits it to develop (and fast-forwards main), then
+# deploys via the Fly Deploy workflow.
+
+name: Update GTFS Data
+on:
+    schedule:
+        # Mondays 09:00 UTC (~3am Edmonton)
+        - cron: '0 9 * * 1'
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    update:
+        name: Refresh GTFS data
+        runs-on: ubuntu-latest
+        outputs:
+            changed: ${{ steps.commit.outputs.changed }}
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  ref: develop
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20
+                  cache: npm
+            - run: npm ci
+            - run: mkdir -p db
+            - run: npm run db:update
+            - name: Commit and push if data changed
+              id: commit
+              run: |
+                  if git diff --quiet data/gtfs_lrt_only.db; then
+                      echo "changed=false" >> "$GITHUB_OUTPUT"
+                      echo "GTFS data unchanged; nothing to commit."
+                  else
+                      git config user.name "github-actions[bot]"
+                      git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                      git add data/gtfs_lrt_only.db
+                      git commit -m "chore: weekly GTFS data update"
+                      git push origin develop
+                      # fast-forward main; fails loudly if main has diverged
+                      git push origin develop:main
+                      echo "changed=true" >> "$GITHUB_OUTPUT"
+                  fi
+
+    deploy:
+        name: Deploy updated data
+        needs: update
+        if: needs.update.outputs.changed == 'true'
+        uses: ./.github/workflows/fly-deploy.yml
+        secrets: inherit
