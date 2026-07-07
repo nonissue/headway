@@ -40,7 +40,7 @@ npm run deploy    # build locally, then fly deploy
 
 ### Updating the GTFS data
 
-The schedule data does not update itself — I refresh it manually (roughly weekly) with:
+A GitHub Actions workflow refreshes the schedule data every Monday: it rebuilds the slim database, commits it if it changed, and deploys. To refresh manually instead:
 
 ```bash
 npm run db:update
@@ -70,7 +70,7 @@ As of July 2026: **102 tests across 20 files, all passing**, with **92.1% statem
 
 ## Deployment
 
-Deployed to Fly.io. Building locally first is much faster than a remote build:
+Deployed to Fly.io. Pushes to `main` deploy automatically via GitHub Actions (the workflow builds the client and server, then runs `flyctl deploy`). To deploy from a local checkout instead:
 
 ```bash
 npm run db:update   # optional: refresh schedule data
