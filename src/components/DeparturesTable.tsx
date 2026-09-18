@@ -20,13 +20,13 @@ export const DeparturesTable = ({
                         <div
                             // eslint-disable-next-line @eslint-react/no-array-index-key
                             key={platformIdx}
-                            className="relative flex w-full flex-1 items-stretch"
+                            className="relative flex min-h-0 w-full flex-1 items-stretch"
                             style={{
                                 animationDelay: `${platformIdx * 1}ms`,
                             }}
                         >
                             <div
-                                className="flex flex-1 flex-col"
+                                className="flex min-h-0 flex-1 flex-col"
                                 style={{
                                     animationDelay: `${platformIdx * 100 + 1 * 10}ms`,
                                 }}
