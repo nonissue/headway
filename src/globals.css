@@ -398,7 +398,7 @@
     }
 
     /* Fix ScrollArea on iOS PWA */
-    [data-radix-scroll-area-viewport] {
+    [data-slot='scroll-area-viewport'] {
         -webkit-overflow-scrolling: touch;
         overscroll-behavior: contain;
     }
