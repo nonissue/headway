@@ -1,3 +1,5 @@
+import { Alert, AlertTitle } from '@/components/ui/alert';
+import { DEFAULT_TIMEZONE } from '../config';
 import { TrainFront } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -18,6 +20,7 @@ interface DeparturesTableProps {
     animationKey?: number;
     lineFilter?: string;
     now?: number;
+    nextServiceAt?: string;
 }
 
 function DepartureRow({
@@ -25,11 +28,13 @@ function DepartureRow({
     now,
     hero = false,
     recent = false,
+    nextService = false,
 }: {
     departure: ProcessedDeparture;
     now: number;
     hero?: boolean;
     recent?: boolean;
+    nextService?: boolean;
 }) {
     const minutes = departureMinutes(departure, now);
     const age = recent
@@ -41,6 +46,7 @@ function DepartureRow({
             className="departure-row"
             data-hero={hero || undefined}
             data-recent={recent || undefined}
+            data-next-service={nextService || undefined}
         >
             <LineBadge line={departure.line} />
             <span
@@ -50,39 +56,67 @@ function DepartureRow({
                 {departure.displayHeadsign}
             </span>
             <div className="departure-times">
-                <span
-                    className="departure-countdown"
-                    aria-label={
-                        recent
-                            ? `Scheduled ${recentLabel.toLowerCase()}`
-                            : minutes === undefined
-                              ? 'Countdown unavailable'
-                              : minutes === 0
-                                ? 'Due now'
-                                : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
-                    }
-                >
-                    <span>
-                        {recent
-                            ? recentLabel
-                            : minutes === undefined
-                              ? '—'
-                              : minutes === 0
-                                ? 'Due'
-                                : minutes}
-                    </span>
-                    {!recent && minutes !== 0 && minutes !== undefined && (
-                        <span className="departure-unit" aria-hidden="true">
-                            m
+                {nextService ? (
+                    <>
+                        <time
+                            className="departure-countdown"
+                            dateTime={departure.scheduled_at}
+                        >
+                            {departure.displayTime.slice(0, 5)}
+                        </time>
+                        <span
+                            className="departure-clock"
+                            aria-label={`In ${minutes} minutes`}
+                        >
+                            {minutes !== undefined
+                                ? `${Math.floor(minutes / 60)}h ${minutes % 60}m`
+                                : '—'}
                         </span>
-                    )}
-                </span>
-                <time
-                    className="departure-clock"
-                    dateTime={departure.scheduled_at ?? departure.displayTime}
-                >
-                    {departure.displayTime.slice(0, 5)}
-                </time>
+                    </>
+                ) : (
+                    <>
+                        <span
+                            className="departure-countdown"
+                            aria-label={
+                                recent
+                                    ? `Scheduled ${recentLabel.toLowerCase()}`
+                                    : minutes === undefined
+                                      ? 'Countdown unavailable'
+                                      : minutes === 0
+                                        ? 'Due now'
+                                        : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+                            }
+                        >
+                            <span>
+                                {recent
+                                    ? recentLabel
+                                    : minutes === undefined
+                                      ? '—'
+                                      : minutes === 0
+                                        ? 'Due'
+                                        : minutes}
+                            </span>
+                            {!recent &&
+                                minutes !== 0 &&
+                                minutes !== undefined && (
+                                    <span
+                                        className="departure-unit"
+                                        aria-hidden="true"
+                                    >
+                                        m
+                                    </span>
+                                )}
+                        </span>
+                        <time
+                            className="departure-clock"
+                            dateTime={
+                                departure.scheduled_at ?? departure.displayTime
+                            }
+                        >
+                            {departure.displayTime.slice(0, 5)}
+                        </time>
+                    </>
+                )}
             </div>
         </li>
     );
@@ -92,6 +126,7 @@ export function DeparturesTable({
     departureGroups,
     lineFilter = 'all',
     now = Date.now(),
+    nextServiceAt,
 }: DeparturesTableProps) {
     const groups = departureGroups.map((group) => ({
         ...group,
@@ -119,58 +154,74 @@ export function DeparturesTable({
             </Empty>
         );
     return (
-        <div className="departure-board" aria-label="Scheduled departures">
-            {groups.map((group, index) => {
-                const headingId = `direction-${index}`;
-                return (
-                    <section
-                        className="departure-pane"
-                        key={`${index}-${group.heading}`}
-                        aria-labelledby={headingId}
-                    >
-                        <div className="direction-rail">
-                            <h2 id={headingId}>{group.heading}</h2>
-                        </div>
-                        <ScrollArea
-                            className="departure-scroll"
-                            key={lineFilter}
+        <>
+            {nextServiceAt && (
+                <Alert role="status" className="departures-service-notice">
+                    <AlertTitle>
+                        Next service ·{' '}
+                        {new Intl.DateTimeFormat('en-CA', {
+                            timeZone: DEFAULT_TIMEZONE,
+                            weekday: 'long',
+                            month: 'short',
+                            day: 'numeric',
+                        }).format(new Date(nextServiceAt))}
+                    </AlertTitle>
+                </Alert>
+            )}
+            <div className="departure-board" aria-label="Scheduled departures">
+                {groups.map((group, index) => {
+                    const headingId = `direction-${index}`;
+                    return (
+                        <section
+                            className="departure-pane"
+                            key={`${index}-${group.heading}`}
+                            aria-labelledby={headingId}
                         >
-                            <ol className="departure-list">
-                                {group.recent && (
-                                    <DepartureRow
-                                        key={`${group.recent.trip_id}-${group.recent.departure_time}`}
-                                        departure={group.recent}
-                                        now={now}
-                                        recent
-                                    />
+                            <div className="direction-rail">
+                                <h2 id={headingId}>{group.heading}</h2>
+                            </div>
+                            <ScrollArea
+                                className="departure-scroll"
+                                key={lineFilter}
+                            >
+                                <ol className="departure-list">
+                                    {group.recent && (
+                                        <DepartureRow
+                                            key={`${group.recent.trip_id}-${group.recent.scheduled_at ?? group.recent.departure_time}`}
+                                            departure={group.recent}
+                                            now={now}
+                                            recent
+                                        />
+                                    )}
+                                    {group.upcoming.map((departure, row) => (
+                                        <DepartureRow
+                                            key={`${departure.trip_id}-${departure.scheduled_at ?? departure.departure_time}`}
+                                            departure={departure}
+                                            now={now}
+                                            hero={row === 0}
+                                            nextService={Boolean(nextServiceAt)}
+                                        />
+                                    ))}
+                                </ol>
+                                {!group.upcoming.length && (
+                                    <Empty className="departures-empty">
+                                        <EmptyHeader>
+                                            <EmptyTitle>
+                                                No upcoming trains
+                                            </EmptyTitle>
+                                            <EmptyDescription>
+                                                {lineFilter === 'all'
+                                                    ? 'Refresh to check the latest schedule.'
+                                                    : `No upcoming ${lineFilter} Line departures in this direction.`}
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                    </Empty>
                                 )}
-                                {group.upcoming.map((departure, row) => (
-                                    <DepartureRow
-                                        key={`${departure.trip_id}-${departure.departure_time}`}
-                                        departure={departure}
-                                        now={now}
-                                        hero={row === 0}
-                                    />
-                                ))}
-                            </ol>
-                            {!group.upcoming.length && (
-                                <Empty className="departures-empty">
-                                    <EmptyHeader>
-                                        <EmptyTitle>
-                                            No upcoming trains
-                                        </EmptyTitle>
-                                        <EmptyDescription>
-                                            {lineFilter === 'all'
-                                                ? 'Refresh to check the latest schedule.'
-                                                : `No upcoming ${lineFilter} Line departures in this direction.`}
-                                        </EmptyDescription>
-                                    </EmptyHeader>
-                                </Empty>
-                            )}
-                        </ScrollArea>
-                    </section>
-                );
-            })}
-        </div>
+                            </ScrollArea>
+                        </section>
+                    );
+                })}
+            </div>
+        </>
     );
 }

@@ -19,10 +19,12 @@ export const getNearbyDepartures = async ({ lat, lon }: GeoCoordinate = {}) => {
 
     const closestStation = await getClosestStation({ lat, lon });
 
-    const { platforms } = await getDeparturesForStation(closestStation);
+    const { platforms, nextServiceAt } =
+        await getDeparturesForStation(closestStation);
 
     return {
         station: closestStation,
         platforms,
+        ...(nextServiceAt ? { nextServiceAt } : {}),
     };
 };

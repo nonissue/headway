@@ -35,6 +35,7 @@ departures.get('/nearby', async (c) => {
         const result = await getNearbyDepartures({ lat, lon });
         const response: DeparturesResponse = {
             station: toStationDto(result.station),
+            nextServiceAt: result.nextServiceAt,
             platforms: result.platforms.map(toPlatformDto),
             timestamp: createTimestamp(),
         };
@@ -61,7 +62,6 @@ departures.get('/:stopId', async (c) => {
 
         const departures = await getDeparturesForStop({
             stopId,
-            clockTime: '08:00:00',
             lookaheadMins: 200,
             limit: 100,
         });

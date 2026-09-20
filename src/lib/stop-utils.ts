@@ -1,7 +1,7 @@
 import { scheduledDepartureTime } from './scheduled-time.js';
 import { addDays, resolveYmd, ymdToNumber } from './time-helpers.js';
 import type { Stop } from 'gtfs';
-import type { ClockTime, GeoCoordinate } from '../types/global.js';
+import type { GeoCoordinate } from '../types/global.js';
 import type { StopQuery } from '../types/gtfs.js';
 import { getStops, getStoptimes, getRoutes, getTrips } from 'gtfs';
 import {
@@ -152,14 +152,11 @@ export interface StopDepartures {
 
 export interface GetDeparturesForStopOptions {
     stopId: string | number;
-    clockTime?: ClockTime; // "HH:mm:ss" (0–23h)
-    baseTime?: Date; // default: now
-    calendarDate?: string | number | Date;
-    lookbackMins?: number; // include recent scheduled departures, default 0
-    lookaheadMins?: number; // default: DEFAULT_LOOK_AHEAD_IN_MINS
-    limit?: number; // default: DEFAULT_STOP_COUNT_LIMIT
-    tz?: string; // default: DEFAULT_TIMEZONE
-    serviceDayStartHour?: number; // default: 3
+    baseTime?: Date; // Absolute instant; defaults to now.
+    lookbackMins?: number;
+    lookaheadMins?: number;
+    limit?: number;
+    tz?: string;
     debug?: boolean;
 }
 
@@ -169,131 +166,86 @@ export interface PlatformDepartures {
 }
 
 export interface StationDeparturesResult {
+    nextServiceAt?: string;
     station: Stop;
     platforms: PlatformDepartures[];
 }
 
+/** Convert a GTFS duration to seconds without wrapping it at midnight. */
+function serviceSeconds(time: string | null | undefined): number | undefined {
+    const match = time && /^(\d+):([0-5]\d):([0-5]\d)$/.exec(time);
+    return match
+        ? Number(match[1]) * 3600 + Number(match[2]) * 60 + Number(match[3])
+        : undefined;
+}
+
 /**
- * Returns upcoming departures for a stop within a time window.
- * Uses GTFS "service date" and "service time" (times may exceed 24:00:00).
+ * Query every service date whose trips can overlap an absolute time window.
+ * GTFS's start_time query filters ARRIVAL, so deliberately do not use it here.
+ * Date filtering still goes through GTFS, including calendar_dates exceptions.
  */
+function departuresInWindow(
+    id: string,
+    start: number,
+    end: number,
+    tz: string
+): StopDepartures[] {
+    const times = getStoptimes({ stop_id: id }, ['departure_time']);
+    const maxSeconds = times.reduce(
+        (max, row) => Math.max(max, serviceSeconds(row.departure_time) ?? 0),
+        0
+    );
+    // Derive the overlap from the feed, including trips longer than 48 hours.
+    // The extra calendar day accommodates the DST shift in the noon anchor.
+    let date = addDays(
+        resolveYmd(new Date(start), tz),
+        -Math.ceil(maxSeconds / 86400) - 1
+    );
+    const lastDate = ymdToNumber(addDays(resolveYmd(new Date(end), tz), 1));
+    const result: StopDepartures[] = [];
+    for (; ymdToNumber(date) <= lastDate; date = addDays(date, 1)) {
+        const serviceDate = ymdToNumber(date);
+        const anchor = Date.parse(
+            scheduledDepartureTime(serviceDate, '00:00:00', tz)
+        );
+        if (anchor > end || anchor + maxSeconds * 1000 < start) continue;
+        const rows = getStoptimes({ stop_id: id, date: serviceDate }, [
+            'stop_id',
+            'trip_id',
+            'stop_headsign',
+            'departure_time',
+            'departure_timestamp',
+        ]);
+        for (const row of rows) {
+            const seconds = serviceSeconds(row.departure_time);
+            if (seconds === undefined) continue; // GTFS permits untimed intermediate stops.
+            const instant = anchor + seconds * 1000;
+            if (instant < start || instant > end) continue;
+            result.push({
+                ...row,
+                scheduled_at: new Date(instant).toISOString(),
+            } as StopDepartures);
+        }
+    }
+    return result;
+}
+
+/** Returns departures in an elapsed-time window, merging overlapping service dates. */
 export async function getDeparturesForStop({
     stopId,
-    clockTime,
     baseTime = new Date(),
-    calendarDate,
     lookbackMins = 0,
     lookaheadMins = DEFAULT_LOOK_AHEAD_IN_MINS,
     limit = DEFAULT_STOP_COUNT_LIMIT,
     tz = DEFAULT_TIMEZONE,
-    serviceDayStartHour = SERVICE_DAY_START_HOUR,
     debug = false,
 }: GetDeparturesForStopOptions): Promise<StopDepartures[]> {
     const id = String(stopId).trim();
-
     if (!id) throw new Error('getDeparturesForStop: stopId is required');
-
-    // --- Build service window from a single source of truth ---
-    const startServiceTime = clockTime
-        ? getGtfsServiceTime({ clockTime, tz, serviceDayStartHour })
-        : getGtfsServiceTime({ baseTime, tz, serviceDayStartHour });
-
-    const endServiceTime = clockTime
-        ? getGtfsServiceTime({
-              clockTime,
-              tz,
-              serviceDayStartHour,
-              offsetMins: lookaheadMins,
-          })
-        : getGtfsServiceTime({
-              baseTime,
-              tz,
-              serviceDayStartHour,
-              offsetMins: lookaheadMins,
-          });
-
-    // Service date decision uses *clock* time (0–23h)
-    const startClockTime = convertServiceTimeToClockTime(startServiceTime);
-    const serviceDate = getServiceDate({
-        calendarDate: calendarDate ?? (clockTime ? undefined : baseTime),
-        targetTime: startClockTime,
-        tz,
-        serviceDayStartHour,
-    });
-
-    if (debug) {
-        console.warn(
-            JSON.stringify(
-                {
-                    stopId: id,
-                    serviceDate,
-                    startServiceTime,
-                    endServiceTime,
-                    lookaheadMins,
-                    limit,
-                    tz,
-                    serviceDayStartHour,
-                },
-                null,
-                2
-            )
-        );
-    }
-
-    const queryStart = getGtfsServiceTime({
-        ...(clockTime ? { clockTime } : { baseTime }),
-        tz,
-        serviceDayStartHour,
-        offsetMins: -lookbackMins,
-    });
-    const queryTimes = (date: number, start: string, end: string) =>
-        getStoptimes(
-            { stop_id: id, date, start_time: start, end_time: end },
-            [
-                'stop_id',
-                'trip_id',
-                'stop_headsign',
-                'departure_time',
-                'departure_timestamp',
-            ],
-            [['departure_time', 'ASC']]
-        ).map((departure) => ({
-            ...departure,
-            scheduled_at: scheduledDepartureTime(
-                date,
-                departure.departure_time!,
-                tz
-            ),
-        })) as StopDepartures[];
-    const stoptimes = queryTimes(serviceDate, queryStart, endServiceTime);
-
-    // At the service-day cutover, recent trips can belong to yesterday's feed.
-    // Include that small overlap without moving today's upcoming query to yesterday.
-    const [hour, minute, second] = startServiceTime.split(':').map(Number);
-    const secondsSinceCutover =
-        (hour - serviceDayStartHour) * 3600 + minute * 60 + second;
-    if (
-        lookbackMins > 0 &&
-        secondsSinceCutover >= 0 &&
-        secondsSinceCutover < lookbackMins * 60
-    ) {
-        const previousDate = ymdToNumber(
-            addDays(resolveYmd(serviceDate, tz), -1)
-        );
-        const previousStart = getGtfsServiceTime({
-            clockTime: startServiceTime as ClockTime,
-            tz,
-            serviceDayStartHour: 0,
-            offsetMins: 1440 - lookbackMins,
-        });
-        const previousEnd = getGtfsServiceTime({
-            clockTime: startServiceTime as ClockTime,
-            tz,
-            serviceDayStartHour: 0,
-            offsetMins: 1440,
-        });
-        stoptimes.push(...queryTimes(previousDate, previousStart, previousEnd));
-    }
+    const start = baseTime.getTime() - lookbackMins * 60000;
+    const end = baseTime.getTime() + lookaheadMins * 60000;
+    if (debug) console.warn(JSON.stringify({ stopId: id, start, end, tz }));
+    const stoptimes = departuresInWindow(id, start, end, tz);
 
     const { normalizedStationName } = getStopContext(id);
     const departures = filterTerminatingTrips(stoptimes, normalizedStationName);
@@ -335,6 +287,7 @@ export async function getDeparturesForStation(
         throw new Error('getDeparturesForStation: station not found');
     }
 
+    const now = new Date();
     const childStops = getStopsForParentStation(station.stop_id);
     const platforms = await Promise.all(
         childStops.map(async (stop) => ({
@@ -342,9 +295,72 @@ export async function getDeparturesForStation(
             departures: await getDeparturesForStop({
                 stopId: stop.stop_id,
                 lookbackMins: RECENT_DEPARTURE_MINS,
+                baseTime: now,
             }),
         }))
     );
+
+    const hasUpcoming = platforms.some(({ departures }) =>
+        departures.some(
+            (departure) => Date.parse(departure.scheduled_at!) >= now.getTime()
+        )
+    );
+    if (!hasUpcoming && childStops.length) {
+        // Before the 05:00 cutover, the next service date is still today.
+        const clockTime = convertServiceTimeToClockTime(
+            getGtfsServiceTime({ baseTime: now })
+        );
+        const serviceDate = getServiceDate({
+            calendarDate: now,
+            targetTime: clockTime,
+        });
+        const nextDate = ymdToNumber(
+            addDays(resolveYmd(serviceDate, DEFAULT_TIMEZONE), 1)
+        );
+        // Bound the fallback to the next service date, but do not skip a later
+        // departure today merely because it lies outside the normal window.
+        const nextServiceEnd = Date.parse(
+            scheduledDepartureTime(
+                nextDate,
+                `${24 + SERVICE_DAY_START_HOUR}:00:00`
+            )
+        );
+        const nextPlatforms = await Promise.all(
+            childStops.map(async (stop) => ({
+                stop,
+                departures: await getDeparturesForStop({
+                    stopId: stop.stop_id,
+                    baseTime: now,
+                    lookaheadMins: (nextServiceEnd - now.getTime()) / 60000,
+                    // Apply the result limit only after finding the shared window.
+                    limit: Number.MAX_SAFE_INTEGER,
+                }),
+            }))
+        );
+        const first = Math.min(
+            ...nextPlatforms.flatMap(({ departures }) =>
+                departures.map((departure) =>
+                    Date.parse(departure.scheduled_at!)
+                )
+            )
+        );
+        if (Number.isFinite(first)) {
+            const end = first + DEFAULT_LOOK_AHEAD_IN_MINS * 60000;
+            return {
+                station,
+                nextServiceAt: new Date(first).toISOString(),
+                platforms: nextPlatforms.map((platform) => ({
+                    ...platform,
+                    departures: platform.departures
+                        .filter(
+                            (departure) =>
+                                Date.parse(departure.scheduled_at!) <= end
+                        )
+                        .slice(0, DEFAULT_STOP_COUNT_LIMIT),
+                })),
+            };
+        }
+    }
 
     return {
         station,

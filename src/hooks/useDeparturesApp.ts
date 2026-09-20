@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { TEST_COORDS } from '../config.js';
 import { createDepartureGroups } from '../lib/departure-display.js';
-import { convertServiceTimeToClockTime } from '../lib/time-utils.js';
+import { departureClockTime } from '../lib/scheduled-time.js';
 import type {
     ApiErrorResponse,
     Departure,
@@ -127,6 +127,7 @@ function buildStationsUrl(location?: LocationCoordinates): string {
 }
 
 export function useDeparturesApp() {
+    const [nextServiceAt, setNextServiceAt] = useState<string>();
     const [departures, setDepartures] = useState<Departure[][]>([]);
     const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -151,6 +152,7 @@ export function useDeparturesApp() {
             } = {}
         ) => {
             setSelectedStation(response.station);
+            setNextServiceAt(response.nextServiceAt);
             setDepartures(
                 response.platforms.map((platform) => platform.departures)
             );
@@ -295,9 +297,7 @@ export function useDeparturesApp() {
             (group) =>
                 group.map((departure) => ({
                     ...departure,
-                    displayTime: convertServiceTimeToClockTime(
-                        departure.departure_time
-                    ),
+                    displayTime: departureClockTime(departure),
                     displayHeadsign:
                         departure.stop_headsign
                             ?.trim()
@@ -310,6 +310,7 @@ export function useDeparturesApp() {
     }, [departures]);
 
     return {
+        nextServiceAt,
         animationKey,
         clearError,
         departureGroups,

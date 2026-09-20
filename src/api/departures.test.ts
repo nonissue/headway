@@ -153,7 +153,6 @@ describe('departures routes', () => {
         });
         expect(getDeparturesForStop).toHaveBeenCalledWith({
             stopId: 'platform-2',
-            clockTime: '08:00:00',
             lookaheadMins: 200,
             limit: 100,
         });

@@ -33,12 +33,14 @@ export interface PlatformDepartures {
 }
 
 export interface DeparturesResponse {
+    nextServiceAt?: string;
     station: Station;
     platforms: PlatformDepartures[];
     timestamp: string;
 }
 
 export interface StationDeparturesResponse {
+    nextServiceAt?: string;
     station: Station;
     platforms: PlatformDepartures[];
     timestamp: string;

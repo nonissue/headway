@@ -94,6 +94,7 @@ function mockHookState(
     const selectStation = vi.fn();
 
     vi.mocked(useDeparturesApp).mockReturnValue({
+        nextServiceAt: undefined,
         animationKey: 0,
         clearError,
         error: null,

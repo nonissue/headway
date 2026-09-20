@@ -21,6 +21,7 @@ if (import.meta.hot?.data) import.meta.hot.data.appRoots = appRoots;
 
 export function App() {
     const {
+        nextServiceAt,
         animationKey,
         clearError,
         departureGroups,
@@ -122,6 +123,7 @@ export function App() {
                         animationKey={animationKey}
                         lineFilter={lineFilter}
                         now={now}
+                        nextServiceAt={nextServiceAt}
                     />
                 )}
             </div>

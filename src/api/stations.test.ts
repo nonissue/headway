@@ -145,6 +145,20 @@ describe('stations routes', () => {
         expect(getDeparturesForStation).toHaveBeenCalledWith('station-2');
     });
 
+    it('passes the next service timestamp through to the client', async () => {
+        vi.mocked(getDeparturesForStation).mockResolvedValue({
+            station: { stop_id: 'station-2', stop_name: 'Central' },
+            platforms: [],
+            nextServiceAt: '2026-03-04T12:55:00.000Z',
+        });
+        const response = await createApp().request(
+            '/api/stations/station-2/departures'
+        );
+        expect(await response.json()).toMatchObject({
+            nextServiceAt: '2026-03-04T12:55:00.000Z',
+        });
+    });
+
     it('returns 500 when station departures lookup fails', async () => {
         vi.mocked(getDeparturesForStation).mockRejectedValue(new Error('boom'));
 

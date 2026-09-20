@@ -691,3 +691,17 @@
         transition: none !important;
     }
 }
+
+.departures-service-notice {
+    flex-shrink: 0;
+    border-radius: 0;
+    border-width: 0 0 1px;
+    padding-inline: 18px;
+}
+.departure-row[data-next-service] .departure-countdown {
+    font-size: 20px;
+    letter-spacing: -0.5px;
+}
+.departure-row[data-next-service][data-hero] .departure-countdown {
+    font-size: 26px;
+}

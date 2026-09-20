@@ -125,3 +125,16 @@ describe('DeparturesTable', () => {
         ).toBeTruthy();
     });
 });
+
+it('labels the actual next-service date and emphasises clock times', () => {
+    render(
+        <DeparturesTable
+            departureGroups={groups}
+            now={now - 6 * 3600000}
+            nextServiceAt="2026-09-19T14:03:00Z"
+        />
+    );
+    expect(screen.getByText('Next service · Saturday, Sep 19')).toBeTruthy();
+    expect(screen.getByText('6h 3m')).toBeTruthy();
+    expect(screen.getByText('08:03').className).toBe('departure-countdown');
+});

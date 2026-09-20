@@ -85,9 +85,11 @@ stations.get('/:stationId/departures', async (c) => {
             return c.json(response, 400);
         }
 
-        const { station, platforms } = await getDeparturesForStation(stationId);
+        const { station, platforms, nextServiceAt } =
+            await getDeparturesForStation(stationId);
         const response: StationDeparturesResponse = {
             station: toStationDto(station),
+            nextServiceAt,
             platforms: platforms.map(toPlatformDto),
             timestamp: createTimestamp(),
         };

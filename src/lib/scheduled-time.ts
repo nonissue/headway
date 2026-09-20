@@ -37,3 +37,23 @@ export function scheduledDepartureTime(
         localNoon + (hours * 3600 + minutes * 60 + seconds - 43200) * 1000
     ).toISOString();
 }
+
+/** Display the same instant used by countdowns, including repeated DST hours. */
+export function departureClockTime(
+    departure: { scheduled_at?: string; departure_time: string },
+    timeZone = DEFAULT_TIMEZONE
+): string {
+    const instant = Date.parse(departure.scheduled_at ?? '');
+    if (Number.isFinite(instant)) {
+        return new Intl.DateTimeFormat('en-CA', {
+            timeZone,
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hourCycle: 'h23',
+        }).format(instant);
+    }
+    // Legacy responses without an absolute timestamp cannot resolve DST folds.
+    const [hours, minutes, seconds] = departure.departure_time.split(':');
+    return `${String(Number(hours) % 24).padStart(2, '0')}:${minutes}:${seconds}`;
+}
