@@ -90,7 +90,7 @@ function DepartureRow({
                         minutes !== 0 &&
                         minutes !== undefined && (
                             <span className="departure-unit" aria-hidden="true">
-                                m
+                                min
                             </span>
                         )}
                 </span>
@@ -156,18 +156,6 @@ export function DeparturesTable({
                         >
                             <div className="direction-heading">
                                 <h2 id={headingId}>{group.heading}</h2>
-                                <span
-                                    className="departure-column-label"
-                                    aria-hidden="true"
-                                >
-                                    At
-                                </span>
-                                <span
-                                    className="departure-column-label"
-                                    aria-hidden="true"
-                                >
-                                    In
-                                </span>
                             </div>
                             <ScrollArea
                                 className="departure-scroll"
