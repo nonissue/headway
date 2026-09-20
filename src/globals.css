@@ -460,6 +460,8 @@
     color: var(--muted-foreground);
 }
 .station-picker-drawer {
+    /* Initial focus belongs to the dialog, without outlining the whole sheet. */
+    outline: none;
     height: 92dvh;
     max-height: 92dvh;
     margin-top: 0;
@@ -467,6 +469,10 @@
     overflow: hidden;
     /* Vaul snap offsets use the full viewport; pad the translated-offscreen area. */
     padding-bottom: 17dvh;
+}
+.station-picker-drawer[data-state='open'] {
+    /* Snap points use a transition on entry. Keep Vaul's exit animation so
+       Radix retains the drawer until non-drag dismissals finish. */
     animation: none;
 }
 .station-picker-drawer[data-expanded='true'] {
@@ -490,36 +496,22 @@
 }
 .station-picker-header {
     flex-shrink: 0;
-    padding: 8px 18px 16px;
+    padding: 16px 18px;
     border-bottom: 1px solid var(--border);
 }
 .station-picker-dialog .station-picker-header {
     padding-top: 16px;
 }
-.station-picker-heading {
-    position: relative;
+.station-picker-legend {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
-    min-height: 48px;
-    margin-bottom: 8px;
-}
-.station-picker-heading h2 {
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-.station-picker-close {
-    position: absolute;
-    left: -10px;
-    min-height: 44px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1.4px;
-    text-transform: uppercase;
+    gap: 12px 18px;
+    margin-top: 14px;
 }
 .station-picker-search[data-slot='input-group'] {
+    flex: 1;
+    min-width: 0;
     height: 46px;
     border-radius: 10px;
     background: var(--accent);
@@ -608,11 +600,27 @@
     color: var(--muted-foreground);
     font-weight: 500;
 }
+.station-picker-current {
+    display: inline-block;
+    margin-left: 6px;
+    vertical-align: -2px;
+    color: var(--muted-foreground);
+}
 .station-picker-lines {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    gap: 5px;
     flex-shrink: 0;
-    min-width: 22px;
+}
+.station-picker-line-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--muted-foreground);
 }
 .station-line {
     display: flex;
@@ -628,9 +636,6 @@
     font-weight: 700;
     color: var(--foreground);
 }
-.station-line + .station-line {
-    margin-left: -6px;
-}
 .station-line[data-line='capital'] {
     background: var(--picker-capital);
     color: var(--picker-on-colour);
@@ -642,21 +647,6 @@
 .station-line[data-line='valley'] {
     background: var(--picker-valley);
     color: var(--picker-on-colour);
-}
-.station-picker-distance {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    flex-shrink: 0;
-    font-size: 12px;
-    font-weight: 700;
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-}
-.station-picker-distance span {
-    font-size: 10px;
-    font-weight: 500;
-    color: var(--muted-foreground);
 }
 .station-picker-star[data-slot='button'] {
     align-self: center;

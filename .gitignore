@@ -28,3 +28,6 @@ scripts/local-archive
 
 .claude/
 backups/
+
+# Local connector configuration can contain credentials.
+.codex/config.toml

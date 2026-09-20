@@ -57,6 +57,7 @@ export default defineConfig({
             },
         }),
         sentryVitePlugin({
+            disable: process.env.SENTRY_UPLOAD === 'false',
             org: 'andy-williams',
             project: 'next-departures',
         }),

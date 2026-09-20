@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { ChevronDown, Search, Star, TrainFront, X, MapPin } from 'lucide-react';
+import {
+    Check,
+    ChevronDown,
+    Search,
+    Star,
+    TrainFront,
+    X,
+    MapPin,
+} from 'lucide-react';
 import { cn } from '@/components/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,7 +29,6 @@ import {
     DrawerContent,
     DrawerTitle,
     DrawerDescription,
-    DrawerClose,
 } from '@/components/ui/drawer';
 import {
     Dialog,
@@ -29,7 +36,6 @@ import {
     DialogContent,
     DialogTitle,
     DialogDescription,
-    DialogClose,
 } from '@/components/ui/dialog';
 import {
     FAVOURITES_KEY,
@@ -80,7 +86,7 @@ export function StationPicker({
     const [favourites, setFavourites] = React.useState(readFavouriteStations);
     const [saveError, setSaveError] = React.useState(false);
     const searchRef = React.useRef<HTMLInputElement>(null);
-    const closeRef = React.useRef<HTMLButtonElement>(null);
+    const drawerRef = React.useRef<HTMLDivElement>(null);
     const desktop = useDesktop();
     const headingId = React.useId();
     const normalized = query.trim().toLocaleLowerCase();
@@ -100,6 +106,9 @@ export function StationPicker({
     const results = sorted.filter((station) =>
         station.stop_name.toLocaleLowerCase().includes(normalized)
     );
+    const lines = [
+        ...new Set(stations.flatMap((station) => station.lines ?? [])),
+    ].sort();
     const savedStations = favourites
         .map((id) => stations.find((station) => station.stop_id === id))
         .filter((station): station is Station => !!station);
@@ -138,12 +147,29 @@ export function StationPicker({
                 data-current={current || undefined}
             >
                 <Button
-                    variant="ghost"
+                    variant="plain"
                     className="station-picker-select"
                     aria-label={`Select ${station.stop_name}${current ? ', current station' : ''}`}
+                    aria-description={station.lines?.join(', ')}
                     aria-current={current ? 'true' : undefined}
                     onClick={() => select(station)}
                 >
+                    <span className="station-picker-name-block">
+                        <span className="station-picker-name">
+                            {stationName(station)}
+                            {current && (
+                                <Check
+                                    className="station-picker-current"
+                                    aria-hidden="true"
+                                />
+                            )}
+                        </span>
+                        {distance !== undefined && (
+                            <span className="station-picker-detail">
+                                {formatStationDistance(distance)} away
+                            </span>
+                        )}
+                    </span>
                     <span className="station-picker-lines" aria-hidden="true">
                         {station.lines?.length ? (
                             station.lines.map((line) => (
@@ -160,22 +186,6 @@ export function StationPicker({
                             <TrainFront />
                         )}
                     </span>
-                    <span className="station-picker-name-block">
-                        <span className="station-picker-name">
-                            {stationName(station)}
-                        </span>
-                        <span className="station-picker-detail">
-                            {current
-                                ? 'Current station'
-                                : station.lines?.join(' · ') || 'LRT station'}
-                        </span>
-                    </span>
-                    {distance !== undefined && (
-                        <span className="station-picker-distance">
-                            {formatStationDistance(distance)}
-                            <span>away</span>
-                        </span>
-                    )}
                 </Button>
                 <Button
                     variant="ghost"
@@ -192,22 +202,10 @@ export function StationPicker({
     }
     const Title = desktop ? DialogTitle : DrawerTitle;
     const Description = desktop ? DialogDescription : DrawerDescription;
-    const Close = desktop ? DialogClose : DrawerClose;
     const body = (
         <>
             <div className="station-picker-header">
-                <div className="station-picker-heading">
-                    <Close asChild>
-                        <Button
-                            ref={closeRef}
-                            variant="ghost"
-                            className="station-picker-close"
-                        >
-                            Close
-                        </Button>
-                    </Close>
-                    <Title>Stations</Title>
-                </div>
+                <Title className="sr-only">Stations</Title>
                 <Description className="sr-only">
                     Choose a station to see its departures. Save favourites for
                     quick access.
@@ -242,6 +240,29 @@ export function StationPicker({
                         </InputGroupAddon>
                     )}
                 </InputGroup>
+                {lines.length > 0 && (
+                    <ul
+                        className="station-picker-legend"
+                        aria-label="Transit lines"
+                    >
+                        {lines.map((line) => (
+                            <li
+                                className="station-picker-line-label"
+                                key={line}
+                            >
+                                <Badge
+                                    variant="outline"
+                                    className="station-line"
+                                    data-line={line.toLowerCase()}
+                                    aria-hidden="true"
+                                >
+                                    {line.charAt(0)}
+                                </Badge>
+                                <span>{line}</span>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
             <div className="station-picker-scroll" data-vaul-no-drag>
                 {saveError && (
@@ -330,7 +351,7 @@ export function StationPicker({
     );
     const trigger = (
         <Button
-            variant="ghost"
+            variant="plain"
             className={cn('station-picker-trigger', className)}
             aria-label={`Change station${selectedStation ? `, ${selectedStation.stop_name}` : ''}`}
         >
@@ -371,11 +392,13 @@ export function StationPicker({
         >
             <DrawerTrigger asChild>{trigger}</DrawerTrigger>
             <DrawerContent
+                ref={drawerRef}
+                tabIndex={-1}
                 className="station-picker station-picker-drawer"
                 data-expanded={snap === 1}
                 onOpenAutoFocus={(event) => {
                     event.preventDefault();
-                    closeRef.current?.focus();
+                    drawerRef.current?.focus();
                 }}
             >
                 {body}
