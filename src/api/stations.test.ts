@@ -3,14 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../lib/stop-utils.js', () => ({
     getAllStations: vi.fn(),
+    getStationLines: vi.fn(() => ['Capital', 'Metro']),
     getDeparturesForStation: vi.fn(),
 }));
 
 import { stations } from './stations.js';
-import {
-    getAllStations,
-    getDeparturesForStation,
-} from '../lib/stop-utils.js';
+import { getAllStations, getDeparturesForStation } from '../lib/stop-utils.js';
 
 function createApp() {
     const app = new Hono();
@@ -52,6 +50,7 @@ describe('stations routes', () => {
                     stop_name: 'Central Station',
                     stop_lat: 53.5,
                     stop_lon: -113.5,
+                    lines: ['Capital', 'Metro'],
                 },
             ],
             timestamp: '2026-03-03T12:34:56.000Z',

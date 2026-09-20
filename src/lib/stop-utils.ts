@@ -1,7 +1,7 @@
 import type { Stop } from 'gtfs';
 import type { ClockTime, GeoCoordinate } from '../types/global.js';
 import type { StopQuery } from '../types/gtfs.js';
-import { getStops, getStoptimes } from 'gtfs';
+import { getStops, getStoptimes, getRoutes } from 'gtfs';
 import {
     DEFAULT_LOOK_AHEAD_IN_MINS,
     DEFAULT_STOP_COUNT_LIMIT,
@@ -87,6 +87,22 @@ export async function getAllStations(
     }
 
     return stations;
+}
+
+/** Route membership comes from the feed, including shared underground stations. */
+export function getStationLines(stationId: string): string[] {
+    const platforms = getStops({ parent_station: stationId });
+    const stopIds = [stationId, ...platforms.map((stop) => stop.stop_id)];
+    return [
+        ...new Set(
+            getRoutes({ stop_id: stopIds }).map(
+                (route) =>
+                    route.route_short_name ||
+                    route.route_long_name ||
+                    route.route_id
+            )
+        ),
+    ].sort();
 }
 
 /**

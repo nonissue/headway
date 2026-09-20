@@ -8,10 +8,7 @@ import {
     waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type {
-    DepartureGroup,
-    Station,
-} from './types/departures.js';
+import type { DepartureGroup, Station } from './types/departures.js';
 
 vi.mock('./hooks/useDeparturesApp', () => ({
     useDeparturesApp: vi.fn(),
@@ -109,6 +106,7 @@ function mockHookState(
         selectedStation: baseStation,
         selectStation,
         stations: [baseStation],
+        deviceLocation: undefined,
         userLocation: { lat: 53.5, lon: -113.5 },
         ...overrides,
     });
@@ -199,7 +197,9 @@ describe('App', () => {
         mountApp(rootElement);
 
         await waitFor(() => {
-            expect(rootElement.textContent).toContain('Header:Central Station:ready');
+            expect(rootElement.textContent).toContain(
+                'Header:Central Station:ready'
+            );
             expect(rootElement.textContent).toContain('Departures:1:key:0');
         });
     });

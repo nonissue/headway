@@ -124,6 +124,7 @@ export function useDeparturesApp() {
     const [selectedStation, setSelectedStation] = useState<Station>();
     const [stations, setStations] = useState<Station[]>([]);
     const [userLocation, setUserLocation] = useState<LocationCoordinates>();
+    const [deviceLocation, setDeviceLocation] = useState<LocationCoordinates>();
     const [animationKey, setAnimationKey] = useState(0);
     const [error, setError] = useState<AppError | null>(null);
 
@@ -212,8 +213,11 @@ export function useDeparturesApp() {
     const resolveLocation =
         useCallback(async (): Promise<LocationCoordinates> => {
             try {
-                return await getCurrentLocation();
+                const location = await getCurrentLocation();
+                setDeviceLocation(location);
+                return location;
             } catch {
+                setDeviceLocation(undefined);
                 return getFallbackLocation();
             }
         }, []);
@@ -273,15 +277,17 @@ export function useDeparturesApp() {
     }, [loadNearbyDepartures, resolveLocation]);
 
     const departureGroups = useMemo((): DepartureGroup[] => {
-        const processedDepartures: ProcessedDeparture[][] = departures.map((group) =>
-            group.map((departure) => ({
-                ...departure,
-                displayTime: convertServiceTimeToClockTime(
-                    departure.departure_time
-                ),
-                displayHeadsign:
-                    departure.stop_headsign?.trim() || 'Unknown destination',
-            }))
+        const processedDepartures: ProcessedDeparture[][] = departures.map(
+            (group) =>
+                group.map((departure) => ({
+                    ...departure,
+                    displayTime: convertServiceTimeToClockTime(
+                        departure.departure_time
+                    ),
+                    displayHeadsign:
+                        departure.stop_headsign?.trim() ||
+                        'Unknown destination',
+                }))
         );
 
         return createDepartureGroups(processedDepartures);
@@ -301,5 +307,6 @@ export function useDeparturesApp() {
         selectStation,
         stations,
         userLocation,
+        deviceLocation,
     };
 }

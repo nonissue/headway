@@ -1,5 +1,9 @@
 import { Hono } from 'hono';
-import { getAllStations, getDeparturesForStation } from '../lib/stop-utils.js';
+import {
+    getAllStations,
+    getDeparturesForStation,
+    getStationLines,
+} from '../lib/stop-utils.js';
 import {
     createTimestamp,
     toPlatformDto,
@@ -44,7 +48,10 @@ stations.get('/', async (c) => {
 
         const allStations = await getAllStations(coordinates);
         const response: StationsResponse = {
-            stations: allStations.map(toStationDto),
+            stations: allStations.map((stop) => ({
+                ...toStationDto(stop),
+                lines: getStationLines(stop.stop_id),
+            })),
             timestamp: createTimestamp(),
         };
 

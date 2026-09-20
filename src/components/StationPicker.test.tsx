@@ -1,122 +1,163 @@
 // @vitest-environment jsdom
-
-import type React from 'react';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { Station } from '../types/departures.js';
-
-vi.mock('@/components/ui/button', () => ({
-    Button: ({
-        children,
-        ...props
-    }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
-        <button type="button" {...props}>
-            {children}
-        </button>
-    ),
-}));
-
-vi.mock('@/components/ui/popover', () => ({
-    Popover: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-    PopoverTrigger: ({ children }: { children: React.ReactNode }) => (
-        <div>{children}</div>
-    ),
-    PopoverContent: ({ children }: { children: React.ReactNode }) => (
-        <div>{children}</div>
-    ),
-}));
-
-vi.mock('@/components/ui/command', () => ({
-    Command: ({ children }: { children: React.ReactNode }) => (
-        <div>{children}</div>
-    ),
-    CommandInput: (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-        <input {...props} />
-    ),
-    CommandList: ({ children }: { children: React.ReactNode }) => (
-        <div>{children}</div>
-    ),
-    CommandEmpty: ({ children }: { children: React.ReactNode }) => (
-        <div>{children}</div>
-    ),
-    CommandGroup: ({ children }: { children: React.ReactNode }) => (
-        <div>{children}</div>
-    ),
-    CommandItem: ({
-        children,
-        onSelect,
-        value,
-    }: {
-        children: React.ReactNode;
-        onSelect?: (value: string) => void;
-        value: string;
-    }) => (
-        <button type="button" onClick={() => onSelect?.(value)}>
-            {children}
-        </button>
-    ),
-}));
-
+import {
+    cleanup,
+    fireEvent,
+    render,
+    screen,
+    within,
+} from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { StationPicker } from './StationPicker';
+import { FAVOURITES_KEY } from '../lib/station-picker';
+import type { Station } from '../types/departures';
 
 const stations: Station[] = [
     {
-        stop_id: 'station-1',
+        stop_id: 'central',
         stop_name: 'Central Station',
+        stop_lat: 53.54,
+        stop_lon: -113.49,
+        lines: ['Capital', 'Metro'],
     },
     {
-        stop_id: 'station-2',
+        stop_id: 'health',
         stop_name: 'Health Sciences',
+        stop_lat: 53.52,
+        stop_lon: -113.52,
+        lines: ['Capital'],
     },
 ];
+function openPicker(
+    props: Partial<React.ComponentProps<typeof StationPicker>> = {}
+) {
+    const select = vi.fn();
+    render(
+        <StationPicker
+            selectedStation={stations[0]}
+            stations={stations}
+            onStationSelect={select}
+            {...props}
+        />
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Change station/ }));
+    return select;
+}
 
 describe('StationPicker', () => {
+    beforeEach(() => {
+        localStorage.clear();
+        vi.stubGlobal(
+            'matchMedia',
+            vi.fn(() => ({
+                matches: true,
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn(),
+            }))
+        );
+    });
     afterEach(() => {
         cleanup();
+        vi.restoreAllMocks();
+        vi.unstubAllGlobals();
     });
 
-    it('renders the selected station and available options', () => {
-        render(
-            <StationPicker
-                selectedStation={stations[0]}
-                stations={stations}
-                onStationSelect={vi.fn()}
-            />
+    it('opens a named dialog and selects a station in one tap', () => {
+        const select = openPicker();
+        expect(screen.getByRole('dialog', { name: 'Stations' })).toBeTruthy();
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Select Health Sciences' })
         );
-
-        expect(screen.getByRole('combobox')).toBeTruthy();
-        expect(screen.getByPlaceholderText('Search stations...')).toBeTruthy();
-        expect(screen.getAllByText('Central Station').length).toBeGreaterThan(0);
-        expect(screen.getAllByText('Health Sciences').length).toBeGreaterThan(0);
+        expect(select).toHaveBeenCalledWith(stations[1]);
+        expect(screen.queryByRole('dialog')).toBeNull();
     });
-
-    it('shows loading feedback and placeholder text when no station is selected', () => {
-        render(
-            <StationPicker
-                stations={stations}
-                isLoading={true}
-                onStationSelect={vi.fn()}
-            />
-        );
-
-        expect(screen.getByRole('combobox')).toBeTruthy();
-        expect(screen.getByText('Select station...')).toBeTruthy();
-        expect(screen.getByText('Loading stations...')).toBeTruthy();
+    it('filters case-insensitively, shows an empty state, and clears search', () => {
+        openPicker();
+        const input = screen.getByRole('searchbox');
+        fireEvent.change(input, { target: { value: '  HEALTH  ' } });
+        expect(
+            screen.getByRole('button', { name: 'Select Health Sciences' })
+        ).toBeTruthy();
+        expect(
+            screen.queryByRole('button', { name: /Select Central/ })
+        ).toBeNull();
+        fireEvent.change(input, { target: { value: 'missing' } });
+        expect(screen.getByText('No stations match')).toBeTruthy();
+        fireEvent.click(screen.getByRole('button', { name: 'Clear search' }));
+        expect(
+            screen.getByRole('button', { name: /Select Central/ })
+        ).toBeTruthy();
     });
-
-    it('forwards selected stations to the callback', () => {
-        const onStationSelect = vi.fn();
-
-        render(
-            <StationPicker
-                selectedStation={stations[0]}
-                stations={stations}
-                onStationSelect={onStationSelect}
-            />
+    it('saves favourites without selecting or closing, then restores them on remount', () => {
+        const select = openPicker();
+        fireEvent.click(
+            screen.getByRole('button', {
+                name: 'Add Health Sciences to favourites',
+            })
         );
-
-        fireEvent.click(screen.getByRole('button', { name: /Health Sciences/i }));
-
-        expect(onStationSelect).toHaveBeenCalledWith(stations[1]);
+        expect(select).not.toHaveBeenCalled();
+        expect(screen.getByRole('dialog')).toBeTruthy();
+        expect(JSON.parse(localStorage.getItem(FAVOURITES_KEY)!)).toEqual([
+            'health',
+        ]);
+        cleanup();
+        openPicker();
+        const section = screen.getByRole('region', { name: 'Favourites' });
+        expect(
+            within(section).getByRole('button', {
+                name: 'Select Health Sciences',
+            })
+        ).toBeTruthy();
+        fireEvent.click(
+            within(section).getByRole('button', {
+                name: 'Remove Health Sciences from favourites',
+            })
+        );
+        expect(screen.queryByRole('region', { name: 'Favourites' })).toBeNull();
+    });
+    it('sorts by real location and labels straight-line distances', () => {
+        openPicker({ location: { lat: 53.52, lon: -113.52 } });
+        expect(
+            screen.getAllByRole('button', { name: /^Select / })[0].textContent
+        ).toContain('Health Sciences');
+        expect(
+            screen.getByText(
+                'Distances are straight-line estimates, not walking routes.'
+            )
+        ).toBeTruthy();
+    });
+    it('does not imply proximity without a device location', () => {
+        openPicker();
+        expect(screen.getByText('All stations')).toBeTruthy();
+        expect(screen.queryByText('Near you')).toBeNull();
+    });
+    it('handles corrupt storage and loading stations', () => {
+        localStorage.setItem(FAVOURITES_KEY, '{broken');
+        openPicker({ isLoading: true });
+        expect(screen.getByText('Loading stations…')).toBeTruthy();
+    });
+    it('keeps working and reports when storage is unavailable', () => {
+        openPicker();
+        vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+            throw new Error('denied');
+        });
+        fireEvent.click(
+            screen.getByRole('button', {
+                name: 'Add Health Sciences to favourites',
+            })
+        );
+        expect(screen.getByText(/couldn’t be saved/)).toBeTruthy();
+    });
+    it('opens the mobile drawer without focusing search and expands on search focus', () => {
+        vi.mocked(window.matchMedia).mockReturnValue({
+            matches: false,
+            addEventListener: vi.fn(),
+            removeEventListener: vi.fn(),
+        } as unknown as MediaQueryList);
+        openPicker();
+        const dialog = screen.getByRole('dialog', { name: 'Stations' });
+        expect(dialog.getAttribute('data-expanded')).toBe('false');
+        expect(document.activeElement).not.toBe(screen.getByRole('searchbox'));
+        fireEvent.focus(screen.getByRole('searchbox'));
+        expect(dialog.getAttribute('data-expanded')).toBe('true');
     });
 });

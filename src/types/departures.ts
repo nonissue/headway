@@ -22,6 +22,7 @@ export interface Station {
     stop_name: string;
     stop_lat?: number;
     stop_lon?: number;
+    lines?: string[];
 }
 
 export interface PlatformDepartures {

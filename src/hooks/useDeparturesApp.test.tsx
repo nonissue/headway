@@ -166,7 +166,9 @@ describe('useDeparturesApp', () => {
         mockGeolocationSuccess();
         vi.mocked(fetch)
             .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
-            .mockResolvedValueOnce(createJsonResponse(createStationsResponse()));
+            .mockResolvedValueOnce(
+                createJsonResponse(createStationsResponse())
+            );
 
         const { result } = renderHook(() => useDeparturesApp());
 
@@ -195,6 +197,7 @@ describe('useDeparturesApp', () => {
             createStationsResponse().stations
         );
         expect(result.current.userLocation).toEqual(GEOLOCATION_COORDS);
+        expect(result.current.deviceLocation).toEqual(GEOLOCATION_COORDS);
         expect(result.current.departureGroups).toEqual<DepartureGroup[]>([
             {
                 heading: 'Unknown destination',
@@ -213,7 +216,9 @@ describe('useDeparturesApp', () => {
         mockGeolocationFailure();
         vi.mocked(fetch)
             .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
-            .mockResolvedValueOnce(createJsonResponse(createStationsResponse()));
+            .mockResolvedValueOnce(
+                createJsonResponse(createStationsResponse())
+            );
 
         const { result } = renderHook(() => useDeparturesApp());
 
@@ -236,6 +241,7 @@ describe('useDeparturesApp', () => {
                 signal: expect.any(AbortSignal),
             })
         );
+        expect(result.current.deviceLocation).toBeUndefined();
         expect(result.current.userLocation).toEqual({
             lat: TEST_COORDS.lat,
             lon: TEST_COORDS.lon,
@@ -280,9 +286,9 @@ describe('useDeparturesApp', () => {
             })
         );
         expect(result.current.departureGroups[0].heading).toBe('Northbound');
-        expect(result.current.departureGroups[0].departures[0].displayHeadsign).toBe(
-            'Clareview'
-        );
+        expect(
+            result.current.departureGroups[0].departures[0].displayHeadsign
+        ).toBe('Clareview');
     });
 
     it('refreshes nearby departures and bumps the animation key', async () => {
@@ -291,7 +297,9 @@ describe('useDeparturesApp', () => {
             .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
             .mockResolvedValueOnce(createJsonResponse(createStationsResponse()))
             .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
-            .mockResolvedValueOnce(createJsonResponse(createStationsResponse()));
+            .mockResolvedValueOnce(
+                createJsonResponse(createStationsResponse())
+            );
 
         const { result } = renderHook(() => useDeparturesApp());
 

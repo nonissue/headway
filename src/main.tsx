@@ -26,6 +26,7 @@ export function App() {
         selectedStation,
         selectStation,
         stations,
+        deviceLocation,
     } = useDeparturesApp();
 
     useEffect(() => {
@@ -61,6 +62,7 @@ export function App() {
                         isStationsLoading={isStationsLoading}
                         onStationSelect={selectStation}
                         isLoading={isLoading}
+                        location={deviceLocation}
                     />
                     {hasError && (
                         <div className="relative border-l-4 border-red-500 bg-red-50 p-4 text-center text-blue-400 dark:bg-red-900/20">

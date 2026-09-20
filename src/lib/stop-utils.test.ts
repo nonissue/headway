@@ -2,6 +2,7 @@
 
 import { it, describe, beforeEach, afterEach, expect, vi } from 'vitest';
 import {
+    getStationLines,
     getAllStations,
     getClosestStation,
     getDeparturesForStation,
@@ -11,11 +12,12 @@ import {
 
 // Mock the gtfs module
 vi.mock('gtfs', () => ({
+    getRoutes: vi.fn(),
     getStops: vi.fn(),
     getStoptimes: vi.fn(),
 }));
 
-import { getStops, getStoptimes } from 'gtfs';
+import { getRoutes, getStops, getStoptimes } from 'gtfs';
 
 describe('stop-utils', () => {
     beforeEach(() => {
@@ -433,7 +435,9 @@ describe('stop-utils', () => {
         });
 
         it('logs debug service window details when requested', async () => {
-            const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+            const warnSpy = vi
+                .spyOn(console, 'warn')
+                .mockImplementation(() => {});
 
             vi.mocked(getStops).mockReturnValueOnce([
                 {
@@ -479,7 +483,10 @@ describe('stop-utils', () => {
                     return [];
                 }
 
-                if ('parent_station' in query && query.parent_station === 'Q7018') {
+                if (
+                    'parent_station' in query &&
+                    query.parent_station === 'Q7018'
+                ) {
                     return childStops;
                 }
 
@@ -576,7 +583,10 @@ describe('stop-utils', () => {
                     return [];
                 }
 
-                if ('parent_station' in query && query.parent_station === 'Q7005') {
+                if (
+                    'parent_station' in query &&
+                    query.parent_station === 'Q7005'
+                ) {
                     return [childStop];
                 }
 
@@ -611,5 +621,21 @@ describe('stop-utils', () => {
                 'getDeparturesForStation: station not found'
             );
         });
+    });
+});
+
+it('derives unique station lines from all child platforms', () => {
+    vi.mocked(getStops).mockReturnValue([
+        { stop_id: 'platform-a' },
+        { stop_id: 'platform-b' },
+    ]);
+    vi.mocked(getRoutes).mockReturnValue([
+        { route_id: '1', route_short_name: 'Capital', route_type: 0 },
+        { route_id: '2', route_short_name: 'Metro', route_type: 0 },
+        { route_id: '3', route_short_name: 'Capital', route_type: 0 },
+    ]);
+    expect(getStationLines('parent')).toEqual(['Capital', 'Metro']);
+    expect(getRoutes).toHaveBeenCalledWith({
+        stop_id: ['parent', 'platform-a', 'platform-b'],
     });
 });

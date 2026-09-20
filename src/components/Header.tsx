@@ -1,4 +1,4 @@
-import type { Station } from '../types/departures';
+import type { Station, LocationCoordinates } from '../types/departures';
 import { StationPicker } from './StationPicker';
 import { ThemeToggle } from './theme-toggle';
 
@@ -8,6 +8,7 @@ interface HeaderProps {
     isStationsLoading: boolean;
     onStationSelect: (station: Station) => void;
     isLoading?: boolean;
+    location?: LocationCoordinates;
 }
 
 export function Header({
@@ -16,6 +17,7 @@ export function Header({
     isStationsLoading,
     onStationSelect,
     isLoading = false,
+    location,
 }: HeaderProps) {
     return (
         <div className="relative flex items-center gap-3 border-b border-l-4 border-border/50 border-l-foreground/10 bg-gradient-to-t from-foreground/[8%] via-foreground/[5%] to-foreground/[2%] p-4 shadow-sm backdrop-blur-md sm:bg-gradient-to-b sm:from-foreground/[8%] sm:via-foreground/[5%] sm:to-foreground/[2%] dark:border-b-muted-foreground/30">
@@ -31,6 +33,7 @@ export function Header({
                         isLoading={isStationsLoading}
                         onStationSelect={onStationSelect}
                         className="w-full"
+                        location={location}
                     />
                 ) : (
                     <div className="flex h-8 w-full animate-pulse items-center justify-center rounded-lg bg-muted/20">
