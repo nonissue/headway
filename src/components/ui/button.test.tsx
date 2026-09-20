@@ -28,16 +28,16 @@ describe('Button', () => {
         expect(button.className).toContain('size-9');
     });
 
-    it('renders the child element when asChild is enabled', () => {
+    it('renders a custom element through Base UI', () => {
         render(
-            <Button asChild className="underline">
-                <a href="/stations">Stations</a>
+            <Button render={<div />} nativeButton={false} className="underline">
+                Stations
             </Button>
         );
 
-        const link = screen.getByRole('link', { name: 'Stations' });
+        const link = screen.getByRole('button', { name: 'Stations' });
 
-        expect(link.getAttribute('href')).toBe('/stations');
+        expect(link.tagName).toBe('DIV');
         expect(link.getAttribute('data-slot')).toBe('button');
         expect(link.className).toContain('underline');
         expect(link.className).toContain('bg-primary');
