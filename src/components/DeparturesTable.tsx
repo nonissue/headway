@@ -113,7 +113,7 @@ function DepartureRow({
                         minutes !== 0 &&
                         minutes !== undefined && (
                             <span className="departure-unit" aria-hidden="true">
-                                min
+                                m
                             </span>
                         )}
                 </span>

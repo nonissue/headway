@@ -155,9 +155,14 @@
     flex-direction: column;
     flex: 1;
     min-height: 0;
-    --clock-column: 52px;
-    --countdown-column: 76px;
+    --clock-column: 48px;
+    --countdown-column: 48px;
     --board-gutter: 18px;
+}
+/* Longer recent/overnight labels retain room without shifting individual rows. */
+.departure-pane:has([data-recent]),
+.departure-pane:has([data-next-service]) {
+    --countdown-column: 76px;
 }
 .departure-pane + .departure-pane {
     border-top: 2px solid var(--foreground);
