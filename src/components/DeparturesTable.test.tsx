@@ -99,7 +99,7 @@ describe('DeparturesTable', () => {
             expect(screen.getAllByRole('img')).toHaveLength(1);
             expect(
                 within(
-                    screen.getByText('NAIT Blatchford Market').closest('li')!
+                    screen.getByText('NAIT / Blatchford').closest('li')!
                 ).getByRole('img', { name: heading })
             ).toBeTruthy();
         }
@@ -124,7 +124,7 @@ describe('DeparturesTable', () => {
         );
         expect(screen.queryByText('Clareview')).toBeNull();
         expect(screen.queryByText('Century Park')).toBeNull();
-        for (const name of ['NAIT Blatchford Market', 'Health Sciences'])
+        for (const name of ['NAIT / Blatchford', 'Health Sciences'])
             expect(screen.getByText(name).closest('li')?.dataset.hero).toBe(
                 'true'
             );

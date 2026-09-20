@@ -52,6 +52,11 @@ function DepartureRow({
     direction?: string;
 }) {
     const DirectionIcon = direction ? directionIcons.get(direction) : undefined;
+    const destination = /^NAIT[\s-]+Blatchford Market$/i.test(
+        departure.displayHeadsign
+    )
+        ? 'NAIT / Blatchford'
+        : departure.displayHeadsign;
     const minutes = departureMinutes(departure, now);
     const age = recent
         ? Math.floor((now - Date.parse(departure.scheduled_at!)) / 60000)
@@ -69,7 +74,7 @@ function DepartureRow({
                 className="departure-destination"
                 title={departure.displayHeadsign}
             >
-                {departure.displayHeadsign}
+                {destination}
                 {DirectionIcon && (
                     <DirectionIcon
                         className="departure-direction"
