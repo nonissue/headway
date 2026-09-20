@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 
+import { useState } from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Station } from '../types/departures.js';
@@ -50,6 +51,34 @@ describe('Header', () => {
         );
         fireEvent.click(screen.getByRole('button', { name: 'Metro Line' }));
         expect(onLineFilterChange).toHaveBeenCalledWith('Metro');
+    });
+    it('toggles an isolated line off to restore all lines and switches directly between lines', () => {
+        function FilterHarness() {
+            const [lineFilter, setLineFilter] = useState('all');
+            return (
+                <Header
+                    stations={stations}
+                    onStationSelect={vi.fn()}
+                    lines={['Capital', 'Metro']}
+                    lineFilter={lineFilter}
+                    onLineFilterChange={setLineFilter}
+                />
+            );
+        }
+        render(<FilterHarness />);
+        const capital = screen.getByRole('button', { name: 'Capital Line' });
+        const metro = screen.getByRole('button', { name: 'Metro Line' });
+        expect(screen.queryByRole('button', { name: 'All lines' })).toBeNull();
+        expect(capital.getAttribute('aria-pressed')).toBe('false');
+        expect(metro.getAttribute('aria-pressed')).toBe('false');
+        fireEvent.click(metro);
+        expect(metro.getAttribute('aria-pressed')).toBe('true');
+        fireEvent.click(capital);
+        expect(capital.getAttribute('aria-pressed')).toBe('true');
+        expect(metro.getAttribute('aria-pressed')).toBe('false');
+        fireEvent.click(capital);
+        expect(capital.getAttribute('aria-pressed')).toBe('false');
+        expect(metro.getAttribute('aria-pressed')).toBe('false');
     });
     afterEach(() => {
         cleanup();

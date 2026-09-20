@@ -1,4 +1,4 @@
-import { Circle } from 'lucide-react';
+import { LineBadge } from './LineBadge';
 import { StationPicker } from './StationPicker';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import type { LocationCoordinates, Station } from '../types/departures';
@@ -39,29 +39,25 @@ export function Header({
                 <ToggleGroup
                     className="line-filters"
                     variant="outline"
-                    spacing={1}
-                    value={[lineFilter]}
+                    spacing={0}
+                    value={lineFilter === 'all' ? [] : [lineFilter]}
                     onValueChange={(values) =>
                         onLineFilterChange?.(String(values[0] ?? 'all'))
                     }
                     aria-label="Filter departures by line"
                 >
-                    <ToggleGroupItem value="all" aria-label="All lines">
-                        All
-                    </ToggleGroupItem>
                     {lines.map((line) => (
                         <ToggleGroupItem
                             key={line}
                             value={line}
                             aria-label={`${line} Line`}
-                            title={`${line} Line`}
+                            title={
+                                lineFilter === line
+                                    ? 'Show all lines'
+                                    : `Show only ${line} Line`
+                            }
                         >
-                            <Circle
-                                className="line-filter-dot"
-                                data-line={line.toLowerCase()}
-                                aria-hidden="true"
-                            />
-                            {line.charAt(0)}
+                            <LineBadge line={line} />
                         </ToggleGroupItem>
                     ))}
                 </ToggleGroup>

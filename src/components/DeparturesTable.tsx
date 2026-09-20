@@ -55,69 +55,46 @@ function DepartureRow({
             >
                 {departure.displayHeadsign}
             </span>
-            <div className="departure-times">
-                {nextService ? (
-                    <>
-                        <time
-                            className="departure-countdown"
-                            dateTime={departure.scheduled_at}
-                        >
-                            {departure.displayTime.slice(0, 5)}
-                        </time>
-                        <span
-                            className="departure-clock"
-                            aria-label={`In ${minutes} minutes`}
-                        >
-                            {minutes !== undefined
-                                ? `${Math.floor(minutes / 60)}h ${minutes % 60}m`
-                                : '—'}
-                        </span>
-                    </>
-                ) : (
-                    <>
-                        <span
-                            className="departure-countdown"
-                            aria-label={
-                                recent
-                                    ? `Scheduled ${recentLabel.toLowerCase()}`
-                                    : minutes === undefined
-                                      ? 'Countdown unavailable'
-                                      : minutes === 0
-                                        ? 'Due now'
-                                        : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
-                            }
-                        >
-                            <span>
-                                {recent
-                                    ? recentLabel
-                                    : minutes === undefined
-                                      ? '—'
-                                      : minutes === 0
-                                        ? 'Due'
-                                        : minutes}
+            <time
+                className="departure-clock"
+                dateTime={departure.scheduled_at ?? departure.displayTime}
+            >
+                {departure.displayTime.slice(0, 5)}
+            </time>
+            <span
+                className="departure-countdown"
+                aria-label={
+                    recent
+                        ? `Scheduled ${recentLabel.toLowerCase()}`
+                        : minutes === undefined
+                          ? 'Countdown unavailable'
+                          : minutes === 0
+                            ? 'Due now'
+                            : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+                }
+            >
+                <span className="departure-relative-time">
+                    <span>
+                        {recent
+                            ? recentLabel
+                            : minutes === undefined
+                              ? '—'
+                              : minutes === 0
+                                ? 'Due'
+                                : nextService
+                                  ? `${Math.floor(minutes / 60)}h ${minutes % 60}m`
+                                  : minutes}
+                    </span>
+                    {!recent &&
+                        !nextService &&
+                        minutes !== 0 &&
+                        minutes !== undefined && (
+                            <span className="departure-unit" aria-hidden="true">
+                                m
                             </span>
-                            {!recent &&
-                                minutes !== 0 &&
-                                minutes !== undefined && (
-                                    <span
-                                        className="departure-unit"
-                                        aria-hidden="true"
-                                    >
-                                        m
-                                    </span>
-                                )}
-                        </span>
-                        <time
-                            className="departure-clock"
-                            dateTime={
-                                departure.scheduled_at ?? departure.displayTime
-                            }
-                        >
-                            {departure.displayTime.slice(0, 5)}
-                        </time>
-                    </>
-                )}
-            </div>
+                        )}
+                </span>
+            </span>
         </li>
     );
 }
@@ -177,8 +154,20 @@ export function DeparturesTable({
                             key={`${index}-${group.heading}`}
                             aria-labelledby={headingId}
                         >
-                            <div className="direction-rail">
+                            <div className="direction-heading">
                                 <h2 id={headingId}>{group.heading}</h2>
+                                <span
+                                    className="departure-column-label"
+                                    aria-hidden="true"
+                                >
+                                    At
+                                </span>
+                                <span
+                                    className="departure-column-label"
+                                    aria-hidden="true"
+                                >
+                                    In
+                                </span>
                             </div>
                             <ScrollArea
                                 className="departure-scroll"
