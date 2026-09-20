@@ -180,9 +180,7 @@ function AboutTrigger({
             aria-label={ariaLabel ?? triggerLabel}
         >
             <Info className="h-4 w-4 text-primary transition-colors duration-300" />
-            <span className="sr-only">
-                {triggerLabel}
-            </span>
+            <span className="sr-only">{triggerLabel}</span>
         </button>
     );
 }
@@ -315,12 +313,14 @@ export function AboutDialog({
     if (isDesktop) {
         return (
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger asChild>
-                    <AboutTrigger
-                        triggerLabel={triggerLabel}
-                        className={className}
-                    />
-                </DialogTrigger>
+                <DialogTrigger
+                    render={
+                        <AboutTrigger
+                            triggerLabel={triggerLabel}
+                            className={className}
+                        />
+                    }
+                />
 
                 <DialogContent className="overflow-hidden border-border/60 bg-card/95 p-0 text-card-foreground backdrop-blur-xl sm:max-w-2xl">
                     <AboutDialogBody
@@ -343,10 +343,7 @@ export function AboutDialog({
             </DrawerTrigger>
 
             <DrawerContent className="border-border/60 bg-card/90 text-card-foreground">
-                <AboutDrawerBody
-                    name={name}
-                    links={links}
-                />
+                <AboutDrawerBody name={name} links={links} />
             </DrawerContent>
         </Drawer>
     );

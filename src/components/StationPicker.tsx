@@ -366,14 +366,11 @@ export function StationPicker({
     if (desktop)
         return (
             <Dialog open={open} onOpenChange={changeOpen}>
-                <DialogTrigger asChild>{trigger}</DialogTrigger>
+                <DialogTrigger render={trigger} />
                 <DialogContent
                     className="station-picker station-picker-dialog"
                     showCloseButton={false}
-                    onOpenAutoFocus={(event) => {
-                        event.preventDefault();
-                        searchRef.current?.focus();
-                    }}
+                    initialFocus={searchRef}
                 >
                     {body}
                 </DialogContent>
