@@ -1,4 +1,5 @@
 import { scheduledDepartureTime } from './scheduled-time.js';
+import { addDays, resolveYmd, ymdToNumber } from './time-helpers.js';
 import type { Stop } from 'gtfs';
 import type { ClockTime, GeoCoordinate } from '../types/global.js';
 import type { StopQuery } from '../types/gtfs.js';
@@ -7,6 +8,7 @@ import {
     DEFAULT_LOOK_AHEAD_IN_MINS,
     DEFAULT_STOP_COUNT_LIMIT,
     DEFAULT_TIMEZONE,
+    RECENT_DEPARTURE_MINS,
     SERVICE_DAY_START_HOUR,
 } from '../config.js';
 import {
@@ -153,6 +155,7 @@ export interface GetDeparturesForStopOptions {
     clockTime?: ClockTime; // "HH:mm:ss" (0–23h)
     baseTime?: Date; // default: now
     calendarDate?: string | number | Date;
+    lookbackMins?: number; // include recent scheduled departures, default 0
     lookaheadMins?: number; // default: DEFAULT_LOOK_AHEAD_IN_MINS
     limit?: number; // default: DEFAULT_STOP_COUNT_LIMIT
     tz?: string; // default: DEFAULT_TIMEZONE
@@ -179,6 +182,7 @@ export async function getDeparturesForStop({
     clockTime,
     baseTime = new Date(),
     calendarDate,
+    lookbackMins = 0,
     lookaheadMins = DEFAULT_LOOK_AHEAD_IN_MINS,
     limit = DEFAULT_STOP_COUNT_LIMIT,
     tz = DEFAULT_TIMEZONE,
@@ -236,33 +240,68 @@ export async function getDeparturesForStop({
         );
     }
 
-    const stoptimes = getStoptimes(
-        {
-            stop_id: id,
-            date: serviceDate, // e.g., 20250801 (number or "YYYYMMDD")
-            start_time: startServiceTime, // "HH:mm:ss", may be >= 24h
-            end_time: endServiceTime, // "HH:mm:ss", may be >= 24h
-        },
-        [
-            'stop_id',
-            'trip_id',
-            'stop_headsign',
-            'departure_time',
-            'departure_timestamp',
-        ],
-        [['departure_time', 'ASC']]
-    ) as StopDepartures[];
+    const queryStart = getGtfsServiceTime({
+        ...(clockTime ? { clockTime } : { baseTime }),
+        tz,
+        serviceDayStartHour,
+        offsetMins: -lookbackMins,
+    });
+    const queryTimes = (date: number, start: string, end: string) =>
+        getStoptimes(
+            { stop_id: id, date, start_time: start, end_time: end },
+            [
+                'stop_id',
+                'trip_id',
+                'stop_headsign',
+                'departure_time',
+                'departure_timestamp',
+            ],
+            [['departure_time', 'ASC']]
+        ).map((departure) => ({
+            ...departure,
+            scheduled_at: scheduledDepartureTime(
+                date,
+                departure.departure_time!,
+                tz
+            ),
+        })) as StopDepartures[];
+    const stoptimes = queryTimes(serviceDate, queryStart, endServiceTime);
+
+    // At the service-day cutover, recent trips can belong to yesterday's feed.
+    // Include that small overlap without moving today's upcoming query to yesterday.
+    const [hour, minute, second] = startServiceTime.split(':').map(Number);
+    const secondsSinceCutover =
+        (hour - serviceDayStartHour) * 3600 + minute * 60 + second;
+    if (
+        lookbackMins > 0 &&
+        secondsSinceCutover >= 0 &&
+        secondsSinceCutover < lookbackMins * 60
+    ) {
+        const previousDate = ymdToNumber(
+            addDays(resolveYmd(serviceDate, tz), -1)
+        );
+        const previousStart = getGtfsServiceTime({
+            clockTime: startServiceTime as ClockTime,
+            tz,
+            serviceDayStartHour: 0,
+            offsetMins: 1440 - lookbackMins,
+        });
+        const previousEnd = getGtfsServiceTime({
+            clockTime: startServiceTime as ClockTime,
+            tz,
+            serviceDayStartHour: 0,
+            offsetMins: 1440,
+        });
+        stoptimes.push(...queryTimes(previousDate, previousStart, previousEnd));
+    }
 
     const { normalizedStationName } = getStopContext(id);
     const departures = filterTerminatingTrips(stoptimes, normalizedStationName);
 
-    // Defensive: ensure sorted (feeds occasionally return identical timestamps)
-    departures.sort((a, b) => {
-        if (a.departure_timestamp != null && b.departure_timestamp != null) {
-            return a.departure_timestamp - b.departure_timestamp;
-        }
-        return a.departure_time.localeCompare(b.departure_time);
-    });
+    // Absolute times keep recent trips ordered correctly across service dates.
+    departures.sort(
+        (a, b) => Date.parse(a.scheduled_at!) - Date.parse(b.scheduled_at!)
+    );
 
     const upcoming = departures.slice(0, Math.max(1, limit));
     if (!upcoming.length) return [];
@@ -281,11 +320,6 @@ export async function getDeparturesForStop({
     return upcoming.map((departure) => ({
         ...departure,
         line: tripLines.get(departure.trip_id),
-        scheduled_at: scheduledDepartureTime(
-            serviceDate,
-            departure.departure_time,
-            tz
-        ),
     }));
 }
 
@@ -305,7 +339,10 @@ export async function getDeparturesForStation(
     const platforms = await Promise.all(
         childStops.map(async (stop) => ({
             stop,
-            departures: await getDeparturesForStop({ stopId: stop.stop_id }),
+            departures: await getDeparturesForStop({
+                stopId: stop.stop_id,
+                lookbackMins: RECENT_DEPARTURE_MINS,
+            }),
         }))
     );
 

@@ -178,16 +178,6 @@
     position: relative;
     padding-top: 13px;
 }
-.direction-rail > svg {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
-    stroke-width: 1;
-}
-.direction-rail > .lucide-train-front {
-    fill: none;
-    stroke-width: 1.8;
-}
 .direction-rail h2 {
     position: absolute;
     top: 50%;
@@ -206,73 +196,96 @@
     min-width: 0;
     height: 100%;
 }
+/* Base UI tracks overflow, so the last row is fully visible at the end. */
 .departure-scroll [data-slot='scroll-area-viewport'] {
     overscroll-behavior: contain;
 }
+.departure-scroll [data-slot='scroll-area-viewport'][data-overflow-y-end] {
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        #000 calc(100% - 32px),
+        transparent
+    );
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+}
 .departure-row {
     display: grid;
-    grid-template-columns: 18px minmax(0, 1fr) 35px 40px;
+    grid-template-columns: 20px minmax(0, 1fr) 76px;
     align-items: center;
     gap: 10px;
-    min-height: 46px;
-    padding: 10px 18px;
+    min-height: 54px;
+    padding: 6px 18px;
     border-bottom: 1px solid var(--border);
 }
 .departure-row[data-hero] {
-    grid-template-columns: 22px minmax(0, 1fr) 35px minmax(70px, max-content);
-    min-height: 78px;
-    padding-top: 16px;
-    padding-bottom: 16px;
+    min-height: 68px;
+    padding-block: 10px;
 }
 .departure-destination {
     min-width: 0;
-    font-size: 14px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 500;
     letter-spacing: -0.25px;
-    line-height: 1.15;
+    line-height: 1.2;
     overflow-wrap: anywhere;
 }
 .departure-row[data-hero] .departure-destination {
-    font-size: 22px;
-    letter-spacing: -0.6px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+.departure-times {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    font-variant-numeric: tabular-nums;
 }
 .departure-clock {
-    font-size: 10px;
-    color: var(--muted-foreground);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--foreground);
     text-align: right;
 }
 .departure-countdown {
     display: flex;
     align-items: baseline;
     justify-content: flex-end;
-    gap: 1px;
+    gap: 2px;
     font-size: 22px;
     font-weight: 700;
-    letter-spacing: -0.8px;
+    letter-spacing: -0.6px;
     line-height: 1;
     white-space: nowrap;
 }
 .departure-unit {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--muted-foreground);
     letter-spacing: 0;
 }
 .departure-row[data-hero] .departure-countdown {
-    font-size: 52px;
-    letter-spacing: -2.5px;
-}
-.departure-row[data-hero] .departure-unit {
-    font-size: 14px;
-    letter-spacing: 0;
-}
-.departure-countdown[aria-label='Due now'] {
-    font-size: 18px;
-    letter-spacing: -0.5px;
-}
-.departure-row[data-hero] .departure-countdown[aria-label='Due now'] {
     font-size: 32px;
     letter-spacing: -1px;
+}
+.departure-row[data-recent] {
+    min-height: 44px;
+    color: var(--muted-foreground);
+}
+.departure-row[data-recent] .departure-destination {
+    font-size: 14px;
+    font-weight: 400;
+}
+.departure-row[data-recent] .departure-clock,
+.departure-row[data-recent] .departure-countdown {
+    color: var(--muted-foreground);
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0;
+}
+.departure-row[data-recent] .line-badge {
+    opacity: 0.45;
 }
 .line-badge {
     display: flex;
@@ -398,17 +411,8 @@
         padding-inline: 12px;
         gap: 7px;
     }
-    .departure-row[data-hero] {
-        grid-template-columns: 22px minmax(0, 1fr) 32px minmax(
-                62px,
-                max-content
-            );
-    }
     .departure-row[data-hero] .departure-destination {
         font-size: 20px;
-    }
-    .departure-row[data-hero] .departure-countdown {
-        font-size: 46px;
     }
 }
 @media (prefers-reduced-motion: reduce) {

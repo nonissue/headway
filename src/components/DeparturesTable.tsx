@@ -1,4 +1,4 @@
-import { ArrowBigUp, ArrowBigDown, TrainFront } from 'lucide-react';
+import { TrainFront } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     Empty,
@@ -7,8 +7,11 @@ import {
     EmptyDescription,
 } from '@/components/ui/empty';
 import { LineBadge } from './LineBadge';
-import { departureMinutes } from '../lib/departure-countdown';
-import type { DepartureGroup } from '../types/departures';
+import {
+    departureMinutes,
+    getDepartureWindow,
+} from '../lib/departure-countdown';
+import type { DepartureGroup, ProcessedDeparture } from '../types/departures';
 
 interface DeparturesTableProps {
     departureGroups: DepartureGroup[];
@@ -17,38 +20,107 @@ interface DeparturesTableProps {
     now?: number;
 }
 
+function DepartureRow({
+    departure,
+    now,
+    hero = false,
+    recent = false,
+}: {
+    departure: ProcessedDeparture;
+    now: number;
+    hero?: boolean;
+    recent?: boolean;
+}) {
+    const minutes = departureMinutes(departure, now);
+    const age = recent
+        ? Math.floor((now - Date.parse(departure.scheduled_at!)) / 60000)
+        : 0;
+    const recentLabel = age === 0 ? 'Just now' : `${age} min ago`;
+    return (
+        <li
+            className="departure-row"
+            data-hero={hero || undefined}
+            data-recent={recent || undefined}
+        >
+            <LineBadge line={departure.line} />
+            <span
+                className="departure-destination"
+                title={departure.displayHeadsign}
+            >
+                {departure.displayHeadsign}
+            </span>
+            <div className="departure-times">
+                <span
+                    className="departure-countdown"
+                    aria-label={
+                        recent
+                            ? `Scheduled ${recentLabel.toLowerCase()}`
+                            : minutes === undefined
+                              ? 'Countdown unavailable'
+                              : minutes === 0
+                                ? 'Due now'
+                                : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+                    }
+                >
+                    <span>
+                        {recent
+                            ? recentLabel
+                            : minutes === undefined
+                              ? '—'
+                              : minutes === 0
+                                ? 'Due'
+                                : minutes}
+                    </span>
+                    {!recent && minutes !== 0 && minutes !== undefined && (
+                        <span className="departure-unit" aria-hidden="true">
+                            m
+                        </span>
+                    )}
+                </span>
+                <time
+                    className="departure-clock"
+                    dateTime={departure.scheduled_at ?? departure.displayTime}
+                >
+                    {departure.displayTime.slice(0, 5)}
+                </time>
+            </div>
+        </li>
+    );
+}
+
 export function DeparturesTable({
     departureGroups,
     lineFilter = 'all',
     now = Date.now(),
 }: DeparturesTableProps) {
-    if (!departureGroups.length)
+    const groups = departureGroups.map((group) => ({
+        ...group,
+        ...getDepartureWindow(group.departures, now, lineFilter),
+    }));
+    const hasVisibleDepartures = groups.some(
+        (group) => group.upcoming.length || group.recent
+    );
+    if (!hasVisibleDepartures)
         return (
-            <Empty className="departures-empty">
+            <Empty className="departures-empty" role="status">
                 <EmptyHeader>
                     <TrainFront aria-hidden="true" />
-                    <EmptyTitle>No upcoming departures</EmptyTitle>
+                    <EmptyTitle>
+                        {lineFilter === 'all'
+                            ? 'No upcoming departures'
+                            : `No upcoming ${lineFilter} Line departures`}
+                    </EmptyTitle>
                     <EmptyDescription>
-                        Try refreshing, or choose another station.
+                        {lineFilter === 'all'
+                            ? 'Try refreshing, or choose another station.'
+                            : 'Try another line, or refresh to check the latest schedule.'}
                     </EmptyDescription>
                 </EmptyHeader>
             </Empty>
         );
     return (
         <div className="departure-board" aria-label="Scheduled departures">
-            {departureGroups.map((group, index) => {
-                const trains = group.departures.filter(
-                    (departure) =>
-                        (lineFilter === 'all' ||
-                            departure.line === lineFilter) &&
-                        (departureMinutes(departure, now) ?? 0) >= 0
-                );
-                const DirectionIcon =
-                    group.heading === 'Northbound'
-                        ? ArrowBigUp
-                        : group.heading === 'Southbound'
-                          ? ArrowBigDown
-                          : TrainFront;
+            {groups.map((group, index) => {
                 const headingId = `direction-${index}`;
                 return (
                     <section
@@ -57,84 +129,31 @@ export function DeparturesTable({
                         aria-labelledby={headingId}
                     >
                         <div className="direction-rail">
-                            <DirectionIcon aria-hidden="true" />
                             <h2 id={headingId}>{group.heading}</h2>
                         </div>
                         <ScrollArea
                             className="departure-scroll"
                             key={lineFilter}
                         >
-                            {trains.length ? (
-                                <ol className="departure-list">
-                                    {trains.map((departure, row) => {
-                                        const minutes = departureMinutes(
-                                            departure,
-                                            now
-                                        );
-                                        const hero = row === 0;
-                                        return (
-                                            <li
-                                                className="departure-row"
-                                                data-hero={hero || undefined}
-                                                key={`${departure.stop_id}-${departure.trip_id}-${departure.departure_time}`}
-                                            >
-                                                <LineBadge
-                                                    line={departure.line}
-                                                    hero={hero}
-                                                />
-                                                <span
-                                                    className="departure-destination"
-                                                    title={
-                                                        departure.displayHeadsign
-                                                    }
-                                                >
-                                                    {departure.displayHeadsign}
-                                                </span>
-                                                <time
-                                                    className="departure-clock"
-                                                    dateTime={
-                                                        departure.scheduled_at ??
-                                                        departure.displayTime
-                                                    }
-                                                >
-                                                    {departure.displayTime.slice(
-                                                        0,
-                                                        5
-                                                    )}
-                                                </time>
-                                                <span
-                                                    className="departure-countdown"
-                                                    aria-label={
-                                                        minutes === undefined
-                                                            ? 'Countdown unavailable'
-                                                            : minutes === 0
-                                                              ? 'Due now'
-                                                              : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
-                                                    }
-                                                >
-                                                    <span>
-                                                        {minutes === undefined
-                                                            ? '—'
-                                                            : minutes === 0
-                                                              ? 'Due'
-                                                              : minutes}
-                                                    </span>
-                                                    {minutes !== 0 &&
-                                                        minutes !==
-                                                            undefined && (
-                                                            <span
-                                                                className="departure-unit"
-                                                                aria-hidden="true"
-                                                            >
-                                                                m
-                                                            </span>
-                                                        )}
-                                                </span>
-                                            </li>
-                                        );
-                                    })}
-                                </ol>
-                            ) : (
+                            <ol className="departure-list">
+                                {group.recent && (
+                                    <DepartureRow
+                                        key={`${group.recent.trip_id}-${group.recent.departure_time}`}
+                                        departure={group.recent}
+                                        now={now}
+                                        recent
+                                    />
+                                )}
+                                {group.upcoming.map((departure, row) => (
+                                    <DepartureRow
+                                        key={`${departure.trip_id}-${departure.departure_time}`}
+                                        departure={departure}
+                                        now={now}
+                                        hero={row === 0}
+                                    />
+                                ))}
+                            </ol>
+                            {!group.upcoming.length && (
                                 <Empty className="departures-empty">
                                     <EmptyHeader>
                                         <EmptyTitle>
@@ -143,7 +162,7 @@ export function DeparturesTable({
                                         <EmptyDescription>
                                             {lineFilter === 'all'
                                                 ? 'Refresh to check the latest schedule.'
-                                                : `No ${lineFilter} Line departures in this direction within the loaded schedule.`}
+                                                : `No upcoming ${lineFilter} Line departures in this direction.`}
                                         </EmptyDescription>
                                     </EmptyHeader>
                                 </Empty>

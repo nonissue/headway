@@ -40,7 +40,9 @@ describe('stop-utils', () => {
                 { location_type: 1 },
                 [],
                 [],
-                { bounding_box_side_m: 999999999 }
+                {
+                    bounding_box_side_m: 999999999,
+                }
             );
         });
 
@@ -153,6 +155,82 @@ describe('stop-utils', () => {
     });
 
     describe('getDeparturesForStop', () => {
+        it.each([
+            ['2026-09-20T04:01:00Z', 20260919, '21:58:00'],
+            ['2026-09-20T06:01:00Z', 20260919, '23:58:00'],
+        ])(
+            'includes a three-minute lookback at %s',
+            async (instant, date, start) => {
+                vi.mocked(getStops).mockReturnValue([]);
+                vi.mocked(getStoptimes).mockReturnValue([]);
+                await getDeparturesForStop({
+                    stopId: '1',
+                    baseTime: new Date(instant),
+                    lookbackMins: 3,
+                });
+                expect(getStoptimes).toHaveBeenCalledTimes(1);
+                expect(getStoptimes).toHaveBeenCalledWith(
+                    expect.objectContaining({ date, start_time: start }),
+                    expect.any(Array),
+                    expect.any(Array)
+                );
+            }
+        );
+        it('keeps recent trips from the previous service date in chronological order at cutover', async () => {
+            vi.mocked(getStops).mockReturnValue([]);
+            vi.mocked(getTrips).mockReturnValue([]);
+            vi.mocked(getStoptimes)
+                .mockReturnValueOnce([
+                    {
+                        stop_id: '1',
+                        trip_id: 'next',
+                        stop_headsign: 'Clareview',
+                        departure_time: '05:10:00',
+                    },
+                ] as ReturnType<typeof getStoptimes>)
+                .mockReturnValueOnce([
+                    {
+                        stop_id: '1',
+                        trip_id: 'recent',
+                        stop_headsign: 'Clareview',
+                        departure_time: '28:59:00',
+                    },
+                ] as ReturnType<typeof getStoptimes>);
+            const result = await getDeparturesForStop({
+                stopId: '1',
+                baseTime: new Date('2026-09-20T11:01:00Z'),
+                serviceDayStartHour: 5,
+                lookbackMins: 3,
+            });
+            expect(getStoptimes).toHaveBeenNthCalledWith(
+                1,
+                expect.objectContaining({
+                    date: 20260920,
+                    start_time: '04:58:00',
+                }),
+                expect.any(Array),
+                expect.any(Array)
+            );
+            expect(getStoptimes).toHaveBeenNthCalledWith(
+                2,
+                expect.objectContaining({
+                    date: 20260919,
+                    start_time: '28:58:00',
+                    end_time: '29:01:00',
+                }),
+                expect.any(Array),
+                expect.any(Array)
+            );
+            expect(
+                result.map(({ trip_id, scheduled_at }) => ({
+                    trip_id,
+                    scheduled_at,
+                }))
+            ).toEqual([
+                { trip_id: 'recent', scheduled_at: '2026-09-20T10:59:00.000Z' },
+                { trip_id: 'next', scheduled_at: '2026-09-20T11:10:00.000Z' },
+            ]);
+        });
         it('attaches route membership and an absolute time to each trip', async () => {
             vi.mocked(getStops).mockReturnValue([]);
             vi.mocked(getStoptimes).mockReturnValue([

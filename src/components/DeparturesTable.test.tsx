@@ -56,7 +56,13 @@ describe('DeparturesTable', () => {
         expect(screen.getAllByTestId('scroll-area')).toHaveLength(2);
         expect(screen.getByText('08:03')).toBeTruthy();
         expect(screen.getByLabelText('In 3 minutes')).toBeTruthy();
-        expect(screen.queryByText('Gone')).toBeNull();
+        expect(screen.getByText('Gone').closest('li')?.dataset.recent).toBe(
+            'true'
+        );
+        expect(
+            screen.getByText('Gone').closest('li')?.dataset.hero
+        ).toBeUndefined();
+        expect(screen.getByLabelText('Scheduled 1 min ago')).toBeTruthy();
         expect(screen.getByText('Clareview').closest('li')?.dataset.hero).toBe(
             'true'
         );
@@ -76,7 +82,7 @@ describe('DeparturesTable', () => {
                 'true'
             );
     });
-    it('explains an empty direction after filtering', () => {
+    it('shows one board-level empty state when neither direction matches', () => {
         render(
             <DeparturesTable
                 departureGroups={groups}
@@ -84,7 +90,32 @@ describe('DeparturesTable', () => {
                 lineFilter="Valley"
             />
         );
-        expect(screen.getAllByText('No upcoming trains')).toHaveLength(2);
+        expect(
+            screen.getByText('No upcoming Valley Line departures')
+        ).toBeTruthy();
+        expect(screen.getAllByRole('status')).toHaveLength(1);
+        expect(screen.queryAllByTestId('scroll-area')).toHaveLength(0);
+    });
+    it('keeps a single empty direction alongside a populated one', () => {
+        render(
+            <DeparturesTable
+                departureGroups={[groups[0], { ...groups[1], departures: [] }]}
+                now={now}
+            />
+        );
+        expect(screen.getByText('No upcoming trains')).toBeTruthy();
+        expect(screen.getByText('Clareview')).toBeTruthy();
+        expect(screen.getAllByTestId('scroll-area')).toHaveLength(2);
+    });
+    it('expires the recent row without losing upcoming trains', () => {
+        const { rerender } = render(
+            <DeparturesTable departureGroups={groups} now={now} />
+        );
+        rerender(
+            <DeparturesTable departureGroups={groups} now={now + 120001} />
+        );
+        expect(screen.queryByText('Gone')).toBeNull();
+        expect(screen.getByText('Clareview')).toBeTruthy();
     });
     it('offers a recovery path when there are no departures', () => {
         render(<DeparturesTable departureGroups={[]} />);
