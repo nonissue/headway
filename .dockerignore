@@ -8,11 +8,12 @@ pnpm-lock.yaml*
 coverage/
 # dist/ # Commented out - including pre-built assets for faster deploys
 
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Local credentials and agent configuration must not enter the build context.
+.env*
+.codex/
+.claude/
+.agents/
+.git/
 
 # Editor and OS files
 .DS_Store

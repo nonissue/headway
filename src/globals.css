@@ -141,6 +141,8 @@
     opacity: 0.4;
 }
 .departures-content {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     min-height: 0;
     overflow: hidden;
@@ -148,7 +150,8 @@
 .departure-board {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
 }
 .departure-pane {
     display: flex;
