@@ -16,7 +16,7 @@ export default defineConfig({
                 'src/components/ui/scroll-area.tsx',
             ],
         },
-        open: true,
-        ui: true,
+        open: false,
+        ui: false,
     },
 });
