@@ -109,7 +109,7 @@ describe('AboutDialog', () => {
         ).toBe('dialog');
         expect(screen.getByTestId('dialog-content')).toBeTruthy();
         expect(screen.queryByTestId('drawer-content')).toBeNull();
-        expect(screen.getByText('Know when to go.')).toBeTruthy();
+        expect(screen.getByRole('heading', { name: 'Headway' })).toBeTruthy();
         expect(screen.getByText('Built with GTFS data.')).toBeTruthy();
         expect(screen.getByText('Andy')).toBeTruthy();
         expect(
@@ -137,9 +137,14 @@ describe('AboutDialog', () => {
                 .getAttribute('data-trigger-probe')
         ).toBe('drawer');
         expect(screen.getByRole('button', { name: 'Close' })).toBeTruthy();
-        expect(screen.getByText('Headway')).toBeTruthy();
+        expect(screen.getByRole('heading', { name: 'Headway' })).toBeTruthy();
         expect(screen.getByText('Andy')).toBeTruthy();
-        expect(screen.getByText('Install Tip')).toBeTruthy();
+        expect(screen.getByText('Install')).toBeTruthy();
+        expect(
+            screen.getByText(
+                'Scheduled departures from ETS GTFS data. Live delays are not included.'
+            )
+        ).toBeTruthy();
         expect(screen.queryByRole('link', { name: 'Email' })).toBeNull();
         expect(screen.queryByRole('link', { name: 'Website' })).toBeNull();
         expect(screen.queryByRole('link', { name: 'GitHub' })).toBeNull();

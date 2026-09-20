@@ -24,7 +24,6 @@ export function Footer({
                 github="https://github.com/nonissue/next-departures"
                 note="Scheduled departures from ETS GTFS data. Live delays are not included."
                 triggerLabel="About"
-                className="footer-icon"
             />
             <div className="schedule-status" role="status">
                 <span>Scheduled times</span>

@@ -3,31 +3,21 @@ import {
     useState,
     useSyncExternalStore,
 } from 'react';
-import {
-    ExternalLink,
-    Github,
-    Globe,
-    Info,
-    Mail,
-    Smartphone,
-    TramFront,
-} from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { cn } from '@/components/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
 import {
     Drawer,
-    DrawerClose,
     DrawerContent,
-    DrawerFooter,
-    DrawerHeader,
+    DrawerDescription,
+    DrawerTitle,
     DrawerTrigger,
 } from '@/components/ui/drawer';
 
@@ -43,12 +33,11 @@ interface AboutDialogProps {
 
 const DESKTOP_BREAKPOINT = '(min-width: 640px)';
 const DEFAULT_NOTE =
-    'Built from ETS GTFS schedule data and trimmed down to the rail service the app actually needs.';
+    'Scheduled departures from ETS GTFS data. Live delays are not included.';
 
 interface AboutLink {
     label: string;
     href: string;
-    icon: typeof Mail;
     external?: boolean;
 }
 
@@ -87,187 +76,95 @@ function useIsDesktop() {
     );
 }
 
-function AboutFacts({ name }: { name: string }) {
-    return (
-        <div className="grid gap-3 sm:grid-cols-2">
-            <div className="p-0">
-                <p className="text-[0.65rem] font-medium tracking-[0.25em] text-muted-foreground uppercase">
-                    Built By
-                </p>
-                <p className="mt-2 font-display text-xl font-semibold tracking-tight text-foreground">
-                    {name}
-                </p>
-            </div>
-
-            <div className="rounded-2xl">
-                <p className="text-[0.65rem] font-medium tracking-[0.25em] text-muted-foreground uppercase">
-                    Coverage
-                </p>
-                <p className="mt-2 font-display text-xl font-semibold tracking-tight text-foreground">
-                    Edmonton LRT
-                </p>
-            </div>
-        </div>
-    );
-}
-
-function AboutLinks({ links }: { links: AboutLink[] }) {
-    if (links.length === 0) {
-        return null;
-    }
-
-    return (
-        <div className="grid gap-3">
-            {links.map((link) => {
-                const Icon = link.icon;
-
-                return (
-                    <a
-                        key={link.label}
-                        href={link.href}
-                        target={link.external ? '_blank' : undefined}
-                        rel={link.external ? 'noreferrer' : undefined}
-                        className="flex items-center justify-between rounded-2xl border border-border/60 bg-background/80 px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent/40 hover:text-accent-foreground"
-                    >
-                        <span className="flex items-center gap-3">
-                            <Icon className="h-4 w-4 text-primary" />
-                            <span>{link.label}</span>
-                        </span>
-                        {link.external ? (
-                            <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                        ) : null}
-                    </a>
-                );
-            })}
-        </div>
-    );
-}
-
-function AboutSideNote() {
-    return (
-        <div className="rounded-2xl border border-border/60 bg-background/80 p-4">
-            <div className="flex items-center gap-2 text-[0.65rem] font-medium tracking-[0.25em] text-muted-foreground uppercase">
-                <Smartphone className="h-3.5 w-3.5" />
-                <span>Install Tip</span>
-            </div>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                On iPhone, use Safari&apos;s Share menu and choose Add to Home
-                Screen for a cleaner app-like launch.
-            </p>
-        </div>
-    );
-}
-
 function AboutTrigger({
     triggerLabel,
     className,
-    type = 'button',
     'aria-label': ariaLabel,
-    ref,
     ...props
-}: ComponentPropsWithRef<'button'> & {
-    triggerLabel: string;
-}) {
+}: ComponentPropsWithRef<typeof Button> & { triggerLabel: string }) {
     return (
-        <button
-            ref={ref}
-            type={type}
+        <Button
             {...props}
-            className={cn(
-                'relative flex items-center gap-x-2 px-3 py-2 tracking-wide text-foreground uppercase transition-all duration-300',
-                className
-            )}
+            variant="plain"
+            className={cn('about-trigger', className)}
             aria-label={ariaLabel ?? triggerLabel}
         >
-            <Info className="h-4 w-4 text-primary transition-colors duration-300" />
-            <span className="sr-only">{triggerLabel}</span>
-        </button>
+            <span>Headway</span>
+            <span className="about-trigger-label">{triggerLabel}</span>
+        </Button>
     );
 }
 
-function AboutDialogBody({
+function AboutBody({
     name,
     note,
     links,
+    isDesktop,
+    onClose,
 }: {
     name: string;
     note: string;
     links: AboutLink[];
+    isDesktop: boolean;
+    onClose: () => void;
 }) {
+    const Title = isDesktop ? DialogTitle : DrawerTitle;
+    const Description = isDesktop ? DialogDescription : DrawerDescription;
+
     return (
-        <div className="grid gap-0 md:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.9fr)]">
-            <div className="space-y-6 p-6 sm:p-8">
-                <DialogHeader className="gap-4 text-left">
-                    <div className="flex items-center gap-3">
-                        <div className="rounded-2xl border border-border/60 bg-primary/10 p-3">
-                            <TramFront className="h-5 w-5 text-primary" />
-                        </div>
-                        <p className="text-[0.65rem] font-medium tracking-[0.35em] text-muted-foreground uppercase">
-                            Headway
-                        </p>
-                    </div>
-                    <div className="space-y-3">
-                        <DialogTitle className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                            Know when to go.
-                        </DialogTitle>
-                        <DialogDescription className="max-w-xl text-base leading-relaxed text-muted-foreground">
+        <div className="about-body">
+            <header className="about-heading">
+                <div>
+                    <p className="about-eyebrow">About</p>
+                    <Title className="about-title">Headway</Title>
+                    <p className="about-subtitle">Edmonton LRT</p>
+                </div>
+                <Button
+                    variant="plain"
+                    className="about-close"
+                    onClick={onClose}
+                >
+                    Close
+                </Button>
+            </header>
+            <dl className="about-facts">
+                <div>
+                    <dt>Service</dt>
+                    <dd>
+                        <Description className="about-description">
                             {note}
-                        </DialogDescription>
-                    </div>
-                </DialogHeader>
-
-                <AboutFacts name={name} />
-            </div>
-
-            <div className="space-y-6 border-t border-border/60 bg-muted/20 p-6 sm:p-8 md:border-t-0 md:border-l">
-                <div className="space-y-3">
-                    <p className="text-[0.65rem] font-medium tracking-[0.25em] text-muted-foreground uppercase">
-                        Links
-                    </p>
-                    <AboutLinks links={links} />
+                        </Description>
+                    </dd>
                 </div>
-                <AboutSideNote />
-            </div>
-        </div>
-    );
-}
-
-function AboutDrawerBody({
-    name,
-    links,
-}: {
-    name: string;
-    links: AboutLink[];
-}) {
-    return (
-        <div className="mx-auto w-full max-w-xl overflow-y-auto">
-            <DrawerHeader className="gap-4 px-5 pb-0 text-left">
-                <div className="flex items-center gap-3">
-                    <div className="rounded-2xl border border-border/60 bg-primary/10 p-3">
-                        <TramFront className="h-5 w-5 text-primary" />
-                    </div>
-                    <p className="text-[0.8rem] font-medium tracking-[0.35em] text-muted-foreground uppercase">
-                        Headway
-                    </p>
+                <div>
+                    <dt>Made by</dt>
+                    <dd>{name}</dd>
                 </div>
-            </DrawerHeader>
-
-            <div className="space-y-6 px-5 py-5">
-                <AboutFacts name={name} />
-                <div className="space-y-3">
-                    <p className="text-[0.65rem] font-medium tracking-[0.25em] text-muted-foreground uppercase">
-                        Links
-                    </p>
-                    <AboutLinks links={links} />
-                </div>
-                <AboutSideNote />
+            </dl>
+            {links.length > 0 && (
+                <nav className="about-links" aria-label="About Headway links">
+                    {links.map((link) => (
+                        <a
+                            key={link.label}
+                            href={link.href}
+                            target={link.external ? '_blank' : undefined}
+                            rel={link.external ? 'noreferrer' : undefined}
+                        >
+                            {link.label}
+                            {link.external && (
+                                <ArrowUpRight aria-hidden="true" />
+                            )}
+                        </a>
+                    ))}
+                </nav>
+            )}
+            <div className="about-install">
+                <h3>Install</h3>
+                <p>
+                    On iPhone, open Safari&apos;s Share menu and choose{' '}
+                    <strong>Add to Home Screen.</strong>
+                </p>
             </div>
-
-            <DrawerFooter className="px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-                <DrawerClose asChild>
-                    <Button variant="outline">Close</Button>
-                </DrawerClose>
-            </DrawerFooter>
         </div>
     );
 }
@@ -283,67 +180,44 @@ export function AboutDialog({
 }: AboutDialogProps) {
     const [open, setOpen] = useState(false);
     const isDesktop = useIsDesktop();
-    const description = note?.trim() || DEFAULT_NOTE;
     const links: AboutLink[] = [
-        ...(email
-            ? [{ label: 'Email', href: `mailto:${email}`, icon: Mail }]
-            : []),
+        ...(email ? [{ label: 'Email', href: `mailto:${email}` }] : []),
         ...(website
-            ? [
-                  {
-                      label: 'Website',
-                      href: website,
-                      icon: Globe,
-                      external: true,
-                  },
-              ]
+            ? [{ label: 'Website', href: website, external: true }]
             : []),
-        ...(github
-            ? [
-                  {
-                      label: 'GitHub',
-                      href: github,
-                      icon: Github,
-                      external: true,
-                  },
-              ]
-            : []),
+        ...(github ? [{ label: 'GitHub', href: github, external: true }] : []),
     ];
+    const trigger = (
+        <AboutTrigger triggerLabel={triggerLabel} className={className} />
+    );
+    const body = (
+        <AboutBody
+            name={name}
+            note={note?.trim() || DEFAULT_NOTE}
+            links={links}
+            isDesktop={isDesktop}
+            onClose={() => setOpen(false)}
+        />
+    );
 
     if (isDesktop) {
         return (
             <Dialog open={open} onOpenChange={setOpen}>
-                <DialogTrigger
-                    render={
-                        <AboutTrigger
-                            triggerLabel={triggerLabel}
-                            className={className}
-                        />
-                    }
-                />
-
-                <DialogContent className="overflow-hidden border-border/60 bg-card/95 p-0 text-card-foreground backdrop-blur-xl sm:max-w-2xl">
-                    <AboutDialogBody
-                        name={name}
-                        note={description}
-                        links={links}
-                    />
+                <DialogTrigger render={trigger} />
+                <DialogContent
+                    className="about-panel about-dialog"
+                    showCloseButton={false}
+                >
+                    {body}
                 </DialogContent>
             </Dialog>
         );
     }
-
     return (
         <Drawer open={open} onOpenChange={setOpen}>
-            <DrawerTrigger asChild>
-                <AboutTrigger
-                    triggerLabel={triggerLabel}
-                    className={className}
-                />
-            </DrawerTrigger>
-
-            <DrawerContent className="border-border/60 bg-card/90 text-card-foreground">
-                <AboutDrawerBody name={name} links={links} />
+            <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+            <DrawerContent className="about-panel about-drawer">
+                {body}
             </DrawerContent>
         </Drawer>
     );
