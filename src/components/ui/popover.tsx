@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as PopoverPrimitive from '@radix-ui/react-popover';
+import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
 
 import { cn } from '@/components/lib/utils';
 
@@ -19,28 +19,39 @@ function PopoverContent({
     className,
     align = 'center',
     sideOffset = 4,
+    side = 'bottom',
+    alignOffset = 0,
     ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Content>) {
+}: Omit<PopoverPrimitive.Popup.Props, 'className'> & {
+    className?: string;
+} & Pick<
+        PopoverPrimitive.Positioner.Props,
+        'align' | 'side' | 'sideOffset' | 'alignOffset'
+    >) {
     return (
         <PopoverPrimitive.Portal>
-            <PopoverPrimitive.Content
-                data-slot="popover-content"
-                align={align}
+            <PopoverPrimitive.Positioner
+                side={side}
                 sideOffset={sideOffset}
-                className={cn(
-                    'z-50 w-72 origin-(--radix-popover-content-transform-origin) rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
-                    className
-                )}
-                {...props}
-            />
+                align={align}
+                alignOffset={alignOffset}
+                className="isolate z-50"
+            >
+                <PopoverPrimitive.Popup
+                    data-slot="popover-content"
+                    className={cn(
+                        'w-72 origin-(--transform-origin) rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-hidden transition-[opacity,scale,translate] duration-200 data-ending-style:scale-95 data-ending-style:opacity-0 data-starting-style:scale-95 data-starting-style:opacity-0 data-[side=bottom]:data-starting-style:-translate-y-2 data-[side=left]:data-starting-style:translate-x-2 data-[side=right]:data-starting-style:-translate-x-2 data-[side=top]:data-starting-style:translate-y-2',
+                        className
+                    )}
+                    {...props}
+                />
+            </PopoverPrimitive.Positioner>
         </PopoverPrimitive.Portal>
     );
 }
 
-function PopoverAnchor({
-    ...props
-}: React.ComponentProps<typeof PopoverPrimitive.Anchor>) {
-    return <PopoverPrimitive.Anchor data-slot="popover-anchor" {...props} />;
+function PopoverAnchor({ ...props }: React.ComponentProps<'div'>) {
+    return <div data-slot="popover-anchor" {...props} />;
 }
 
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };
