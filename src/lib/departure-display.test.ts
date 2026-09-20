@@ -34,6 +34,10 @@ describe('departure-display', () => {
 
     it('classifies platform headings from common destination groups', () => {
         expect(getPlatformHeading(['NAIT'])).toBe('Northbound');
+        expect(getPlatformHeading(['Downtown'])).toBe('Northbound');
+        expect(getPlatformHeading(['Nait Blatchford Market'])).toBe(
+            'Northbound'
+        );
         expect(getPlatformHeading(['Mill Woods'])).toBe('Southbound');
         expect(getPlatformHeading(['Airport Shuttle'])).toBe('Airport Shuttle');
         expect(getPlatformHeading([])).toBe('Platform');

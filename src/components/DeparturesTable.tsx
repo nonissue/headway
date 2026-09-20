@@ -1,129 +1,157 @@
-import { cn } from '@/components/lib/utils';
-import { getHeadsignColorClasses } from '../lib/departure-display.js';
-import type { DepartureGroup } from '../types/departures';
+import { ArrowBigUp, ArrowBigDown, TrainFront } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+    Empty,
+    EmptyHeader,
+    EmptyTitle,
+    EmptyDescription,
+} from '@/components/ui/empty';
+import { LineBadge } from './LineBadge';
+import { departureMinutes } from '../lib/departure-countdown';
+import type { DepartureGroup } from '../types/departures';
 
 interface DeparturesTableProps {
     departureGroups: DepartureGroup[];
     animationKey?: number;
+    lineFilter?: string;
+    now?: number;
 }
 
-export const DeparturesTable = ({
+export function DeparturesTable({
     departureGroups,
-    animationKey = 0,
-}: DeparturesTableProps) => {
+    lineFilter = 'all',
+    now = Date.now(),
+}: DeparturesTableProps) {
+    if (!departureGroups.length)
+        return (
+            <Empty className="departures-empty">
+                <EmptyHeader>
+                    <TrainFront aria-hidden="true" />
+                    <EmptyTitle>No upcoming departures</EmptyTitle>
+                    <EmptyDescription>
+                        Try refreshing, or choose another station.
+                    </EmptyDescription>
+                </EmptyHeader>
+            </Empty>
+        );
     return (
-        <div className="relative flex h-full max-w-xl flex-col">
-            <div className="relative flex h-full flex-col">
-                {departureGroups.map((group, platformIdx) => {
-                    return (
-                        <div
-                            // eslint-disable-next-line @eslint-react/no-array-index-key
-                            key={platformIdx}
-                            className="relative flex min-h-0 w-full flex-1 items-stretch"
-                            style={{
-                                animationDelay: `${platformIdx * 1}ms`,
-                            }}
-                        >
-                            <div
-                                className="flex min-h-0 flex-1 flex-col"
-                                style={{
-                                    animationDelay: `${platformIdx * 100 + 1 * 10}ms`,
-                                }}
-                            >
-                                <div className="relative border-b border-l-4 border-border/50 border-l-foreground/20 bg-gradient-to-b from-foreground/[8%] via-foreground/[5%] to-foreground/[2%] px-4 py-4 shadow-sm backdrop-blur-md">
-                                    <div className="flex items-center justify-between gap-4">
-                                        <div
-                                            className={cn(
-                                                'font-display text-xl font-bold transition-all sm:text-2xl'
-                                            )}
-                                        >
-                                            {group.heading}
-                                        </div>
-                                        <div className="flex flex-wrap justify-end gap-2 text-right">
-                                            {group.destinations.map((dest) => {
-                                                const colorClasses =
-                                                    getHeadsignColorClasses(
-                                                        dest
-                                                    );
-                                                return (
-                                                    <span
-                                                        key={dest}
-                                                        className={cn(
-                                                            'max-w-24 truncate rounded-full border-0 px-3 py-1 font-display text-sm font-bold backdrop-blur-lg transition-all',
-                                                            colorClasses.border,
-                                                            colorClasses.bgBadge,
-                                                            colorClasses.text
-                                                        )}
-                                                    >
-                                                        {dest}
-                                                    </span>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                </div>
-                                <ScrollArea className="h-0 flex-1 sm:min-h-[30dvh]">
-                                    <div className="divide-y divide-dotted divide-foreground/10">
-                                        <div
-                                            className={cn(
-                                                'absolute top-0 bottom-0 left-0 w-1 bg-foreground/20'
-                                            )}
-                                        />
-                                        {group.departures.map((dep, i) => {
-                                            const colorClasses =
-                                                getHeadsignColorClasses(
-                                                    dep.displayHeadsign
-                                                );
-                                            return (
-                                                <div
-                                                    // eslint-disable-next-line @eslint-react/no-array-index-key
-                                                    key={`${animationKey}-${platformIdx}-${i}`}
-                                                    className={cn(
-                                                        'relative grid animate-in grid-cols-3 gap-1 py-2.5 pr-4 pl-5 opacity-0 duration-200 direction-reverse fade-in-100 fill-mode-forwards',
-                                                        'hover:cursor-pointer hover:bg-accent/20 hover:text-accent-foreground'
-                                                    )}
-                                                    style={{
-                                                        animationDelay: `${platformIdx * 100 + i * 75}ms`,
-                                                    }}
-                                                >
-                                                    <div
-                                                        className={cn(
-                                                            'absolute top-0 bottom-0 left-0 w-1',
-                                                            colorClasses.bg
-                                                        )}
-                                                    />
-                                                    <div
-                                                        className={cn(
-                                                            'col-span-2 truncate font-display text-lg font-[600] tracking-wide brightness-100 group-hover:text-accent-foreground sm:text-lg dark:brightness-100',
-                                                            colorClasses.bg.replace(
-                                                                'bg-',
-                                                                'text-'
-                                                            )
-                                                        )}
-                                                    >
-                                                        {dep.displayHeadsign}
-                                                    </div>
-                                                    <div
-                                                        className={cn(
-                                                            'col-span-1 my-auto text-right font-mono text-base font-[500] opacity-90 brightness-75 saturate-50 group-hover:text-accent-foreground sm:text-lg dark:brightness-125'
-                                                            // colorClasses.text
-                                                        )}
-                                                    >
-                                                        {dep.displayTime}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                    {/* Bottom gradient mask */}
-                                    <div className="pointer-events-none absolute right-0 bottom-0 left-0 h-24 bg-gradient-to-t from-background/70 to-transparent"></div>
-                                </ScrollArea>
-                            </div>
+        <div className="departure-board" aria-label="Scheduled departures">
+            {departureGroups.map((group, index) => {
+                const trains = group.departures.filter(
+                    (departure) =>
+                        (lineFilter === 'all' ||
+                            departure.line === lineFilter) &&
+                        (departureMinutes(departure, now) ?? 0) >= 0
+                );
+                const DirectionIcon =
+                    group.heading === 'Northbound'
+                        ? ArrowBigUp
+                        : group.heading === 'Southbound'
+                          ? ArrowBigDown
+                          : TrainFront;
+                const headingId = `direction-${index}`;
+                return (
+                    <section
+                        className="departure-pane"
+                        key={`${index}-${group.heading}`}
+                        aria-labelledby={headingId}
+                    >
+                        <div className="direction-rail">
+                            <DirectionIcon aria-hidden="true" />
+                            <h2 id={headingId}>{group.heading}</h2>
                         </div>
-                    );
-                })}
-            </div>
+                        <ScrollArea
+                            className="departure-scroll"
+                            key={lineFilter}
+                        >
+                            {trains.length ? (
+                                <ol className="departure-list">
+                                    {trains.map((departure, row) => {
+                                        const minutes = departureMinutes(
+                                            departure,
+                                            now
+                                        );
+                                        const hero = row === 0;
+                                        return (
+                                            <li
+                                                className="departure-row"
+                                                data-hero={hero || undefined}
+                                                key={`${departure.stop_id}-${departure.trip_id}-${departure.departure_time}`}
+                                            >
+                                                <LineBadge
+                                                    line={departure.line}
+                                                    hero={hero}
+                                                />
+                                                <span
+                                                    className="departure-destination"
+                                                    title={
+                                                        departure.displayHeadsign
+                                                    }
+                                                >
+                                                    {departure.displayHeadsign}
+                                                </span>
+                                                <time
+                                                    className="departure-clock"
+                                                    dateTime={
+                                                        departure.scheduled_at ??
+                                                        departure.displayTime
+                                                    }
+                                                >
+                                                    {departure.displayTime.slice(
+                                                        0,
+                                                        5
+                                                    )}
+                                                </time>
+                                                <span
+                                                    className="departure-countdown"
+                                                    aria-label={
+                                                        minutes === undefined
+                                                            ? 'Countdown unavailable'
+                                                            : minutes === 0
+                                                              ? 'Due now'
+                                                              : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+                                                    }
+                                                >
+                                                    <span>
+                                                        {minutes === undefined
+                                                            ? '—'
+                                                            : minutes === 0
+                                                              ? 'Due'
+                                                              : minutes}
+                                                    </span>
+                                                    {minutes !== 0 &&
+                                                        minutes !==
+                                                            undefined && (
+                                                            <span
+                                                                className="departure-unit"
+                                                                aria-hidden="true"
+                                                            >
+                                                                m
+                                                            </span>
+                                                        )}
+                                                </span>
+                                            </li>
+                                        );
+                                    })}
+                                </ol>
+                            ) : (
+                                <Empty className="departures-empty">
+                                    <EmptyHeader>
+                                        <EmptyTitle>
+                                            No upcoming trains
+                                        </EmptyTitle>
+                                        <EmptyDescription>
+                                            {lineFilter === 'all'
+                                                ? 'Refresh to check the latest schedule.'
+                                                : `No ${lineFilter} Line departures in this direction within the loaded schedule.`}
+                                        </EmptyDescription>
+                                    </EmptyHeader>
+                                </Empty>
+                            )}
+                        </ScrollArea>
+                    </section>
+                );
+            })}
         </div>
     );
-};
+}

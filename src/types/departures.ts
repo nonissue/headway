@@ -4,6 +4,8 @@ export interface Departure {
     stop_headsign: string | null;
     departure_time: string;
     departure_timestamp?: number;
+    scheduled_at?: string;
+    line?: string;
 }
 
 export interface ProcessedDeparture extends Departure {

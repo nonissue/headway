@@ -1,76 +1,96 @@
 // @vitest-environment jsdom
-
 import type { ReactNode } from 'react';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import type { DepartureGroup } from '../types/departures.js';
-
+import { cleanup, render, screen } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { DepartureGroup, ProcessedDeparture } from '../types/departures';
 vi.mock('@/components/ui/scroll-area', () => ({
-    ScrollArea: ({
-        children,
-        className,
-    }: {
-        children: ReactNode;
-        className?: string;
-    }) => (
-        <div data-testid="scroll-area" className={className}>
-            {children}
-        </div>
+    ScrollArea: ({ children }: { children: ReactNode }) => (
+        <div data-testid="scroll-area">{children}</div>
     ),
 }));
-
 import { DeparturesTable } from './DeparturesTable';
-
-const departureGroups: DepartureGroup[] = [
+const now = Date.parse('2026-09-19T14:00:00Z');
+const train = (
+    line: string,
+    minutes: number,
+    headsign: string
+): ProcessedDeparture => ({
+    stop_id: line,
+    trip_id: String(minutes),
+    stop_headsign: headsign,
+    displayHeadsign: headsign,
+    departure_time: `08:${minutes}:00`,
+    displayTime: `08:${String(minutes).padStart(2, '0')}:00`,
+    line,
+    scheduled_at: new Date(now + minutes * 60000).toISOString(),
+});
+const groups: DepartureGroup[] = [
     {
         heading: 'Northbound',
-        destinations: ['NAIT', 'Clareview'],
+        destinations: [],
         departures: [
-            {
-                stop_id: 'platform-1',
-                trip_id: 'trip-1',
-                stop_headsign: 'NAIT',
-                departure_time: '08:10:00',
-                displayHeadsign: 'NAIT',
-                displayTime: '08:10:00',
-            },
+            train('Capital', -1, 'Gone'),
+            train('Capital', 10, 'Clareview'),
+            train('Metro', 13, 'NAIT Blatchford Market'),
         ],
     },
     {
         heading: 'Southbound',
-        destinations: ['Mill Woods'],
+        destinations: [],
         departures: [
-            {
-                stop_id: 'platform-2',
-                trip_id: 'trip-2',
-                stop_headsign: 'Mill Woods',
-                departure_time: '08:15:00',
-                displayHeadsign: 'Mill Woods',
-                displayTime: '08:15:00',
-            },
+            train('Capital', 3, 'Century Park'),
+            train('Metro', 10, 'Health Sciences'),
         ],
     },
 ];
-
+afterEach(cleanup);
 describe('DeparturesTable', () => {
-    it('renders platform headings, destination badges, and departure rows', () => {
-        render(
-            <DeparturesTable departureGroups={departureGroups} animationKey={3} />
-        );
-
-        expect(screen.getByText('Northbound')).toBeTruthy();
-        expect(screen.getByText('Southbound')).toBeTruthy();
-        expect(screen.getAllByText('NAIT').length).toBeGreaterThan(0);
-        expect(screen.getByText('Clareview')).toBeTruthy();
-        expect(screen.getAllByText('Mill Woods').length).toBeGreaterThan(0);
-        expect(screen.getByText('08:10:00')).toBeTruthy();
-        expect(screen.getByText('08:15:00')).toBeTruthy();
+    it('renders two scrollable directions with upcoming countdowns and HH:mm times', () => {
+        render(<DeparturesTable departureGroups={groups} now={now} />);
+        expect(
+            screen.getByRole('heading', { name: 'Northbound' })
+        ).toBeTruthy();
+        expect(
+            screen.getByRole('heading', { name: 'Southbound' })
+        ).toBeTruthy();
         expect(screen.getAllByTestId('scroll-area')).toHaveLength(2);
+        expect(screen.getByText('08:03')).toBeTruthy();
+        expect(screen.getByLabelText('In 3 minutes')).toBeTruthy();
+        expect(screen.queryByText('Gone')).toBeNull();
+        expect(screen.getByText('Clareview').closest('li')?.dataset.hero).toBe(
+            'true'
+        );
     });
-
-    it('renders nothing when there are no departure groups', () => {
-        const { container } = render(<DeparturesTable departureGroups={[]} />);
-
-        expect(container.textContent).toBe('');
+    it('filters both panes and promotes the first matching departure', () => {
+        render(
+            <DeparturesTable
+                departureGroups={groups}
+                now={now}
+                lineFilter="Metro"
+            />
+        );
+        expect(screen.queryByText('Clareview')).toBeNull();
+        expect(screen.queryByText('Century Park')).toBeNull();
+        for (const name of ['NAIT Blatchford Market', 'Health Sciences'])
+            expect(screen.getByText(name).closest('li')?.dataset.hero).toBe(
+                'true'
+            );
+    });
+    it('explains an empty direction after filtering', () => {
+        render(
+            <DeparturesTable
+                departureGroups={groups}
+                now={now}
+                lineFilter="Valley"
+            />
+        );
+        expect(screen.getAllByText('No upcoming trains')).toHaveLength(2);
+    });
+    it('offers a recovery path when there are no departures', () => {
+        render(<DeparturesTable departureGroups={[]} />);
+        expect(screen.getByText('No upcoming departures')).toBeTruthy();
+        expect(
+            screen.getByText('Try refreshing, or choose another station.')
+        ).toBeTruthy();
     });
 });

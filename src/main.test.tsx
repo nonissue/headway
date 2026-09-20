@@ -139,7 +139,7 @@ describe('App', () => {
 
         render(<App />);
 
-        expect(screen.getByText('Loading')).toBeTruthy();
+        expect(screen.getByText('Loading departures')).toBeTruthy();
         expect(screen.getByText('Header:none:loading')).toBeTruthy();
     });
 

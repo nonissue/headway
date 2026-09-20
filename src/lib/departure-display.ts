@@ -61,7 +61,13 @@ const HEADSIGN_COLOR_CLASSES: HeadsignColorClasses[] = [
     },
 ];
 
-const NORTHBOUND_DESTINATIONS = ['NAIT', 'Clareview', 'Gorman'];
+const NORTHBOUND_DESTINATIONS = [
+    'NAIT',
+    'Clareview',
+    'Gorman',
+    '102 St',
+    'Downtown',
+];
 const SOUTHBOUND_DESTINATIONS = [
     'Century Park',
     'Mill Woods',
@@ -82,13 +88,17 @@ function hashValue(value: string): number {
 export function getHeadsignColorClasses(
     headsign: string
 ): HeadsignColorClasses {
-    return HEADSIGN_COLOR_CLASSES[hashValue(headsign) % HEADSIGN_COLOR_CLASSES.length];
+    return HEADSIGN_COLOR_CLASSES[
+        hashValue(headsign) % HEADSIGN_COLOR_CLASSES.length
+    ];
 }
 
 export function getUniqueDestinations(
     departures: ProcessedDeparture[]
 ): string[] {
-    return [...new Set(departures.map((departure) => departure.displayHeadsign))];
+    return [
+        ...new Set(departures.map((departure) => departure.displayHeadsign)),
+    ];
 }
 
 export function getPlatformHeading(destinations: string[]): string {
@@ -98,12 +108,12 @@ export function getPlatformHeading(destinations: string[]): string {
 
     const hasNorthbound = destinations.some((destination) =>
         NORTHBOUND_DESTINATIONS.some((candidate) =>
-            destination.includes(candidate)
+            destination.toLowerCase().includes(candidate.toLowerCase())
         )
     );
     const hasSouthbound = destinations.some((destination) =>
         SOUTHBOUND_DESTINATIONS.some((candidate) =>
-            destination.includes(candidate)
+            destination.toLowerCase().includes(candidate.toLowerCase())
         )
     );
 

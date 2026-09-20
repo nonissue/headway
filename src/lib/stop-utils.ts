@@ -1,7 +1,8 @@
+import { scheduledDepartureTime } from './scheduled-time.js';
 import type { Stop } from 'gtfs';
 import type { ClockTime, GeoCoordinate } from '../types/global.js';
 import type { StopQuery } from '../types/gtfs.js';
-import { getStops, getStoptimes, getRoutes } from 'gtfs';
+import { getStops, getStoptimes, getRoutes, getTrips } from 'gtfs';
 import {
     DEFAULT_LOOK_AHEAD_IN_MINS,
     DEFAULT_STOP_COUNT_LIMIT,
@@ -17,7 +18,7 @@ import {
 function normalizeStopLabel(value: string): string {
     return value
         .toLowerCase()
-        .replace(/\bstation\b/g, '')
+        .replace(/\b(station|stop)\b/g, '')
         .replace(/[^\w\s]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
@@ -143,6 +144,8 @@ export interface StopDepartures {
     stop_headsign: string | null | undefined;
     departure_time: string; // GTFS service time, may be >= 24:00:00
     departure_timestamp?: number; // present in some imports
+    scheduled_at?: string;
+    line?: string;
 }
 
 export interface GetDeparturesForStopOptions {
@@ -261,7 +264,29 @@ export async function getDeparturesForStop({
         return a.departure_time.localeCompare(b.departure_time);
     });
 
-    return departures.slice(0, Math.max(1, limit));
+    const upcoming = departures.slice(0, Math.max(1, limit));
+    if (!upcoming.length) return [];
+    const trips = getTrips({
+        trip_id: [...new Set(upcoming.map((departure) => departure.trip_id))],
+    });
+    const routes = new Map(
+        getRoutes().map((route) => [
+            route.route_id,
+            route.route_short_name || route.route_long_name || route.route_id,
+        ])
+    );
+    const tripLines = new Map(
+        trips.map((trip) => [trip.trip_id, routes.get(trip.route_id)])
+    );
+    return upcoming.map((departure) => ({
+        ...departure,
+        line: tripLines.get(departure.trip_id),
+        scheduled_at: scheduledDepartureTime(
+            serviceDate,
+            departure.departure_time,
+            tz
+        ),
+    }));
 }
 
 export async function getDeparturesForStation(

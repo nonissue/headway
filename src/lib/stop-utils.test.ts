@@ -12,12 +12,13 @@ import {
 
 // Mock the gtfs module
 vi.mock('gtfs', () => ({
-    getRoutes: vi.fn(),
+    getRoutes: vi.fn(() => []),
+    getTrips: vi.fn(() => []),
     getStops: vi.fn(),
     getStoptimes: vi.fn(),
 }));
 
-import { getRoutes, getStops, getStoptimes } from 'gtfs';
+import { getTrips, getRoutes, getStops, getStoptimes } from 'gtfs';
 
 describe('stop-utils', () => {
     beforeEach(() => {
@@ -152,6 +153,32 @@ describe('stop-utils', () => {
     });
 
     describe('getDeparturesForStop', () => {
+        it('attaches route membership and an absolute time to each trip', async () => {
+            vi.mocked(getStops).mockReturnValue([]);
+            vi.mocked(getStoptimes).mockReturnValue([
+                {
+                    stop_id: '1',
+                    trip_id: 'metro-trip',
+                    stop_headsign: 'Health Sciences',
+                    departure_time: '24:30:00',
+                },
+            ] as ReturnType<typeof getStoptimes>);
+            vi.mocked(getTrips).mockReturnValueOnce([
+                { trip_id: 'metro-trip', route_id: 'metro' },
+            ] as ReturnType<typeof getTrips>);
+            vi.mocked(getRoutes).mockReturnValueOnce([
+                { route_id: 'metro', route_short_name: 'Metro' },
+            ] as ReturnType<typeof getRoutes>);
+            const result = await getDeparturesForStop({
+                stopId: '1',
+                baseTime: new Date('2026-09-20T06:20:00Z'),
+            });
+            expect(result[0]).toMatchObject({
+                line: 'Metro',
+                scheduled_at: '2026-09-20T06:30:00.000Z',
+            });
+            expect(getTrips).toHaveBeenCalledWith({ trip_id: ['metro-trip'] });
+        });
         beforeEach(() => {
             vi.useFakeTimers();
             vi.setSystemTime(new Date(2025, 8, 19, 15, 30, 0)); // Sept 19, 2025, 3:30 PM
@@ -204,6 +231,32 @@ describe('stop-utils', () => {
             expect(result).toHaveLength(1);
             expect(result[0].stop_headsign).toBe('Clareview');
             expect(result[0].trip_id).toBe('trip2');
+        });
+
+        it('excludes terminating trips at stations whose names end with Stop', async () => {
+            vi.mocked(getStops)
+                .mockReturnValueOnce([
+                    { stop_id: 'platform', parent_station: 'mill-woods' },
+                ])
+                .mockReturnValueOnce([
+                    { stop_id: 'mill-woods', stop_name: 'Mill Woods Stop' },
+                ]);
+            vi.mocked(getStoptimes).mockReturnValue([
+                {
+                    stop_id: 'platform',
+                    trip_id: 'arrival',
+                    stop_headsign: 'Mill Woods',
+                    departure_time: '22:00:00',
+                },
+                {
+                    stop_id: 'platform',
+                    trip_id: 'departure',
+                    stop_headsign: 'Downtown',
+                    departure_time: '22:05:00',
+                },
+            ] as ReturnType<typeof getStoptimes>);
+            const result = await getDeparturesForStop({ stopId: 'platform' });
+            expect(result.map((train) => train.trip_id)).toEqual(['departure']);
         });
 
         it('keeps all departures when none match station name', async () => {
@@ -548,6 +601,11 @@ describe('stop-utils', () => {
                                 stop_headsign: 'NAIT',
                                 departure_time: '08:05:00',
                                 stop_sequence: 1,
+                                scheduled_at:
+                                    expect.stringMatching(
+                                        /T14:(05|10):00.000Z$/
+                                    ),
+                                line: undefined,
                             },
                         ],
                     },
@@ -560,6 +618,11 @@ describe('stop-utils', () => {
                                 stop_headsign: 'Clareview',
                                 departure_time: '08:10:00',
                                 stop_sequence: 1,
+                                scheduled_at:
+                                    expect.stringMatching(
+                                        /T14:(05|10):00.000Z$/
+                                    ),
+                                line: undefined,
                             },
                         ],
                     },

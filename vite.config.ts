@@ -7,6 +7,10 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+    optimizeDeps: {
+        // Prebundle together so toggles share their group's context during HMR.
+        include: ['@base-ui/react/toggle', '@base-ui/react/toggle-group'],
+    },
     plugins: [
         react(),
         tsconfigPaths(),
@@ -32,8 +36,8 @@ export default defineConfig({
                 start_url: '/',
                 scope: '/',
                 display: 'standalone',
-                background_color: '#242424',
-                theme_color: '#242424',
+                background_color: '#0e0e0e',
+                theme_color: '#0e0e0e',
                 orientation: 'portrait',
             },
             includeAssets: ['favicon.svg'],

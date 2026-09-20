@@ -151,6 +151,26 @@ function mockGeolocationFailure(message = 'Permission denied') {
 }
 
 describe('useDeparturesApp', () => {
+    it('falls back when a location prompt is left unanswered', async () => {
+        vi.useFakeTimers();
+        mockGeolocationSuccess();
+        vi.mocked(navigator.geolocation.getCurrentPosition).mockImplementation(
+            () => {}
+        );
+        vi.mocked(fetch)
+            .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
+            .mockResolvedValueOnce(
+                createJsonResponse(createStationsResponse())
+            );
+        const { result } = renderHook(() => useDeparturesApp());
+        await act(async () => {
+            await vi.advanceTimersByTimeAsync(10000);
+        });
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.deviceLocation).toBeUndefined();
+        expect(result.current.userLocation).toEqual(TEST_COORDS);
+        vi.useRealTimers();
+    });
     beforeEach(() => {
         vi.stubGlobal('fetch', vi.fn());
         vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -291,7 +311,7 @@ describe('useDeparturesApp', () => {
         ).toBe('Clareview');
     });
 
-    it('refreshes nearby departures and bumps the animation key', async () => {
+    it('refreshes the selected station without requesting location again', async () => {
         mockGeolocationSuccess();
         vi.mocked(fetch)
             .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
@@ -317,7 +337,13 @@ describe('useDeparturesApp', () => {
             expect(result.current.animationKey).toBe(1);
         });
         await waitFor(() => {
-            expect(fetch).toHaveBeenCalledTimes(4);
+            expect(fetch).toHaveBeenCalledTimes(3);
+            expect(
+                navigator.geolocation.getCurrentPosition
+            ).toHaveBeenCalledTimes(1);
+            expect(vi.mocked(fetch).mock.calls[2][0]).toBe(
+                `/api/stations/${result.current.selectedStation?.stop_id}/departures`
+            );
         });
     });
 

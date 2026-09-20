@@ -27,6 +27,8 @@ export function toDepartureDto(departure: InternalStopDepartures): Departure {
         stop_headsign: departure.stop_headsign ?? null,
         departure_time: departure.departure_time,
         departure_timestamp: departure.departure_timestamp,
+        scheduled_at: departure.scheduled_at,
+        line: departure.line,
     };
 }
 

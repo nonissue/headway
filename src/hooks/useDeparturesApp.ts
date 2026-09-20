@@ -95,14 +95,24 @@ function getCurrentLocation(): Promise<LocationCoordinates> {
     }
 
     return new Promise((resolve, reject) => {
+        // Browser location timeouts can exclude time spent awaiting permission.
+        // Keep station selection usable even when that prompt is left unanswered.
+        const timeout = window.setTimeout(
+            () => reject(new Error('Location request timed out')),
+            GEOLOCATION_OPTIONS.timeout
+        );
         navigator.geolocation.getCurrentPosition(
             (position) => {
+                window.clearTimeout(timeout);
                 resolve({
                     lat: position.coords.latitude,
                     lon: position.coords.longitude,
                 });
             },
-            reject,
+            (error) => {
+                window.clearTimeout(timeout);
+                reject(error);
+            },
             GEOLOCATION_OPTIONS
         );
     });
@@ -223,7 +233,7 @@ export function useDeparturesApp() {
         }, []);
 
     const selectStation = useCallback(
-        async (station: Station) => {
+        async (station: Station, refresh = false) => {
             setIsLoading(true);
             clearError();
 
@@ -235,7 +245,7 @@ export function useDeparturesApp() {
                     }
                 );
 
-                applyDeparturesResponse(response);
+                applyDeparturesResponse(response, { refresh });
             } catch (error) {
                 setError(normalizeError(error));
             } finally {
@@ -246,9 +256,13 @@ export function useDeparturesApp() {
     );
 
     const refresh = useCallback(async () => {
-        const location = await resolveLocation();
-        await loadNearbyDepartures(location, { refresh: true });
-    }, [loadNearbyDepartures, resolveLocation]);
+        if (selectedStation) {
+            await selectStation(selectedStation, true);
+            return;
+        }
+        const location = userLocation ?? getFallbackLocation();
+        await loadNearbyDepartures(location);
+    }, [loadNearbyDepartures, selectedStation, selectStation, userLocation]);
 
     useEffect(() => {
         if (!userLocation) {
@@ -285,7 +299,9 @@ export function useDeparturesApp() {
                         departure.departure_time
                     ),
                     displayHeadsign:
-                        departure.stop_headsign?.trim() ||
+                        departure.stop_headsign
+                            ?.trim()
+                            .replace(/\bnait\b/gi, 'NAIT') ||
                         'Unknown destination',
                 }))
         );

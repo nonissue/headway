@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Station } from '../types/departures.js';
 
@@ -35,6 +35,22 @@ const stations: Station[] = [
 ];
 
 describe('Header', () => {
+    it('filters by the actual lines available at the station', () => {
+        const onLineFilterChange = vi.fn();
+        render(
+            <Header
+                stations={stations}
+                selectedStation={stations[0]}
+                isStationsLoading={false}
+                onStationSelect={vi.fn()}
+                lines={['Capital', 'Metro']}
+                lineFilter="all"
+                onLineFilterChange={onLineFilterChange}
+            />
+        );
+        fireEvent.click(screen.getByRole('button', { name: 'Metro Line' }));
+        expect(onLineFilterChange).toHaveBeenCalledWith('Metro');
+    });
     afterEach(() => {
         cleanup();
     });
@@ -50,10 +66,9 @@ describe('Header', () => {
         );
 
         expect(screen.getByText('picker:Central Station:1:ready')).toBeTruthy();
-        expect(screen.getByText('theme-toggle')).toBeTruthy();
     });
 
-    it('renders loading chrome instead of the theme toggle while the app is loading', () => {
+    it('passes station-list loading state to the picker', () => {
         render(
             <Header
                 stations={stations}
@@ -64,11 +79,13 @@ describe('Header', () => {
             />
         );
 
-        expect(screen.getByText('picker:Central Station:1:loading')).toBeTruthy();
+        expect(
+            screen.getByText('picker:Central Station:1:loading')
+        ).toBeTruthy();
         expect(screen.queryByText('theme-toggle')).toBeNull();
     });
 
-    it('renders the skeleton state when no station is selected', () => {
+    it('keeps station selection available when no station is selected', () => {
         const { container } = render(
             <Header
                 stations={stations}
@@ -78,7 +95,6 @@ describe('Header', () => {
             />
         );
 
-        expect(container.textContent).not.toContain('picker:');
-        expect(screen.getByText('theme-toggle')).toBeTruthy();
+        expect(container.textContent).toContain('picker:none:1:ready');
     });
 });

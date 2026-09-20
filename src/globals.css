@@ -1,416 +1,425 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900');
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DotGothic16&family=Press+Start+2P&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
-
 @import 'tailwindcss';
 @import 'tw-animate-css';
-
 @source "src/**/*.{ts,tsx,js,jsx}";
-
 @custom-variant dark (&:is(.dark *));
 
-/* iOS Safe Area Support */
-@layer base {
-    html,
-    body {
-        min-height: 100vh;
-        min-height: 100dvh; /* Dynamic viewport height */
-    }
-
-    /* Ensure root container covers safe areas on iOS */
-    #root {
-        min-height: 100vh;
-        min-height: 100dvh;
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
-        padding-left: env(safe-area-inset-left);
-        padding-right: env(safe-area-inset-right);
-    }
-}
-/*
----break--- */
 @theme inline {
-    --font-display: 'DM Sans', sans-serif;
-    --font-display--font-optical-sizing: auto;
-
-    --font-serif: 'DM Serif Display', sans-serif, serif;
-    --font-serif--font-weight: 400;
-
-    --font-sans: 'Inter', sans-serif;
-    --font-sans--font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
-    --font-sans--font-variation-settings: 'opsz' 32;
-    --font-sans--font-optical-sizing: auto;
-
-    /* --font-mono: 'DM Mono', mono; */
-    /* --font-mono--font-weight: 400; */
-
+    --font-sans:
+        'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+    --font-display:
+        'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--foreground);
+    --color-popover: var(--background);
+    --color-popover-foreground: var(--foreground);
+    --color-primary: var(--foreground);
+    --color-primary-foreground: var(--background);
+    --color-secondary: var(--muted);
+    --color-secondary-foreground: var(--foreground);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--foreground);
+    --color-destructive: var(--destructive);
+    --color-border: var(--border);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
-
-    /* Map Tailwind utility classes to CSS variables */
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
-    --color-card: var(--card);
-    --color-card-foreground: var(--card-foreground);
-    --color-popover: var(--popover);
-    --color-popover-foreground: var(--popover-foreground);
-    --color-primary: var(--primary);
-    --color-primary-foreground: var(--primary-foreground);
-    --color-secondary: var(--secondary);
-    --color-secondary-foreground: var(--secondary-foreground);
-    --color-muted: var(--muted);
-    --color-muted-foreground: var(--muted-foreground);
-    --color-accent: var(--accent);
-    --color-accent-foreground: var(--accent-foreground);
-    --color-destructive: var(--destructive);
-    --color-success: var(--success);
-    --color-success-foreground: var(--success-foreground);
-    --color-warning: var(--warning);
-    --color-warning-foreground: var(--warning-foreground);
-    --color-info: var(--info);
-    --color-info-foreground: var(--info-foreground);
-    --color-transit-blue: var(--transit-blue);
-    --color-transit-blue-foreground: var(--transit-blue-foreground);
-    --color-transit-red: var(--transit-red);
-    --color-transit-red-foreground: var(--transit-red-foreground);
-    --color-transit-green: var(--transit-green);
-    --color-transit-green-foreground: var(--transit-green-foreground);
-    --color-headsign-1: var(--headsign-1);
-    --color-headsign-2: var(--headsign-2);
-    --color-headsign-3: var(--headsign-3);
-    --color-headsign-4: var(--headsign-4);
-    --color-headsign-5: var(--headsign-5);
-    --color-headsign-6: var(--headsign-6);
-    --color-headsign-7: var(--headsign-7);
-    --color-headsign-8: var(--headsign-8);
-    --color-headsign-1-bg: var(--headsign-1-bg);
-    --color-headsign-2-bg: var(--headsign-2-bg);
-    --color-headsign-3-bg: var(--headsign-3-bg);
-    --color-headsign-4-bg: var(--headsign-4-bg);
-    --color-headsign-5-bg: var(--headsign-5-bg);
-    --color-headsign-6-bg: var(--headsign-6-bg);
-    --color-headsign-7-bg: var(--headsign-7-bg);
-    --color-headsign-8-bg: var(--headsign-8-bg);
-    --color-border: var(--border);
-    --color-input: var(--input);
-    --color-ring: var(--ring);
 }
-
-/*
----break--- */
 :root {
     --radius: 0.625rem;
-
-    /* Base colors */
-    --background: oklch(0.95 0 0);
-    --foreground: oklch(0.141 0.005 285.823);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.141 0.005 285.823);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.141 0.005 285.823);
-
-    /* Primary colors */
-    --primary: oklch(0.21 0.006 285.885);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.967 0.001 286.375);
-    --secondary-foreground: oklch(0.21 0.006 285.885);
-
-    /* Muted & Accent */
-    --muted: oklch(0.967 0.001 286.375);
-    --muted-foreground: oklch(0.552 0.016 285.938);
-    --accent: oklch(0.967 0.001 286.375);
-    --accent-foreground: oklch(0.21 0.006 285.885);
-
-    /* Semantic colors */
-    --destructive: oklch(0.577 0.245 27.325);
-    --success: oklch(0.65 0.18 145);
-    --success-foreground: oklch(0.98 0 0);
-    --warning: oklch(0.75 0.15 85);
-    --warning-foreground: oklch(0.2 0 0);
-    --info: oklch(0.6 0.2 250);
-    --info-foreground: oklch(0.98 0 0);
-
-    /* Transit route colors - Edmonton LRT */
-    --transit-blue: oklch(0.5 0.2 250); /* Capital Line */
-    --transit-blue-foreground: oklch(0.98 0 0);
-    --transit-red: oklch(0.6 0.25 25); /* Metro Line */
-    --transit-red-foreground: oklch(0.98 0 0);
-    --transit-green: oklch(0.6 0.18 145); /* Valley Line */
-    --transit-green-foreground: oklch(0.98 0 0);
-
-    /* Headsign colors - maximally distinct colors */
-    --headsign-1: oklch(0.45 0.25 265); /* Indigo/Blue */
-    --headsign-2: oklch(0.5 0.26 40); /* Orange */
-    --headsign-3: oklch(0.5 0.22 165); /* Teal/Cyan */
-    --headsign-4: oklch(0.45 0.25 330); /* Magenta/Pink */
-    --headsign-5: oklch(0.48 0.2 130); /* Green */
-    --headsign-6: oklch(0.45 0.26 25); /* Red */
-    --headsign-7: oklch(0.5 0.24 280); /* Purple */
-    --headsign-8: oklch(0.52 0.18 90); /* Yellow-Green */
-
-    /* Headsign background colors with transparency */
-    --headsign-badge-transparency: 12%;
-    --headsign-1-bg: oklch(0.45 0.25 265 / var(--headsign-badge-transparency));
-    --headsign-2-bg: oklch(0.5 0.26 40 / var(--headsign-badge-transparency));
-    --headsign-3-bg: oklch(0.5 0.22 165 / var(--headsign-badge-transparency));
-    --headsign-4-bg: oklch(0.45 0.25 330 / var(--headsign-badge-transparency));
-    --headsign-5-bg: oklch(0.48 0.2 130 / var(--headsign-badge-transparency));
-    --headsign-6-bg: oklch(0.45 0.26 25 / var(--headsign-badge-transparency));
-    --headsign-7-bg: oklch(0.5 0.24 280 / var(--headsign-badge-transparency));
-    --headsign-8-bg: oklch(0.52 0.18 90 / var(--headsign-badge-transparency));
-
-    /* Borders & Inputs */
-    --border: oklch(0.92 0.004 286.32);
-    --input: oklch(0.92 0.004 286.32);
-    --ring: oklch(0.705 0.015 286.067);
-
-    /* Charts */
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-
-    /* Sidebar */
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.141 0.005 285.823);
-    --sidebar-primary: oklch(0.21 0.006 285.885);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.967 0.001 286.375);
-    --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-    --sidebar-border: oklch(0.92 0.004 286.32);
-    --sidebar-ring: oklch(0.705 0.015 286.067);
-
-    /* Custom */
-    --glass-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    --background: #f2efe6;
+    --foreground: #181818;
+    --card: #f2efe6;
+    --muted: #e5e2d9;
+    --muted-foreground: #66645e;
+    --accent: #e5e2d9;
+    --border: #cfcdc5;
+    --input: #cfcdc5;
+    --ring: #66645e;
+    --destructive: #a22c25;
+    --line-capital: #0039a6;
+    --line-metro: #ffb400;
+    --line-valley: #237147;
+    --line-on-colour: #fff;
+    --line-on-amber: #181818;
+    color-scheme: light;
 }
-
-/*
----break--- */
 .dark {
-    /* Base colors */
-    --background: oklch(0.23 0.005 285.823);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.16 0.006 285.885);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.21 0.006 285.885);
-    --popover-foreground: oklch(0.985 0 0);
-
-    /* Primary colors */
-    --primary: oklch(0.92 0.004 286.32);
-    --primary-foreground: oklch(0.21 0.006 285.885);
-    --secondary: oklch(0.274 0.006 286.033);
-    --secondary-foreground: oklch(0.985 0 0);
-
-    /* Muted & Accent */
-    --muted: oklch(0.274 0.006 286.033);
-    --muted-foreground: oklch(0.705 0.015 286.067);
-    --accent: oklch(0.274 0.006 286.033);
-    --accent-foreground: oklch(0.985 0 0);
-
-    /* Semantic colors */
-    --destructive: oklch(0.704 0.191 22.216);
-    --success: oklch(0.55 0.2 150);
-    --success-foreground: oklch(0.98 0 0);
-    --warning: oklch(0.7 0.18 90);
-    --warning-foreground: oklch(0.98 0 0);
-    --info: oklch(0.55 0.22 255);
-    --info-foreground: oklch(0.98 0 0);
-
-    /* Transit route colors - Edmonton LRT */
-    --transit-blue: oklch(0.55 0.22 255); /* Capital Line */
-    --transit-blue-foreground: oklch(0.98 0 0);
-    --transit-red: oklch(0.65 0.27 30); /* Metro Line */
-    --transit-red-foreground: oklch(0.98 0 0);
-    --transit-green: oklch(0.65 0.2 150); /* Valley Line */
-    --transit-green-foreground: oklch(0.98 0 0);
-
-    /* Headsign colors - adjusted for dark mode */
-    --headsign-1: oklch(0.7 0.13 255); /* Blue */
-    --headsign-2: oklch(0.7 0.14 30); /* Red */
-    --headsign-3: oklch(0.7 0.13 150); /* Green */
-    --headsign-4: oklch(0.7 0.13 305); /* Purple */
-    --headsign-5: oklch(0.7 0.13 50); /* Orange */
-    --headsign-6: oklch(0.7 0.13 185); /* Cyan */
-    --headsign-7: oklch(0.72 0.12 90); /* Yellow */
-    --headsign-8: oklch(0.7 0.13 335); /* Pink */
-
-    /* Headsign background colors with transparency - dark mode */
-    --headsign-badge-transparency: 12%;
-    --headsign-1-bg: oklch(0.7 0.13 255 / var(--headsign-badge-transparency));
-    --headsign-2-bg: oklch(0.7 0.14 30 / var(--headsign-badge-transparency));
-    --headsign-3-bg: oklch(0.7 0.13 150 / var(--headsign-badge-transparency));
-    --headsign-4-bg: oklch(0.7 0.13 305 / var(--headsign-badge-transparency));
-    --headsign-5-bg: oklch(0.7 0.13 50 / var(--headsign-badge-transparency));
-    --headsign-6-bg: oklch(0.7 0.13 185 / var(--headsign-badge-transparency));
-    --headsign-7-bg: oklch(0.72 0.12 90 / var(--headsign-badge-transparency));
-    --headsign-8-bg: oklch(0.7 0.13 335 / var(--headsign-badge-transparency));
-
-    /* Borders & Inputs */
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.552 0.016 285.938);
-
-    /* Charts */
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-
-    /* Sidebar */
-    --sidebar: oklch(0.21 0.006 285.885);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.274 0.006 286.033);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.552 0.016 285.938);
-
-    /* Custom */
-    --glass-shadow: 0 8px 24px rgba(255, 255, 255, 0.04);
+    --background: #0e0e0e;
+    --foreground: #f2efe6;
+    --card: #0e0e0e;
+    --muted: #282723;
+    --muted-foreground: #a6a39c;
+    --accent: #20201e;
+    --border: #383733;
+    --input: #383733;
+    --ring: #aaa79f;
+    --destructive: #ff9a90;
+    --line-capital: #2e7ce0;
+    color-scheme: dark;
 }
-
-/*
----break--- */
 @layer base {
     * {
-        border-color: var(--border);
-        outline-color: oklch(from var(--ring) l c h / 50%);
+        @apply border-border;
     }
-    body {
-        @apply bg-background text-foreground;
-    }
-}
-
-/* Custom background animations */
-@keyframes float {
-    0%,
-    100% {
-        transform: translate(0, 0) scale(1);
-    }
-    25% {
-        transform: translate(20px, -30px) scale(1.1);
-    }
-    50% {
-        transform: translate(-15px, 20px) scale(0.9);
-    }
-    75% {
-        transform: translate(30px, 10px) scale(1.05);
-    }
-}
-
-@keyframes drift {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(100vw);
-    }
-}
-
-@keyframes bubble {
-    0%,
-    100% {
-        transform: translateY(0) scale(1);
-        opacity: 0.3;
-    }
-    50% {
-        transform: translateY(-40px) scale(1.2);
-        opacity: 0.6;
-    }
-}
-
-@keyframes morph {
-    0%,
-    100% {
-        border-radius: 50%;
-        transform: scale(1);
-    }
-    25% {
-        border-radius: 35% 65% 40% 60%;
-        transform: scale(0.8);
-    }
-    50% {
-        border-radius: 70% 30% 60% 40%;
-        transform: scale(1.1);
-    }
-    75% {
-        border-radius: 45% 55% 35% 65%;
-        transform: scale(0.9);
-    }
-}
-
-@keyframes slide-right {
-    0% {
-        transform: translateX(-100vw);
-    }
-    100% {
-        transform: translateX(100vw);
-    }
-}
-
-@keyframes slide-left {
-    0% {
-        transform: translateX(100vw);
-    }
-    100% {
-        transform: translateX(-100vw);
-    }
-}
-
-@keyframes slide-down {
-    0% {
-        transform: translateY(-100vh);
-    }
-    100% {
-        transform: translateY(100vh);
-    }
-}
-
-@keyframes slide-up {
-    0% {
-        transform: translateY(100vh);
-    }
-    100% {
-        transform: translateY(-100vh);
-    }
-}
-
-/* PWA standalone mode specific styles */
-@media (display-mode: standalone) {
     html,
     body {
-        overscroll-behavior: none;
-        -webkit-overflow-scrolling: touch;
+        margin: 0;
+        height: 100%;
         overflow: hidden;
     }
-
     body {
-        padding: max(0px, env(safe-area-inset-top))
-            max(0px, env(safe-area-inset-right))
-            max(0px, env(safe-area-inset-bottom))
-            max(0px, env(safe-area-inset-left));
+        @apply bg-background font-sans text-foreground;
     }
-
-    /* Fix ScrollArea on iOS PWA */
-    [data-slot='scroll-area-viewport'] {
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: contain;
-    }
-
-    /* Prevent any unwanted scrolling on mobile */
-    /* #root {
-        overflow: hidden;
+    #root {
         height: 100dvh;
-    } */
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+            env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+}
+.headway-app {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 640px;
+    height: 100%;
+    margin: 0 auto;
+    overflow: hidden;
+    background: var(--background);
+    font-feature-settings: 'tnum';
+}
+.departures-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    gap: 4px 12px;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+}
+.departures-header .station-picker-trigger {
+    flex: 1;
+}
+.line-filters[data-slot='toggle-group'] {
+    gap: 4px;
+}
+.line-filters [data-slot='toggle-group-item'] {
+    position: relative;
+    height: 32px;
+    min-width: 40px;
+    padding: 0 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted-foreground);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.line-filters [data-slot='toggle-group-item']::before {
+    content: '';
+    position: absolute;
+    inset: -6px -2px;
+}
+.line-filters [aria-pressed='true'] {
+    background: var(--foreground);
+    color: var(--background);
+    border-color: var(--foreground);
+}
+.line-filter-dot {
+    fill: currentColor;
+}
+.line-filters .line-filter-dot {
+    width: 6px;
+    height: 6px;
+}
+.line-filter-dot[data-line='capital'] {
+    color: var(--line-capital);
+}
+.line-filter-dot[data-line='metro'] {
+    color: var(--line-metro);
+}
+.line-filter-dot[data-line='valley'] {
+    color: var(--line-valley);
+}
+.departures-content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+.departure-board {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.departure-pane {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+}
+.departure-pane + .departure-pane {
+    border-top: 1px solid var(--foreground);
+}
+.direction-rail {
+    width: 34px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    padding-top: 13px;
+}
+.direction-rail > svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    stroke-width: 1;
+}
+.direction-rail > .lucide-train-front {
+    fill: none;
+    stroke-width: 1.8;
+}
+.direction-rail h2 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    max-width: 260px;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+.departure-scroll {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+}
+.departure-scroll [data-slot='scroll-area-viewport'] {
+    overscroll-behavior: contain;
+}
+.departure-row {
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr) 35px 40px;
+    align-items: center;
+    gap: 10px;
+    min-height: 46px;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+}
+.departure-row[data-hero] {
+    grid-template-columns: 22px minmax(0, 1fr) 35px minmax(70px, max-content);
+    min-height: 78px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+.departure-destination {
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.25px;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+.departure-row[data-hero] .departure-destination {
+    font-size: 22px;
+    letter-spacing: -0.6px;
+}
+.departure-clock {
+    font-size: 10px;
+    color: var(--muted-foreground);
+    text-align: right;
+}
+.departure-countdown {
+    display: flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 1px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    line-height: 1;
+    white-space: nowrap;
+}
+.departure-unit {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--muted-foreground);
+    letter-spacing: 0;
+}
+.departure-row[data-hero] .departure-countdown {
+    font-size: 52px;
+    letter-spacing: -2.5px;
+}
+.departure-row[data-hero] .departure-unit {
+    font-size: 14px;
+    letter-spacing: 0;
+}
+.departure-countdown[aria-label='Due now'] {
+    font-size: 18px;
+    letter-spacing: -0.5px;
+}
+.departure-row[data-hero] .departure-countdown[aria-label='Due now'] {
+    font-size: 32px;
+    letter-spacing: -1px;
+}
+.line-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border: 0;
+    border-radius: 50%;
+    padding: 0;
+    background: var(--muted);
+    color: var(--foreground);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+}
+.line-badge[data-hero] {
+    width: 22px;
+    height: 22px;
+    font-size: 13px;
+}
+.line-badge[data-line='capital'] {
+    background: var(--line-capital);
+    color: var(--line-on-colour);
+}
+.line-badge[data-line='metro'] {
+    background: var(--line-metro);
+    color: var(--line-on-amber);
+}
+.line-badge[data-line='valley'] {
+    background: var(--line-valley);
+    color: var(--line-on-colour);
+}
+.line-badge svg {
+    width: 14px;
+    height: 14px;
+}
+.departures-empty {
+    height: 100%;
+    padding: 24px;
+}
+.departures-empty [data-slot='empty-title'] {
+    font-size: 16px;
+}
+.departures-empty [data-slot='empty-description'] {
+    font-size: 12px;
+}
+.departures-footer {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-top: 1px solid var(--border);
+}
+.footer-icon {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted-foreground);
+    box-shadow: none;
+    cursor: pointer;
+}
+.schedule-status {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 0 8px;
+    color: var(--muted-foreground);
+    font-size: 10px;
+}
+.schedule-status > span {
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    font-size: 9px;
+    font-weight: 700;
+}
+.departures-error {
+    flex-shrink: 0;
+    border-radius: 0;
+    border-width: 0 0 1px;
+}
+.departures-loading {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.departure-skeleton-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 25px;
+    padding: 28px 18px 28px 52px;
+}
+.departure-skeleton-pane + .departure-skeleton-pane {
+    border-top: 1px solid var(--border);
+}
+@media (min-width: 640px) {
+    .headway-app {
+        border-inline: 1px solid var(--border);
+    }
+    .departure-row {
+        min-height: 50px;
+    }
+}
+@media (max-width: 360px) {
+    .departures-header {
+        padding-inline: 12px;
+        gap: 4px;
+    }
+    .departures-header .station-picker-trigger {
+        font-size: 22px;
+    }
+    .line-filters [data-slot='toggle-group-item'] {
+        padding-inline: 7px;
+        min-width: 40px;
+    }
+    .departure-row {
+        padding-inline: 12px;
+        gap: 7px;
+    }
+    .departure-row[data-hero] {
+        grid-template-columns: 22px minmax(0, 1fr) 32px minmax(
+                62px,
+                max-content
+            );
+    }
+    .departure-row[data-hero] .departure-destination {
+        font-size: 20px;
+    }
+    .departure-row[data-hero] .departure-countdown {
+        font-size: 46px;
+    }
+}
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
-/* Station chooser: the first surface in the transit-signage redesign. */
 .station-picker {
     --background: #f2efe6;
     --foreground: #181818;

@@ -1,5 +1,5 @@
 // src/main.tsx
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { DeparturesTable } from './components/DeparturesTable';
 import { Footer } from './components/Footer';
@@ -7,10 +7,17 @@ import { Header } from './components/Header';
 import { ThemeProvider } from './components/theme-provider';
 import './globals.css';
 import { useDeparturesApp } from './hooks/useDeparturesApp';
-import { Loader2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertAction } from './components/ui/alert';
+import { Skeleton } from './components/ui/skeleton';
+import { Button } from './components/ui/button';
+import { useNow } from './hooks/useNow';
 
 const ANALYTICS_SCRIPT_ID = 'headway-analytics';
 const UMAMI_WEBSITE_ID = 'aac8d5e9-5e2d-4107-8844-f484b9e45eb2';
+const appRoots: WeakMap<HTMLElement, ReactDOM.Root> =
+    import.meta.hot?.data?.appRoots ?? new WeakMap();
+if (import.meta.hot?.data) import.meta.hot.data.appRoots = appRoots;
 
 export function App() {
     const {
@@ -42,74 +49,87 @@ export function App() {
         document.head.appendChild(script);
     }, []);
 
+    const now = useNow();
+    const [filter, setFilter] = useState({ stationId: '', line: 'all' });
+    const lines = [
+        ...new Set([
+            ...(stations.find(
+                (station) => station.stop_id === selectedStation?.stop_id
+            )?.lines ?? []),
+            ...departureGroups.flatMap((group) =>
+                group.departures.flatMap((departure) =>
+                    departure.line ? [departure.line] : []
+                )
+            ),
+        ]),
+    ].sort();
+    const lineFilter =
+        filter.stationId === selectedStation?.stop_id &&
+        lines.includes(filter.line)
+            ? filter.line
+            : 'all';
+
     return (
-        <main className="relative flex h-dvh w-full flex-col items-center justify-start overflow-hidden overscroll-none font-display text-foreground sm:min-h-screen sm:overflow-visible sm:overscroll-none">
-            <div className="relative z-10 flex h-full w-full max-w-xl flex-col px-0 sm:my-8 sm:h-auto">
-                <div
-                    className="relative flex h-full flex-col overflow-hidden border-0 border-foreground/10 shadow-2xl ring-2 ring-border/40 backdrop-blur-3xl sm:rounded-md sm:border-2 sm:shadow-md"
-                    // style={{
-                    //     boxShadow:
-                    //         'var(--glass-shadow, 0 12px 40px rgba(0,0,0,0.15))',
-                    // }}
-                >
-                    {/* <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-foreground/5 via-foreground/5 to-foreground/5"></div>
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-foreground/10 to-transparent"></div>
-                    <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-foreground/5 to-transparent"></div> */}
-
-                    <Header
-                        stations={stations}
-                        selectedStation={selectedStation}
-                        isStationsLoading={isStationsLoading}
-                        onStationSelect={selectStation}
-                        isLoading={isLoading}
-                        location={deviceLocation}
-                    />
-                    {hasError && (
-                        <div className="relative border-l-4 border-red-500 bg-red-50 p-4 text-center text-blue-400 dark:bg-red-900/20">
-                            <div className="mb-2 text-sm font-medium text-red-600 dark:text-red-400">
-                                {error?.message}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={clearError}
-                                className="text-xs text-red-600 underline hover:text-red-400 hover:no-underline dark:text-red-400"
+        <main className="headway-app">
+            <Header
+                stations={stations}
+                selectedStation={selectedStation}
+                isStationsLoading={isStationsLoading}
+                onStationSelect={selectStation}
+                isLoading={isLoading}
+                location={deviceLocation}
+                lines={lines}
+                lineFilter={lineFilter}
+                onLineFilterChange={(line) =>
+                    setFilter({
+                        stationId: selectedStation?.stop_id ?? '',
+                        line,
+                    })
+                }
+            />
+            {hasError && (
+                <Alert variant="destructive" className="departures-error">
+                    <AlertCircle aria-hidden="true" />
+                    <AlertDescription>{error?.message}</AlertDescription>
+                    <AlertAction>
+                        <Button variant="plain" size="sm" onClick={clearError}>
+                            Dismiss
+                        </Button>
+                    </AlertAction>
+                </Alert>
+            )}
+            <div className="departures-content" aria-busy={isLoading}>
+                {isLoading ? (
+                    <div className="departures-loading" role="status">
+                        <span className="sr-only">Loading departures</span>
+                        {[0, 1].map((pane) => (
+                            <div
+                                className="departure-skeleton-pane"
+                                key={pane}
+                                aria-hidden="true"
                             >
-                                Dismiss
-                            </button>
-                        </div>
-                    )}
-
-                    {isLoading ? (
-                        <div className="relative flex min-h-96 items-center justify-center p-8">
-                            <div className="flex flex-col items-center gap-4 text-center">
-                                <div className="relative">
-                                    <Loader2 className="h-10 w-10 animate-spin text-ring" />
-                                    <div className="absolute inset-0 h-10 w-10 rounded-full"></div>
-                                </div>
-                                <div className="space-y-1">
-                                    <div className="text-sm font-medium text-foreground">
-                                        {/* {status || 'Loading departures...'} */}
-                                        Loading
-                                    </div>
-                                </div>
+                                <Skeleton className="h-12 w-3/4" />
+                                <Skeleton className="h-5 w-full" />
+                                <Skeleton className="h-5 w-full" />
+                                <Skeleton className="h-5 w-4/5" />
                             </div>
-                        </div>
-                    ) : (
-                        <>
-                            <div className="flex-1 overflow-hidden">
-                                <DeparturesTable
-                                    departureGroups={departureGroups}
-                                    animationKey={animationKey}
-                                />
-                            </div>
-                            <Footer
-                                lastUpdated={lastUpdated}
-                                onRefresh={refresh}
-                            />
-                        </>
-                    )}
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <DeparturesTable
+                        key={selectedStation?.stop_id}
+                        departureGroups={departureGroups}
+                        animationKey={animationKey}
+                        lineFilter={lineFilter}
+                        now={now}
+                    />
+                )}
             </div>
+            <Footer
+                lastUpdated={lastUpdated}
+                onRefresh={refresh}
+                isRefreshing={isLoading}
+            />
         </main>
     );
 }
@@ -119,7 +139,12 @@ export function mountApp(rootElement = document.getElementById('root')) {
         return;
     }
 
-    ReactDOM.createRoot(rootElement).render(
+    let root = appRoots.get(rootElement);
+    if (!root) {
+        root = ReactDOM.createRoot(rootElement);
+        appRoots.set(rootElement, root);
+    }
+    root.render(
         <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
             <App />
         </ThemeProvider>
