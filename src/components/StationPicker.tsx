@@ -1,13 +1,5 @@
 import * as React from 'react';
-import {
-    Check,
-    ChevronDown,
-    Search,
-    Star,
-    TrainFront,
-    X,
-    MapPin,
-} from 'lucide-react';
+import { Check, ChevronDown, Search, Star, TrainFront, X } from 'lucide-react';
 import { cn } from '@/components/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -303,16 +295,9 @@ export function StationPicker({
                                       ? 'By distance'
                                       : 'All stations'}
                                 <span>
-                                    {normalized ? (
-                                        `${results.length} found`
-                                    ) : location ? (
-                                        <>
-                                            <MapPin aria-hidden="true" /> Near
-                                            you
-                                        </>
-                                    ) : (
-                                        `${stations.length} stations`
-                                    )}
+                                    {normalized
+                                        ? `${results.length} found`
+                                        : `${stations.length} stations`}
                                 </span>
                             </h3>
                             <span className="sr-only" role="status">

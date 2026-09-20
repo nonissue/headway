@@ -22,8 +22,8 @@ function withInjectedTriggerProps(
 
 vi.mock('@/components/ui/dialog', () => ({
     Dialog: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-    DialogTrigger: ({ children }: { children: ReactNode }) =>
-        withInjectedTriggerProps(children, {
+    DialogTrigger: ({ render }: { render: ReactNode }) =>
+        withInjectedTriggerProps(render, {
             'data-trigger-probe': 'dialog',
         }),
     DialogContent: ({ children }: { children: ReactNode }) => (
