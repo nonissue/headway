@@ -172,10 +172,11 @@
 }
 .departure-direction {
     display: inline-block;
-    margin-left: 4px;
-    vertical-align: -2px;
-    width: 14px;
-    height: 14px;
+    margin-left: 8px;
+    vertical-align: -3px;
+    width: 18px;
+    height: 18px;
+    color: var(--foreground);
     stroke-width: 2.5;
 }
 .departure-scroll {
@@ -183,17 +184,21 @@
     min-height: 0;
     min-width: 0;
 }
-/* Base UI tracks overflow, so the last row is fully visible at the end. */
+/* Keep the mask in place and shorten the fade as the last row approaches.
+   Switching the mask on/off at the edge makes the end of a flick abrupt. */
 .departure-scroll [data-slot='scroll-area-viewport'] {
-    overscroll-behavior: contain;
-}
-.departure-scroll [data-slot='scroll-area-viewport'][data-overflow-y-end] {
+    overscroll-behavior: none;
+    --departure-fade: min(32px, max(0px, var(--scroll-area-overflow-y-end, 0px)));
     -webkit-mask-image: linear-gradient(
         to bottom,
-        #000 calc(100% - 32px),
+        #000 calc(100% - var(--departure-fade)),
         transparent
     );
-    mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(
+        to bottom,
+        #000 calc(100% - var(--departure-fade)),
+        transparent
+    );
 }
 .departure-row {
     display: grid;
@@ -328,6 +333,7 @@
     flex-shrink: 0;
     min-height: 58px;
     border-top: 2px solid var(--foreground);
+    border-bottom: 1px solid var(--border);
 }
 .departures-footer .footer-icon {
     width: 100%;
