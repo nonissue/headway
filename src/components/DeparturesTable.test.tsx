@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import type { ReactNode } from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { DepartureGroup, ProcessedDeparture } from '../types/departures';
 vi.mock('@/components/ui/scroll-area', () => ({
@@ -66,6 +66,53 @@ describe('DeparturesTable', () => {
         expect(screen.getByText('Clareview').closest('li')?.dataset.hero).toBe(
             'true'
         );
+    });
+    it('marks only the first upcoming departure, even with a recent train above it', () => {
+        render(<DeparturesTable departureGroups={groups} now={now} />);
+        expect(screen.getAllByRole('img')).toHaveLength(2);
+        expect(
+            within(screen.getByText('Clareview').closest('li')!).getByRole(
+                'img',
+                { name: 'Northbound' }
+            )
+        ).toBeTruthy();
+        expect(
+            within(screen.getByText('Century Park').closest('li')!).getByRole(
+                'img',
+                { name: 'Southbound' }
+            )
+        ).toBeTruthy();
+        expect(
+            within(screen.getByText('Gone').closest('li')!).queryByRole('img')
+        ).toBeNull();
+    });
+    it.each(['Eastbound', 'Westbound'])(
+        'follows the %s group after filtering',
+        (heading) => {
+            render(
+                <DeparturesTable
+                    departureGroups={[{ ...groups[0], heading }]}
+                    now={now}
+                    lineFilter="Metro"
+                />
+            );
+            expect(screen.getAllByRole('img')).toHaveLength(1);
+            expect(
+                within(
+                    screen.getByText('NAIT Blatchford Market').closest('li')!
+                ).getByRole('img', { name: heading })
+            ).toBeTruthy();
+        }
+    );
+    it('does not guess an arrow for an unknown direction', () => {
+        render(
+            <DeparturesTable
+                departureGroups={[{ ...groups[0], heading: 'Platform' }]}
+                now={now}
+            />
+        );
+        expect(screen.queryByRole('img')).toBeNull();
+        expect(screen.getByRole('region', { name: 'Platform' })).toBeTruthy();
     });
     it('filters both panes and promotes the first matching departure', () => {
         render(

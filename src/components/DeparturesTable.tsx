@@ -1,6 +1,12 @@
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { DEFAULT_TIMEZONE } from '../config';
-import { TrainFront } from 'lucide-react';
+import {
+    ArrowUp,
+    ArrowDown,
+    ArrowRight,
+    ArrowLeft,
+    TrainFront,
+} from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     Empty,
@@ -23,19 +29,29 @@ interface DeparturesTableProps {
     nextServiceAt?: string;
 }
 
+const directionIcons = new Map([
+    ['Northbound', ArrowUp],
+    ['Southbound', ArrowDown],
+    ['Eastbound', ArrowRight],
+    ['Westbound', ArrowLeft],
+]);
+
 function DepartureRow({
     departure,
     now,
     hero = false,
     recent = false,
     nextService = false,
+    direction,
 }: {
     departure: ProcessedDeparture;
     now: number;
     hero?: boolean;
     recent?: boolean;
     nextService?: boolean;
+    direction?: string;
 }) {
+    const DirectionIcon = direction ? directionIcons.get(direction) : undefined;
     const minutes = departureMinutes(departure, now);
     const age = recent
         ? Math.floor((now - Date.parse(departure.scheduled_at!)) / 60000)
@@ -54,6 +70,13 @@ function DepartureRow({
                 title={departure.displayHeadsign}
             >
                 {departure.displayHeadsign}
+                {DirectionIcon && (
+                    <DirectionIcon
+                        className="departure-direction"
+                        role="img"
+                        aria-label={direction}
+                    />
+                )}
             </span>
             <time
                 className="departure-clock"
@@ -154,9 +177,9 @@ export function DeparturesTable({
                             key={`${index}-${group.heading}`}
                             aria-labelledby={headingId}
                         >
-                            <div className="direction-heading">
-                                <h2 id={headingId}>{group.heading}</h2>
-                            </div>
+                            <h2 id={headingId} className="sr-only">
+                                {group.heading}
+                            </h2>
                             <ScrollArea
                                 className="departure-scroll"
                                 key={lineFilter}
@@ -176,6 +199,11 @@ export function DeparturesTable({
                                             departure={departure}
                                             now={now}
                                             hero={row === 0}
+                                            direction={
+                                                row === 0
+                                                    ? group.heading
+                                                    : undefined
+                                            }
                                             nextService={Boolean(nextServiceAt)}
                                         />
                                     ))}
