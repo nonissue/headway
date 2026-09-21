@@ -23,6 +23,11 @@ This repository contains Headway, a Vite + React + Hono app that shows upcoming 
 - `npm run db:import`: Import GTFS data into SQLite.
 - `npm run db:slim`: Build the slim LRT-only SQLite database.
 
+## Project references
+
+- For typography or departure-row layout changes, read [the typography guide](docs/typography.md); it includes the fixed-time mixed-line preview.
+- For release work, read [the release workflow](docs/releasing.md). Record decisions and validation in [project notes](docs/project-notes.md).
+
 ## Notes
 
 - Deployment target is Fly.io.

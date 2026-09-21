@@ -73,7 +73,7 @@ npm run test            # watch mode
 npm run test:coverage   # single run with coverage
 ```
 
-The September 20 local checkpoint passed **155 tests across 23 files** and the production build. This is a recorded validation result, not a current coverage measurement. See the project notes for the separately deployed release. Vitest's automatic UI/browser opening is disabled.
+See [project notes](docs/project-notes.md) for recorded release validation. Vitest's automatic UI/browser opening is disabled. The [typography guide](docs/typography.md#verification-when-changing-fonts) includes a fixed-time mixed-line preview for visual checks without changing the device clock.
 
 ## Deployment
 
@@ -87,3 +87,5 @@ npm run deploy      # npm run build && fly deploy
 The custom domain (`headway.andy.ws`) is a CNAME to Fly.io with an auto-renewing Let's Encrypt certificate.
 
 Keep released changes on both `develop` and `main`: the weekly GTFS workflow starts from `develop` and fast-forwards `main`, while the deployment workflow builds `main`.
+
+See [the release workflow](docs/releasing.md) for preflight checks, branch synchronisation, and production verification.

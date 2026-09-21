@@ -216,3 +216,26 @@ are superseded by the decisions above.
   TypeScript server production build passed. Local browser checks covered the
   larger hierarchy, 320px truncation, badge centring, and recent-row contrast
   beside the dark-mode scroll fade. Physical iPhone testing remains a follow-up.
+
+## Uniform mixed-line departures — 2026-09-20
+
+- Supersedes the graduated sizing above. Mixed Capital/Metro destinations made
+  position-based sizes look inconsistent, so every upcoming row now uses an
+  18px medium destination, the same compact badge, and a 56px minimum height.
+- Countdown text is 16px; supporting clocks are 14px and regular weight. Only
+  the next countdown in each direction gets medium weight, recalculated after
+  filtering and as trains depart. Recent rows remain 14px with 12px clocks and
+  the existing brighter secondary contrast.
+- Removed the experimental perspective tilt and its wrapper. Past departures
+  stay flat and readable; no departure animation or urgency colouring was added.
+- Kept the fixed-time mixed-line preview at
+  `http://localhost:5173/docs/qa/departure-typography/`. It renders the real table
+  without changing the device clock. It is excluded from coverage and is not
+  emitted as a production entry point.
+- The [typography guide](typography.md) is the current style reference. The
+  [release workflow](releasing.md) documents branch synchronisation and live
+  verification; AGENTS.md and CLAUDE.md point to both guides.
+- Validation: all 156 tests across 23 files passed, along with the Vite client
+  and TypeScript server production build. The final mixed-line preview was
+  checked at 320px: both panes remain visible and long destinations truncate
+  without colliding with the clocks. Physical iPhone testing remains unverified.

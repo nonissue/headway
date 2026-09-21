@@ -24,23 +24,19 @@ interface DeparturesTableProps {
     nextServiceAt?: string;
 }
 
-// The row owns the type scale; clocks sit one step below the countdowns.
+// Destinations lead the type scale; countdowns and clocks each sit one step below.
 const rowVariants = cva(
-    'group/row col-span-3 grid grid-cols-subgrid items-center gap-3 border-b px-(--board-gutter) leading-tight',
+    'group/row col-span-3 grid grid-cols-subgrid items-center gap-3 border-b px-(--board-gutter) leading-tight font-medium',
     {
         variants: {
-            emphasis: {
-                next: 'min-h-16 text-xl font-bold',
-                second: 'min-h-14 text-lg font-semibold',
-                third: 'min-h-14 text-lg font-medium',
-                regular: 'min-h-13 text-base font-medium',
-                recent: 'min-h-10 text-sm font-medium text-foreground/80',
+            recent: {
+                false: 'min-h-14 text-lg',
+                true: 'min-h-10 text-sm text-foreground/80',
             },
         },
     }
 );
-const upcomingEmphasis = ['next', 'second', 'third'] as const;
-type RowEmphasis = (typeof upcomingEmphasis)[number] | 'regular' | 'recent';
+type RowEmphasis = 'next' | 'regular' | 'recent';
 
 function DepartureRow({
     departure,
@@ -67,7 +63,7 @@ function DepartureRow({
         age === 0 ? 'Now' : `-${age} ${age === 1 ? 'min' : 'mins'}`;
     return (
         <li
-            className={rowVariants({ emphasis })}
+            className={rowVariants({ recent })}
             data-emphasis={emphasis}
             data-recent={recent || undefined}
         >
@@ -85,13 +81,13 @@ function DepartureRow({
                 <span className="min-w-0 truncate">{destination}</span>
             </span>
             <time
-                className="text-right font-mono text-sm leading-tight font-normal whitespace-nowrap text-muted-foreground tabular-nums group-data-recent/row:text-xs group-data-recent/row:text-foreground/80 group-data-[emphasis=next]/row:text-lg group-data-[emphasis=second]/row:text-base group-data-[emphasis=third]/row:text-base"
+                className="text-right font-mono text-sm leading-tight font-normal whitespace-nowrap text-muted-foreground tabular-nums group-data-recent/row:text-xs group-data-recent/row:text-foreground/80"
                 dateTime={departure.scheduled_at ?? departure.displayTime}
             >
                 {departure.displayTime.slice(0, 5)}
             </time>
             <span
-                className="text-right font-mono font-normal whitespace-nowrap tabular-nums group-data-[emphasis=next]/row:font-medium group-data-[emphasis=second]/row:font-medium"
+                className="text-right font-mono text-base leading-tight font-normal whitespace-nowrap tabular-nums group-data-recent/row:text-sm group-data-[emphasis=next]/row:font-medium"
                 aria-label={
                     recent
                         ? age === 0
@@ -216,8 +212,7 @@ export function DeparturesTable({
                                             departure={departure}
                                             now={now}
                                             emphasis={
-                                                upcomingEmphasis[row] ??
-                                                'regular'
+                                                row === 0 ? 'next' : 'regular'
                                             }
                                             nextService={Boolean(nextServiceAt)}
                                         />

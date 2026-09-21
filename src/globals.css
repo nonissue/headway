@@ -142,18 +142,11 @@
     height: 1.125em;
 }
 .line-badge-proportional > span {
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1;
     /* Centre the capital's height rather than the font's ascender/descender box.
        Older browsers retain ordinary flex centring when trim is unsupported. */
     text-box: trim-both cap alphabetic;
-}
-[data-emphasis='next'] .line-badge-proportional > span {
-    font-size: 13px;
-}
-[data-emphasis='second'] .line-badge-proportional > span,
-[data-emphasis='third'] .line-badge-proportional > span {
-    font-size: 12px;
 }
 [data-emphasis='recent'] .line-badge-proportional > span {
     font-size: 9px;

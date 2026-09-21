@@ -99,7 +99,7 @@ describe('DeparturesTable', () => {
                 'next'
             );
     });
-    it('features three upcoming trains per direction and reranks after filtering or a departure', () => {
+    it('marks only the next upcoming train per direction and reranks after filtering or a departure', () => {
         const departures = [
             train('Capital', -1, 'Recent'),
             train('Capital', 1, 'First'),
@@ -125,8 +125,8 @@ describe('DeparturesTable', () => {
             expect(states(heading)).toEqual([
                 'recent',
                 'next',
-                'second',
-                'third',
+                'regular',
+                'regular',
                 'regular',
                 'regular',
                 'regular',
@@ -141,8 +141,8 @@ describe('DeparturesTable', () => {
         );
         expect(states('Northbound')).toEqual([
             'next',
-            'second',
-            'third',
+            'regular',
+            'regular',
             'regular',
         ]);
         expect(
@@ -154,8 +154,8 @@ describe('DeparturesTable', () => {
         expect(states('Northbound')).toEqual([
             'recent',
             'next',
-            'second',
-            'third',
+            'regular',
+            'regular',
             'regular',
             'regular',
         ]);

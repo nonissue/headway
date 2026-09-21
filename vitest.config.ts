@@ -10,6 +10,7 @@ export default defineConfig({
             enabled: true,
             exclude: [
                 ...coverageConfigDefaults.exclude,
+                'docs/qa/**',
                 'src/components/ui/command.tsx',
                 'src/components/ui/dialog.tsx',
                 'src/components/ui/popover.tsx',

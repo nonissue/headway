@@ -12,10 +12,16 @@ rules, and a clear hierarchy. The fonts support that structure. Avoid decorative
 letterforms, oversized countdowns, and unnecessary differences between rows.
 
 The station establishes context; destinations lead the board; countdowns are the
-primary timing cue and clocks are quieter supporting information. The next three
-upcoming trains in each direction receive decreasing emphasis. Ranking is applied
-after line filtering and recalculated as trains depart; the recent departure does
-not consume one of the three positions.
+primary timing cue and clocks are quieter supporting information. All upcoming
+rows share the same size, destination weight, badge size, and height. Only the
+next countdown in each direction receives a modest weight increase, determined
+after line filtering and recalculated as trains depart. A recent departure does
+not consume that position.
+
+Mixed destinations exposed a weakness in graduated row sizes: the same station
+label changed appearance according to its position, competing with the variation
+already present in line colours and destination lengths. Keep upcoming rows
+uniform instead of reintroducing the earlier three-step size hierarchy.
 
 Use size and weight together, with restrained differences. Avoid making clock
 times compete with destinations: upcoming clocks use regular weight and the
@@ -30,31 +36,27 @@ Earlier comparison mockups are exploratory references, not the implementation.
 ## Current hierarchy
 
 The row owns the type size and line height. Destinations use Geist; clocks and
-countdowns use Geist Mono. Countdowns inherit the row size; clocks use one
-Tailwind size step smaller (18px, 16px, 16px, 14px, and 12px respectively).
-The selected station remains 24px / 700. The departure hierarchy uses the
-standard Tailwind scale:
+countdowns use Geist Mono. Upcoming destinations are 18px, countdowns are 16px,
+and clocks are 14px: each numerical element sits one Tailwind size step below
+the preceding element. Recent clocks are 12px alongside 14px text and countdowns. The
+selected station remains 24px / 700.
 
-| Row | Type size | Destination weight | Clock weight | Countdown number weight | Badge diameter |
+| Row | Destination size | Destination weight | Clock weight | Countdown number weight | Badge diameter |
 | --- | --- | --- | --- | --- | --- |
-| Next | `text-xl` / 20px | 700 | 400 | 500 | 22.5px |
-| Second | `text-lg` / 18px | 600 | 400 | 500 | 20.25px |
-| Third | `text-lg` / 18px | 500 | 400 | 400 | 20.25px |
-| Later | `text-base` / 16px | 500 | 400 | 400 | 18px |
+| Next | `text-lg` / 18px | 500 | 400 | 500 | 20.25px |
+| Other upcoming | `text-lg` / 18px | 500 | 400 | 400 | 20.25px |
 | Recently departed | `text-sm` / 14px | 500 | 400 | 400 | 15.75px |
 
-The second and third rows share a size; weight supplies the intermediate step.
-All rows use `leading-tight` (1.25). Minimum row heights are 64px, 56px, 56px,
-52px, and 40px respectively. Vertical padding can make a row taller; destination
-text stays on one line.
+All rows use `leading-tight` (1.25). Every upcoming row has a minimum height of
+56px; the recent row has a 40px minimum. Vertical padding can make a row taller;
+destination text stays on one line.
 
 The line badge sits to the **left** of the destination, vertically centred in a
 fixed `w-6` (24px) column. Destination text therefore shares one left edge
 across every row size. The `proportional` variant of `LineBadge` uses a diameter
 of `1.125em` and fallback icon size of `0.85em`. Letter sizes are deliberately
-whole pixels: 13px for next, 12px for second/third, 10px for later, and 9px for
-recent rows. Badge tracking is reset to normal, independently of destination
-tracking. `text-box: trim-both cap alphabetic` centres the capital-height box;
+whole pixels: 12px for all upcoming rows and 9px for recent rows. Badge tracking
+is reset to normal, independently of destination tracking. `text-box: trim-both cap alphabetic` centres the capital-height box;
 browsers without text-box support retain ordinary flex centring. These rules
 live together in `src/globals.css`. The badge cannot shrink.
 
@@ -64,11 +66,13 @@ assistive technology and in the existing `title` attribute for pointer hover.
 
 Recent rows use foreground at 80% opacity, including their clocks, and badges
 at 70% opacity. This keeps them secondary without resembling the scroll-edge fade.
-Header filter badges retain their independent fixed sizing.
+Recent rows remain flat: the static perspective experiment made text look
+distorted rather than clearly signalling a past departure. Header filter badges
+retain their independent fixed sizing.
 
 The `mins` suffix remains regular weight (400), with no inserted space:
 `12mins`. A zero-minute countdown displays `Now`. Next-service rows use the same
-three-level hierarchy, with elapsed hours and minutes in the countdown.
+uniform row treatment, with elapsed hours and minutes in the countdown.
 
 Clock and countdown text use natural letter spacing and tabular numerals. Each
 direction's list defines a grid with a flexible destination column and two
@@ -81,8 +85,8 @@ Both direction panes must remain visible and scroll independently, including
 on narrow phones.
 
 `rowVariants` in `DeparturesTable.tsx` is the single source for row typography.
-Keep child overrides limited to numerical font family, weight, and the smaller,
-quieter clock treatment. Use standard Tailwind size and line-height utilities;
+Keep child overrides limited to numerical font family, weight, and the smaller
+countdown and clock sizes. Use standard Tailwind size and line-height utilities;
 do not reintroduce repeated
 `text-[15px]` or `leading-[1.2]` values. The proportional badge ratios and shared
 grid structure are deliberate component rules, not per-row adjustments.
@@ -141,6 +145,14 @@ than adding another font-specific one.
 
 ## Verification when changing fonts
 
+With the Vite development server running, open
+`http://localhost:5173/docs/qa/departure-typography/` for a fixed-time board with
+alternating Capital/Metro lines and destinations in both directions. The
+[preview source](qa/departure-typography/preview.tsx) renders the real departure
+component with fixture data, including recent and three-digit countdowns. It
+requires no system-clock changes and is not an entry point in the production
+build. Keep it as a representative layout check alongside the live board.
+
 1. Run the tests and production build. For local builds without Sentry uploads:
    `npm run test -- --run --coverage.enabled=false` and
    `SENTRY_UPLOAD=false npm run build`.
@@ -148,7 +160,8 @@ than adding another font-specific one.
    same two hashed WOFF2 files, without `/node_modules/` URLs in production HTML.
 3. Check font responses for HTTP 200, `font/woff2`, and immutable caching. Missing
    assets must return 404 rather than cached HTML or a successful font response.
-4. Check normal, next, recent, and overnight rows at phone widths, including
+4. Check mixed Capital/Metro destinations, next, recent, and overnight rows at
+   phone widths, including
    three-digit countdowns, colons, `Now`, and truncated destination labels. Check
    badge letter centring and the recent row beside a partially faded bottom row
    in dark mode. Check the station picker and About surface in both themes.
