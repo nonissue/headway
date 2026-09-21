@@ -65,13 +65,13 @@ function DepartureRow({
                 />
             </span>
             <time
-                className="flex items-center justify-end font-mono text-[15px] leading-[1.2] font-normal tracking-normal whitespace-nowrap text-foreground tabular-nums group-data-hero/row:text-[16px] group-data-hero/row:font-bold group-data-next-service/row:font-bold group-data-recent/row:text-[12px] group-data-recent/row:font-normal group-data-recent/row:tracking-normal group-data-recent/row:text-muted-foreground"
+                className="flex items-center justify-end font-mono text-[15px] leading-[1.2] font-normal tracking-normal whitespace-nowrap text-foreground tabular-nums group-data-hero/row:text-[16px] group-data-hero/row:font-medium group-data-next-service/row:font-medium group-data-recent/row:text-[12px] group-data-recent/row:font-normal group-data-recent/row:tracking-normal group-data-recent/row:text-muted-foreground"
                 dateTime={departure.scheduled_at ?? departure.displayTime}
             >
                 {departure.displayTime.slice(0, 5)}
             </time>
             <span
-                className="flex items-center justify-end font-mono text-[15px] leading-[1.2] font-semibold tracking-normal whitespace-nowrap tabular-nums group-data-hero/row:text-[16px] group-data-hero/row:font-bold group-data-next-service/row:font-medium group-data-next-service/row:tracking-normal group-data-recent/row:text-[12px] group-data-recent/row:font-normal group-data-recent/row:tracking-normal group-data-recent/row:text-muted-foreground"
+                className="flex items-center justify-end font-mono text-[15px] leading-[1.2] font-semibold tracking-normal whitespace-nowrap tabular-nums group-data-hero/row:text-[16px] group-data-hero/row:font-medium group-data-next-service/row:font-medium group-data-next-service/row:tracking-normal group-data-recent/row:text-[12px] group-data-recent/row:font-normal group-data-recent/row:tracking-normal group-data-recent/row:text-muted-foreground"
                 aria-label={
                     recent
                         ? age === 0

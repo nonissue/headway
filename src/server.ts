@@ -44,6 +44,14 @@ app.get('/stats.js', async (c) => {
 });
 
 // Serve static files from Vite build
+app.use('/assets/*', async (c, next) => {
+    await next();
+    // Vite hashes font filenames, so a new font build gets a new cache key.
+    if (c.req.path.endsWith('.woff2') && c.res.status === 200) {
+        c.header('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+});
+
 app.use(
     '*',
     serveStatic({

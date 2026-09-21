@@ -348,7 +348,7 @@ export function StationPicker({
         <Button
             variant="plain"
             className={cn(
-                'h-auto min-h-11 justify-start px-0 py-1 font-[Helvetica_Neue,Helvetica,Arial,sans-serif] text-2xl leading-[1.4285714286] font-bold tracking-[-0.8px] [&_svg]:text-muted-foreground',
+                'h-auto min-h-11 justify-start px-0 py-1 font-sans text-2xl leading-[1.4285714286] font-bold tracking-[-0.8px] [&_svg]:text-muted-foreground',
                 className
             )}
             aria-label={`Change station${selectedStation ? `, ${selectedStation.stop_name}` : ''}`}

@@ -18,6 +18,22 @@ closure. That was session context, not a permanent restriction or inferred UI bu
 
 ## Accepted UI decisions
 
+- Typography: Geist for interface text and destinations, Geist Mono for clocks
+  and countdowns. Self-host the Latin upright variable WOFF2 faces from
+  `@fontsource-variable/geist` and `@fontsource-variable/geist-mono` through
+  `src/fonts.css`; the `geist/font/*` helpers target Next.js, not this Vite app.
+  Two files supply the weight range (52,528 bytes total in the verified build).
+  HTML preloads reference the same Vite-hashed assets as CSS; `font-display: swap`
+  keeps text visible during loading. Font responses have one-year immutable
+  caching, and the existing PWA precaches both files. No external font requests.
+  Keep natural letter spacing on time/countdown text and a 68px countdown
+  column; the 96px overnight column remains. The standalone offline fallback
+  retains its system fonts. Build and all 155 tests passed; live desktop/mobile
+  browser checks covered 320px and 390px rows, dark mode, and the station picker.
+  First upcoming clocks and countdowns use medium weight (500), reduced from
+  bold (700); destination emphasis is unchanged. Physical-device rendering
+  remains unverified. See the [typography guide](typography.md) for integration,
+  current hierarchy, performance details, resources, and remaining style cleanup.
 - Two equal, independently scrolling direction panes; a terminus uses one pane.
   Keep the flex sizing and `min-height: 0` constraints that let both panes fit.
 - Compact departure rows, with modest emphasis on the first upcoming train.

@@ -42,6 +42,7 @@ export default defineConfig({
             },
             includeAssets: ['favicon.svg'],
             workbox: {
+                globPatterns: ['**/*.{js,wasm,css,html,woff2}'],
                 navigateFallback: '/offline.html',
                 skipWaiting: true,
                 clientsClaim: true,

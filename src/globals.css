@@ -1,16 +1,19 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import './fonts.css';
 @source "src/**/*.{ts,tsx,js,jsx}";
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
     --font-sans:
-        'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+        'Geist', 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans',
+        sans-serif;
     --font-display:
-        'Helvetica Neue', Helvetica, Arial, 'Liberation Sans', sans-serif;
+        'Geist', 'Helvetica Neue', Helvetica, Arial, 'Liberation Sans',
+        sans-serif;
     --font-mono:
-        ui-monospace, 'SFMono-Regular', Menlo, Consolas, 'Liberation Mono',
-        monospace;
+        'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas,
+        'Liberation Mono', monospace;
     --color-line-capital: var(--line-capital);
     --color-line-metro: var(--line-metro);
     --color-line-valley: var(--line-valley);
