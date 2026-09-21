@@ -24,17 +24,17 @@ interface DeparturesTableProps {
     nextServiceAt?: string;
 }
 
-// The row owns the type scale; destinations, clocks and countdowns inherit it.
+// The row owns the type scale; clocks sit one step below the countdowns.
 const rowVariants = cva(
-    'group/row col-span-3 grid grid-cols-subgrid items-center gap-2.5 border-b px-(--board-gutter) leading-tight',
+    'group/row col-span-3 grid grid-cols-subgrid items-center gap-3 border-b px-(--board-gutter) leading-tight',
     {
         variants: {
             emphasis: {
-                next: 'min-h-14 text-lg font-bold',
-                second: 'min-h-12 text-base font-semibold',
-                third: 'min-h-12 text-base font-medium',
-                regular: 'min-h-11 text-sm font-normal',
-                recent: 'min-h-9 text-xs font-normal text-muted-foreground',
+                next: 'min-h-16 text-xl font-bold',
+                second: 'min-h-14 text-lg font-semibold',
+                third: 'min-h-14 text-lg font-medium',
+                regular: 'min-h-13 text-base font-medium',
+                recent: 'min-h-10 text-sm font-medium text-foreground/80',
             },
         },
     }
@@ -72,18 +72,20 @@ function DepartureRow({
             data-recent={recent || undefined}
         >
             <span
-                className="flex min-w-0 items-center gap-2 py-2 tracking-tight"
+                className="flex min-w-0 items-center gap-2 py-3 tracking-tight"
                 title={departure.displayHeadsign}
             >
-                <LineBadge
-                    line={departure.line}
-                    proportional
-                    className="group-data-recent/row:opacity-45"
-                />
-                <span className="min-w-0 wrap-anywhere">{destination}</span>
+                <span className="flex w-6 shrink-0 items-center justify-center">
+                    <LineBadge
+                        line={departure.line}
+                        proportional
+                        className="group-data-recent/row:opacity-70"
+                    />
+                </span>
+                <span className="min-w-0 truncate">{destination}</span>
             </span>
             <time
-                className="text-right font-mono font-normal whitespace-nowrap text-muted-foreground tabular-nums"
+                className="text-right font-mono text-sm leading-tight font-normal whitespace-nowrap text-muted-foreground tabular-nums group-data-recent/row:text-xs group-data-recent/row:text-foreground/80 group-data-[emphasis=next]/row:text-lg group-data-[emphasis=second]/row:text-base group-data-[emphasis=third]/row:text-base"
                 dateTime={departure.scheduled_at ?? departure.displayTime}
             >
                 {departure.displayTime.slice(0, 5)}

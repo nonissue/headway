@@ -153,9 +153,9 @@ or restart the investigation as part of the styling migration unless asked.
 
 - Test fast flicks at the bottom of both panes on a physical iPhone, including
   Safari and installed PWA usage. Also check the footer's safe-area border.
-- Review the destination-first rows during normal Capital and Metro service.
-  The badge relocation and arrow removal are local changes, not part of the
-  deployed `ad11a2b` release.
+- Review the departure hierarchy during normal Capital and Metro service.
+  The initial UI migration and three-row hierarchy shipped in `4e7ddd6` and
+  `e71ca2f`; the final sizing and alignment refinements are described below.
 - Physical-device VoiceOver and software-keyboard behaviour remain unverified.
 
 ## Repository and deployment continuity
@@ -179,7 +179,7 @@ The initial [design QA record](../design-qa.md) and
 evidence; their earlier typography, rails, pills, and close-button descriptions
 are superseded by the decisions above.
 
-## Departure hierarchy refinement — 2026-09-20
+## Initial departure hierarchy — 2026-09-20 (superseded sizing)
 
 - Feature the next three trains per direction with decreasing emphasis, after
   filtering: 18px bold, 16px semibold, 16px medium; later rows are 14px regular
@@ -192,3 +192,27 @@ are superseded by the decisions above.
   line heights, and let shared grid columns accommodate numerical content.
 - The [typography guide](./typography.md) describes the current hierarchy and
   integration; the earlier single-featured-row notes above are historical.
+
+## Final departure typography — 2026-09-20
+
+- Increase the row scale to 20px / 18px / 18px / 16px / 14px for next, second,
+  third, later, and recent departures, with more vertical padding. The first
+  three retain graduated emphasis; smaller destination labels use medium weight.
+- Keep clocks regular (400), one standard Tailwind size step smaller than the
+  countdown. Preserve natural numerical spacing and tabular digits.
+- Centre compact line badges in a fixed 24px column so every destination starts
+  at the same horizontal position. Reset badge tracking, use whole-pixel letter
+  sizes, and trim to capital height where supported; older browsers retain flex
+  centring. The circle still scales with the row.
+- Truncate destination labels to one line with an ellipsis. Keep full text in
+  the DOM and the existing hover title. A 12px column gap separates destinations
+  from clocks, and numerical columns size to their content.
+- Give recent text and clocks 80% foreground colour and badges 70% opacity,
+  distinguishing a past departure from a row under the bottom scroll fade.
+- [Typography](./typography.md) is the current reference for exact sizes, weights,
+  integration, browser fallback, and verification. Earlier sizing above is
+  historical; countdown urgency colouring remains an unimplemented idea.
+- Release validation: 156 tests passed across 23 files, and the Vite client /
+  TypeScript server production build passed. Local browser checks covered the
+  larger hierarchy, 320px truncation, badge centring, and recent-row contrast
+  beside the dark-mode scroll fade. Physical iPhone testing remains a follow-up.

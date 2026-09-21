@@ -18,8 +18,9 @@ after line filtering and recalculated as trains depart; the recent departure doe
 not consume one of the three positions.
 
 Use size and weight together, with restrained differences. Avoid making clock
-times compete with destinations: they use regular weight and the existing
-`muted-foreground` colour in both themes.
+times compete with destinations: upcoming clocks use regular weight and the
+existing `muted-foreground` colour in both themes. Recent rows use the brighter
+secondary treatment described below.
 
 Helvetica paired well with Söhne Mono in the comparisons. The complete Geist
 pairing was selected for its appearance and consistent delivery across devices.
@@ -29,27 +30,41 @@ Earlier comparison mockups are exploratory references, not the implementation.
 ## Current hierarchy
 
 The row owns the type size and line height. Destinations use Geist; clocks and
-countdowns use Geist Mono and inherit the same size. The selected station remains
-24px / 700. The departure hierarchy uses the standard Tailwind scale:
+countdowns use Geist Mono. Countdowns inherit the row size; clocks use one
+Tailwind size step smaller (18px, 16px, 16px, 14px, and 12px respectively).
+The selected station remains 24px / 700. The departure hierarchy uses the
+standard Tailwind scale:
 
 | Row | Type size | Destination weight | Clock weight | Countdown number weight | Badge diameter |
 | --- | --- | --- | --- | --- | --- |
-| Next | `text-lg` / 18px | 700 | 400 | 500 | 22.5px |
-| Second | `text-base` / 16px | 600 | 400 | 500 | 20px |
-| Third | `text-base` / 16px | 500 | 400 | 400 | 20px |
-| Later | `text-sm` / 14px | 400 | 400 | 400 | 17.5px |
-| Recently departed | `text-xs` / 12px | 400 | 400 | 400 | 15px |
+| Next | `text-xl` / 20px | 700 | 400 | 500 | 22.5px |
+| Second | `text-lg` / 18px | 600 | 400 | 500 | 20.25px |
+| Third | `text-lg` / 18px | 500 | 400 | 400 | 20.25px |
+| Later | `text-base` / 16px | 500 | 400 | 400 | 18px |
+| Recently departed | `text-sm` / 14px | 500 | 400 | 400 | 15.75px |
 
 The second and third rows share a size; weight supplies the intermediate step.
-All rows use `leading-tight` (1.25). Minimum row heights are 56px, 48px, 48px,
-44px, and 36px respectively; wrapped destinations can make a row taller.
+All rows use `leading-tight` (1.25). Minimum row heights are 64px, 56px, 56px,
+52px, and 40px respectively. Vertical padding can make a row taller; destination
+text stays on one line.
 
-The line badge sits to the **left** of the destination, vertically centred. The
-`proportional` variant of `LineBadge` uses a diameter of `1.25em`, letter size of
-`0.65em`, and fallback icon size of `0.85em`. These optical proportions are defined
-once in `src/globals.css`, so they scale with the inherited row size. The badge
-cannot shrink, and a wrapping destination stays in its own text column. Recent
-badges are subdued. Header filter badges retain their independent fixed sizing.
+The line badge sits to the **left** of the destination, vertically centred in a
+fixed `w-6` (24px) column. Destination text therefore shares one left edge
+across every row size. The `proportional` variant of `LineBadge` uses a diameter
+of `1.125em` and fallback icon size of `0.85em`. Letter sizes are deliberately
+whole pixels: 13px for next, 12px for second/third, 10px for later, and 9px for
+recent rows. Badge tracking is reset to normal, independently of destination
+tracking. `text-box: trim-both cap alphabetic` centres the capital-height box;
+browsers without text-box support retain ordinary flex centring. These rules
+live together in `src/globals.css`. The badge cannot shrink.
+
+Destinations use `truncate` inside their own text column, showing
+an ellipsis when space runs out. The full destination remains in the DOM for
+assistive technology and in the existing `title` attribute for pointer hover.
+
+Recent rows use foreground at 80% opacity, including their clocks, and badges
+at 70% opacity. This keeps them secondary without resembling the scroll-edge fade.
+Header filter badges retain their independent fixed sizing.
 
 The `mins` suffix remains regular weight (400), with no inserted space:
 `12mins`. A zero-minute countdown displays `Now`. Next-service rows use the same
@@ -59,12 +74,16 @@ Clock and countdown text use natural letter spacing and tabular numerals. Each
 direction's list defines a grid with a flexible destination column and two
 `max-content` numerical columns. Rows use `grid-cols-subgrid` to share those
 columns, allowing larger text, three-digit counts, and overnight labels to size
-the columns without fixed pixel widths. Both direction panes must remain visible
-and scroll independently, including when long destinations wrap on narrow phones.
+the columns without fixed pixel widths. A shared `gap-3` (12px) keeps the
+destination clear of the clock, with longer destinations truncated inside their
+own column.
+Both direction panes must remain visible and scroll independently, including
+on narrow phones.
 
 `rowVariants` in `DeparturesTable.tsx` is the single source for row typography.
-Keep child overrides limited to numerical font family, weight, and clock colour.
-Use standard Tailwind size and line-height utilities; do not reintroduce repeated
+Keep child overrides limited to numerical font family, weight, and the smaller,
+quieter clock treatment. Use standard Tailwind size and line-height utilities;
+do not reintroduce repeated
 `text-[15px]` or `leading-[1.2]` values. The proportional badge ratios and shared
 grid structure are deliberate component rules, not per-row adjustments.
 
@@ -130,14 +149,16 @@ than adding another font-specific one.
 3. Check font responses for HTTP 200, `font/woff2`, and immutable caching. Missing
    assets must return 404 rather than cached HTML or a successful font response.
 4. Check normal, next, recent, and overnight rows at phone widths, including
-   three-digit countdowns, colons, `Now`, and long destination labels. Check the
-   station picker and About surface in light and dark themes.
+   three-digit countdowns, colons, `Now`, and truncated destination labels. Check
+   badge letter centring and the recent row beside a partially faded bottom row
+   in dark mode. Check the station picker and About surface in both themes.
 5. After deployment, verify the release's actual asset URLs and live departures.
    An already-open PWA may need its normal service-worker update before it shows
    the new release. Browser emulation does not replace physical iPhone testing.
 
 ## External resources
 
+- [CSS capital-height trimming and browser support](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/text-box)
 - [Geist source and design background](https://github.com/vercel/geist-font)
 - [Vercel's Next.js package documentation](https://github.com/vercel/geist-font/tree/main/packages/next)
 - [Fontsource installation with Vite and other bundlers](https://fontsource.org/docs/getting-started/install)
