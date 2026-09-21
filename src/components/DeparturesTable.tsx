@@ -1,12 +1,6 @@
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { DEFAULT_TIMEZONE } from '../config';
-import {
-    ArrowUp,
-    ArrowDown,
-    ArrowRight,
-    ArrowLeft,
-    TrainFront,
-} from 'lucide-react';
+import { TrainFront } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
     Empty,
@@ -29,29 +23,19 @@ interface DeparturesTableProps {
     nextServiceAt?: string;
 }
 
-const directionIcons = new Map([
-    ['Northbound', ArrowUp],
-    ['Southbound', ArrowDown],
-    ['Eastbound', ArrowRight],
-    ['Westbound', ArrowLeft],
-]);
-
 function DepartureRow({
     departure,
     now,
     hero = false,
     recent = false,
     nextService = false,
-    direction,
 }: {
     departure: ProcessedDeparture;
     now: number;
     hero?: boolean;
     recent?: boolean;
     nextService?: boolean;
-    direction?: string;
 }) {
-    const DirectionIcon = direction ? directionIcons.get(direction) : undefined;
     const destination = /^NAIT[\s-]+Blatchford Market$/i.test(
         departure.displayHeadsign
     )
@@ -61,7 +45,8 @@ function DepartureRow({
     const age = recent
         ? Math.floor((now - Date.parse(departure.scheduled_at!)) / 60000)
         : 0;
-    const recentLabel = age === 0 ? 'Just now' : `${age} min ago`;
+    const recentLabel =
+        age === 0 ? 'Now' : `-${age} ${age === 1 ? 'min' : 'mins'}`;
     return (
         <li
             className="departure-row"
@@ -69,19 +54,12 @@ function DepartureRow({
             data-recent={recent || undefined}
             data-next-service={nextService || undefined}
         >
-            <LineBadge line={departure.line} />
             <span
                 className="departure-destination"
                 title={departure.displayHeadsign}
             >
                 {destination}
-                {DirectionIcon && (
-                    <DirectionIcon
-                        className="departure-direction"
-                        role="img"
-                        aria-label={direction}
-                    />
-                )}
+                <LineBadge line={departure.line} />
             </span>
             <time
                 className="departure-clock"
@@ -93,7 +71,9 @@ function DepartureRow({
                 className="departure-countdown"
                 aria-label={
                     recent
-                        ? `Scheduled ${recentLabel.toLowerCase()}`
+                        ? age === 0
+                            ? 'Scheduled less than a minute ago'
+                            : `Scheduled ${age} ${age === 1 ? 'minute' : 'minutes'} ago`
                         : minutes === undefined
                           ? 'Countdown unavailable'
                           : minutes === 0
@@ -108,9 +88,9 @@ function DepartureRow({
                             : minutes === undefined
                               ? '—'
                               : minutes === 0
-                                ? 'Due'
+                                ? 'Now'
                                 : nextService
-                                  ? `${Math.floor(minutes / 60)}h ${minutes % 60}m`
+                                  ? `${Math.floor(minutes / 60)}h ${minutes % 60}mins`
                                   : minutes}
                     </span>
                     {!recent &&
@@ -118,7 +98,7 @@ function DepartureRow({
                         minutes !== 0 &&
                         minutes !== undefined && (
                             <span className="departure-unit" aria-hidden="true">
-                                m
+                                mins
                             </span>
                         )}
                 </span>
@@ -204,11 +184,6 @@ export function DeparturesTable({
                                             departure={departure}
                                             now={now}
                                             hero={row === 0}
-                                            direction={
-                                                row === 0
-                                                    ? group.heading
-                                                    : undefined
-                                            }
                                             nextService={Boolean(nextServiceAt)}
                                         />
                                     ))}

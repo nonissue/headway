@@ -74,15 +74,15 @@ describe('GTFS departure windows', () => {
         expect(ids(result)).toEqual(['dwelling']);
         expect(result.nextServiceAt).toBeUndefined();
     });
-    it('retains a three-minute recent departure across 05:00 and expires it', async () => {
+    it('retains a ten-minute recent departure across 05:00 and expires it', async () => {
         trip('recent', 20260919, '28:59:00');
         trip('next', 20260920, '05:10:00');
-        vi.setSystemTime(new Date('2026-09-20T11:02:00Z'));
+        vi.setSystemTime(new Date('2026-09-20T11:09:00Z'));
         expect(ids(await getDeparturesForStation('s'))).toEqual([
             'recent',
             'next',
         ]);
-        vi.setSystemTime(new Date('2026-09-20T11:02:00.001Z'));
+        vi.setSystemTime(new Date('2026-09-20T11:09:00.001Z'));
         expect(ids(await getDeparturesForStation('s'))).toEqual(['next']);
     });
     it('handles trips beyond 48 hours using the feed rather than a fixed overlap', async () => {
@@ -181,6 +181,15 @@ describe('next-service fallback', () => {
             expect(ids(result)).toEqual(['first', 'last']);
         }
     );
+    it('keeps recent departures when the board falls back to morning service', async () => {
+        vi.setSystemTime(new Date('2026-09-20T05:30:00Z'));
+        trip('recent', 20260919, '23:22:00');
+        trip('expired', 20260919, '23:19:00');
+        trip('morning', 20260920, '05:55:00');
+        const result = await getDeparturesForStation('s');
+        expect(result.nextServiceAt).toBe('2026-09-20T11:55:00.000Z');
+        expect(ids(result)).toEqual(['recent', 'morning']);
+    });
     it('does not skip later service today to show tomorrow', async () => {
         vi.setSystemTime(new Date('2026-09-20T11:00:00Z'));
         trip('today', 20260920, '10:00:00');

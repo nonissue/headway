@@ -65,10 +65,10 @@ describe('getDepartureWindow', () => {
             upcoming: [],
         });
     });
-    it('includes the three-minute boundary and expires immediately after it', () => {
-        expect(getDepartureWindow([train], now + 180000).recent).toBe(train);
+    it('includes the ten-minute boundary and expires immediately after it', () => {
+        expect(getDepartureWindow([train], now + 600000).recent).toBe(train);
         expect(
-            getDepartureWindow([train], now + 180001).recent
+            getDepartureWindow([train], now + 600001).recent
         ).toBeUndefined();
     });
     it('never invents a recent departure from missing or invalid timestamps', () => {

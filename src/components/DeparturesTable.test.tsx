@@ -62,32 +62,13 @@ describe('DeparturesTable', () => {
         expect(
             screen.getByText('Gone').closest('li')?.dataset.hero
         ).toBeUndefined();
-        expect(screen.getByLabelText('Scheduled 1 min ago')).toBeTruthy();
+        expect(screen.getByLabelText('Scheduled 1 minute ago')).toBeTruthy();
         expect(screen.getByText('Clareview').closest('li')?.dataset.hero).toBe(
             'true'
         );
     });
-    it('marks only the first upcoming departure, even with a recent train above it', () => {
-        render(<DeparturesTable departureGroups={groups} now={now} />);
-        expect(screen.getAllByRole('img')).toHaveLength(2);
-        expect(
-            within(screen.getByText('Clareview').closest('li')!).getByRole(
-                'img',
-                { name: 'Northbound' }
-            )
-        ).toBeTruthy();
-        expect(
-            within(screen.getByText('Century Park').closest('li')!).getByRole(
-                'img',
-                { name: 'Southbound' }
-            )
-        ).toBeTruthy();
-        expect(
-            within(screen.getByText('Gone').closest('li')!).queryByRole('img')
-        ).toBeNull();
-    });
-    it.each(['Eastbound', 'Westbound'])(
-        'follows the %s group after filtering',
+    it.each(['Eastbound', 'Westbound', 'Platform'])(
+        'preserves the accessible %s group after filtering',
         (heading) => {
             render(
                 <DeparturesTable
@@ -96,24 +77,13 @@ describe('DeparturesTable', () => {
                     lineFilter="Metro"
                 />
             );
-            expect(screen.getAllByRole('img')).toHaveLength(1);
+            const region = screen.getByRole('region', { name: heading });
             expect(
-                within(
-                    screen.getByText('NAIT / Blatchford').closest('li')!
-                ).getByRole('img', { name: heading })
+                within(region).getByRole('heading', { name: heading })
             ).toBeTruthy();
+            expect(within(region).getByText('NAIT / Blatchford')).toBeTruthy();
         }
     );
-    it('does not guess an arrow for an unknown direction', () => {
-        render(
-            <DeparturesTable
-                departureGroups={[{ ...groups[0], heading: 'Platform' }]}
-                now={now}
-            />
-        );
-        expect(screen.queryByRole('img')).toBeNull();
-        expect(screen.getByRole('region', { name: 'Platform' })).toBeTruthy();
-    });
     it('filters both panes and promotes the first matching departure', () => {
         render(
             <DeparturesTable
@@ -154,12 +124,41 @@ describe('DeparturesTable', () => {
         expect(screen.getByText('Clareview')).toBeTruthy();
         expect(screen.getAllByTestId('scroll-area')).toHaveLength(2);
     });
+    it.each([
+        [-0.5, 'Now'],
+        [-1, '-1 min'],
+        [-7, '-7 mins'],
+        [-10, '-10 mins'],
+    ])('shows a recent-only board at %s minutes as %s', (minutes, label) => {
+        render(
+            <DeparturesTable
+                departureGroups={[
+                    {
+                        heading: 'Northbound',
+                        destinations: [],
+                        departures: [
+                            train('Capital', minutes, 'Previous train'),
+                        ],
+                    },
+                ]}
+                now={now}
+            />
+        );
+        expect(screen.getByText(label)).toBeTruthy();
+        expect(
+            screen.getByText('Previous train').closest('li')?.dataset.recent
+        ).toBe('true');
+    });
+    it('renders upcoming countdowns with an adjacent mins unit', () => {
+        render(<DeparturesTable departureGroups={groups} now={now} />);
+        expect(screen.getByLabelText('In 3 minutes').textContent).toBe('3mins');
+    });
     it('expires the recent row without losing upcoming trains', () => {
         const { rerender } = render(
             <DeparturesTable departureGroups={groups} now={now} />
         );
         rerender(
-            <DeparturesTable departureGroups={groups} now={now + 120001} />
+            <DeparturesTable departureGroups={groups} now={now + 540001} />
         );
         expect(screen.queryByText('Gone')).toBeNull();
         expect(screen.getByText('Clareview')).toBeTruthy();
@@ -182,6 +181,6 @@ it('labels the actual next-service date and emphasises clock times', () => {
         />
     );
     expect(screen.getByText('Next service · Saturday, Sep 19')).toBeTruthy();
-    expect(screen.getByText('6h 3m')).toBeTruthy();
+    expect(screen.getByText('6h 3mins')).toBeTruthy();
     expect(screen.getByText('08:03').className).toBe('departure-clock');
 });

@@ -159,25 +159,15 @@
     flex: 1;
     min-height: 0;
     --clock-column: 48px;
-    --countdown-column: 48px;
+    --countdown-column: 64px;
     --board-gutter: 18px;
 }
-/* Longer recent/overnight labels retain room without shifting individual rows. */
-.departure-pane:has([data-recent]),
+/* Overnight labels retain room without shifting individual rows. */
 .departure-pane:has([data-next-service]) {
-    --countdown-column: 76px;
+    --countdown-column: 96px;
 }
 .departure-pane + .departure-pane {
     border-top: 2px solid var(--foreground);
-}
-.departure-direction {
-    display: inline-block;
-    margin-left: 8px;
-    vertical-align: -3px;
-    width: 18px;
-    height: 18px;
-    color: var(--foreground);
-    stroke-width: 2.5;
 }
 .departure-scroll {
     flex: 1;
@@ -202,7 +192,7 @@
 }
 .departure-row {
     display: grid;
-    grid-template-columns: 20px minmax(0, 1fr) var(--clock-column) var(
+    grid-template-columns: minmax(0, 1fr) var(--clock-column) var(
             --countdown-column
         );
     align-items: center;
@@ -228,6 +218,11 @@
     font-weight: 700;
     letter-spacing: -0.3px;
 }
+.departure-destination .line-badge {
+    display: inline-flex;
+    margin-left: 8px;
+    vertical-align: 1px;
+}
 .departure-clock,
 .departure-countdown {
     display: flex;
@@ -252,7 +247,7 @@
 .departure-relative-time {
     display: inline-flex;
     align-items: baseline;
-    gap: 0.35em;
+    gap: 0;
 }
 .departure-unit {
     font: inherit;

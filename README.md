@@ -4,6 +4,8 @@ A mobile-first PWA that finds your nearest Edmonton LRT station and shows upcomi
 
 **Live at [headway.andy.ws](https://headway.andy.ws)** (also at [next-departures.fly.dev](https://next-departures.fly.dev)).
 
+[Project notes](docs/project-notes.md) record current design decisions, release verification, and outstanding follow-ups.
+
 ## What it is
 
 I wanted a faster way to answer "when's my next train?" than opening a transit app and tapping through menus. Headway uses your location to pick the closest LRT station, then shows the upcoming departures in both directions, computed from the official ETS GTFS schedule data.
@@ -14,7 +16,7 @@ It works best installed as a PWA on a phone (on iOS: Safari → Share → Add to
 
 ## How it works
 
-- **Client**: React 19 + Vite 6, Tailwind CSS 4, with Radix UI / vaul for the dialog and drawer components. `vite-plugin-pwa` handles the service worker, manifest, and offline fallback.
+- **Client**: React 19 + Vite 6, Tailwind CSS 4, with shadcn components built on Base UI and Vaul for mobile drawers. `vite-plugin-pwa` handles the service worker, manifest, and offline fallback.
 - **Server**: A small [Hono](https://hono.dev) server (Node 20) that serves the built client and exposes a JSON API for stations and departures.
 - **Data**: ETS GTFS schedule data, imported into SQLite with [node-gtfs](https://github.com/BlinkTagInc/node-gtfs) and then slimmed down to an LRT-only database (~a few MB) that's queried directly with `better-sqlite3`. The server opens the database once at startup and reuses the connection.
 - **Hosting**: Fly.io, with Sentry for error reporting and Umami for privacy-friendly analytics (proxied through `/stats.js`).
@@ -66,7 +68,7 @@ npm run test            # watch mode
 npm run test:coverage   # single run with coverage
 ```
 
-As of July 2026: **102 tests across 20 files, all passing**, with **92.1% statement coverage** (87.5% branches, 96.2% functions).
+The September 20 local checkpoint passed **155 tests across 23 files** and the production build. This is a recorded validation result, not a current coverage measurement. See the project notes for the separately deployed release. Vitest's automatic UI/browser opening is disabled.
 
 ## Deployment
 
@@ -78,3 +80,5 @@ npm run deploy      # npm run build && fly deploy
 ```
 
 The custom domain (`headway.andy.ws`) is a CNAME to Fly.io with an auto-renewing Let's Encrypt certificate.
+
+Keep released changes on both `develop` and `main`: the weekly GTFS workflow starts from `develop` and fast-forwards `main`, while the deployment workflow builds `main`.

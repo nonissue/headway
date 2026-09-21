@@ -349,14 +349,19 @@ export async function getDeparturesForStation(
             return {
                 station,
                 nextServiceAt: new Date(first).toISOString(),
-                platforms: nextPlatforms.map((platform) => ({
+                platforms: nextPlatforms.map((platform, index) => ({
                     ...platform,
-                    departures: platform.departures
-                        .filter(
-                            (departure) =>
-                                Date.parse(departure.scheduled_at!) <= end
-                        )
-                        .slice(0, DEFAULT_STOP_COUNT_LIMIT),
+                    // Keep recent context even when the upcoming board moves
+                    // to the next service window. Both arrays are chronological.
+                    departures: [
+                        ...platforms[index].departures,
+                        ...platform.departures
+                            .filter(
+                                (departure) =>
+                                    Date.parse(departure.scheduled_at!) <= end
+                            )
+                            .slice(0, DEFAULT_STOP_COUNT_LIMIT),
+                    ],
                 })),
             };
         }

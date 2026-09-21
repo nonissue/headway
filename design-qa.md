@@ -1,6 +1,11 @@
 # Departure board design QA
 
-final result: passed
+Historical initial-overhaul QA result: passed within the scope below.
+
+**Superseded in part by subsequent refinements.** See [current project notes](docs/project-notes.md)
+for the deployed design and remaining device checks. The large hero countdowns,
+direction rails, All pill, muted clock times, and footer described here are earlier
+iterations; the screenshots and test counts below belong to that initial pass.
 
 ## Visual truth and comparison evidence
 
