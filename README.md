@@ -16,7 +16,7 @@ It works best installed as a PWA on a phone (on iOS: Safari → Share → Add to
 
 ## How it works
 
-- **Client**: React 19 + Vite 6, Tailwind CSS 4, with shadcn components built on Base UI and Vaul for mobile drawers. `vite-plugin-pwa` handles the service worker, manifest, and offline fallback.
+- **Client**: React 19 + Vite 6, Tailwind CSS 4, with shadcn components built on Base UI, including mobile drawers. `vite-plugin-pwa` handles the service worker, manifest, and offline fallback.
 - **Server**: A small [Hono](https://hono.dev) server (Node 20) that serves the built client and exposes a JSON API for stations and departures.
 - **Data**: ETS GTFS schedule data, imported into SQLite with [node-gtfs](https://github.com/BlinkTagInc/node-gtfs) and then slimmed down to an LRT-only database (~a few MB) that's queried directly with `better-sqlite3`. The server opens the database once at startup and reuses the connection.
 - **Hosting**: Fly.io, with Sentry for error reporting and Umami for privacy-friendly analytics (proxied through `/stats.js`).

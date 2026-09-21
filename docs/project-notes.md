@@ -93,24 +93,28 @@ closure. That was session context, not a permanent restriction or inferred UI bu
   visuals, inspect the delivered styles against source before changing layout.
 - This does not resolve or establish the cause of the deferred fetch error.
 
-## Next session: Tailwind migration
+## Tailwind migration
 
-The user explicitly wants the custom component styling introduced during this
-redesign moved out of `src/globals.css` into Tailwind utilities and the existing
-shadcn components. The stylesheet was introduced during this refactor, not an
-older project constraint. Preserve the accepted visuals and functionality.
+The recent redesign's component styling now lives in Tailwind utilities in the
+owning components. `src/globals.css` is reduced from 829 to 143 lines. No large
+`@apply` aliases or additional stylesheet were introduced.
 
-- Migration has **not started**. Keep global theme tokens, base rules, and only
-  genuinely shared effects in CSS; move component layout and styling into the
-  owning components. Avoid replacing selectors with large `@apply` aliases.
-- Scope includes the main app, departure rows/panes, header/filter controls,
-  footer, About surface, station picker, and their loading/error states.
-- Read `.agents/skills/shadcn/SKILL.md`. Use the existing Base UI primitives;
-  the drawer remains Vaul. Preserve `min-height: 0`, safe-area padding, scroll
-  fades, drawer dismissal transitions, accessibility, and light/dark themes.
-- The checkpoint includes destination-first rows, trailing line badges, removed
-  arrows, ten-minute recent departures, and the updated countdown labels.
-  These are local changes; production remains the release documented above.
+- Migrated the app shell, departure rows/panes, header/filter controls, footer,
+  About surface, station picker, and loading/error/empty states.
+- Retained theme tokens and document/safe-area base rules, the overflow-driven
+  scroll mask, and reduced-motion policy in CSS. The subsequent Base UI drawer
+  migration removed the Vaul exceptions (see [drawer migration](../.migration/drawer.md)).
+  The remaining effects stay together with explanatory comments; forcing
+  them into long arbitrary utilities would make maintenance harder.
+- Added a `board` toggle variant and used the existing Tailwind-aware `cn`
+  helper so joined-toggle defaults no longer need global CSS overrides.
+- Preserved the 360px breakpoint, `min-h-0` flex constraints, line colours,
+  overnight column widths, typography, and drawer dismissal behaviour.
+- Verified the build and 155 tests. Compared before/after screenshots and computed
+  styles using deterministic API fixtures in Chrome at 360px, 390px, and 900px:
+  board, filters, About, picker/search, dark theme, and overnight service.
+- Physical iPhone flicks, software keyboard, and VoiceOver remain unverified.
+  No deployment was performed as part of this migration.
 
 ## Deferred local refresh error
 
@@ -147,8 +151,8 @@ or restart the investigation as part of the styling migration unless asked.
   references. `design-refresh` was retained because it has three unmerged
   prototype commits. Eight remote Dependabot branches had open PRs at cleanup;
   recheck their status before removing them.
-- Direct shadcn primitives were migrated to Base UI; the mobile drawer still
-  uses Vaul. The shadcn and migration skills are checked into `.agents/skills/`.
+- Direct shadcn primitives and the mobile drawer now use Base UI. The shadcn
+  and migration skills are checked into `.agents/skills/`.
 - Vitest has automatic UI/browser opening disabled. For a local validation build
   without sourcemap uploads, use `SENTRY_UPLOAD=false npm run build`.
 - `.dockerignore` excludes local environment files, agent configuration and Git

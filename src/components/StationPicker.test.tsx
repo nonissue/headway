@@ -155,9 +155,9 @@ describe('StationPicker', () => {
         } as unknown as MediaQueryList);
         openPicker();
         const dialog = screen.getByRole('dialog', { name: 'Stations' });
-        expect(dialog.getAttribute('data-expanded')).toBe('false');
+        expect(dialog.hasAttribute('data-expanded')).toBe(false);
         expect(document.activeElement).not.toBe(screen.getByRole('searchbox'));
         fireEvent.focus(screen.getByRole('searchbox'));
-        expect(dialog.getAttribute('data-expanded')).toBe('true');
+        expect(dialog.hasAttribute('data-expanded')).toBe(true);
     });
 });

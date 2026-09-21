@@ -71,7 +71,7 @@ export function App() {
             : 'all';
 
     return (
-        <main className="headway-app">
+        <main className='[font-feature-settings:"tnum"] mx-auto flex h-full w-full max-w-[640px] flex-col overflow-hidden bg-background sm:border-x'>
             <Header
                 stations={stations}
                 selectedStation={selectedStation}
@@ -89,7 +89,10 @@ export function App() {
                 }
             />
             {hasError && (
-                <Alert variant="destructive" className="departures-error">
+                <Alert
+                    variant="destructive"
+                    className="shrink-0 rounded-none border-0 border-b"
+                >
                     <AlertCircle aria-hidden="true" />
                     <AlertDescription>{error?.message}</AlertDescription>
                     <AlertAction>
@@ -99,13 +102,16 @@ export function App() {
                     </AlertAction>
                 </Alert>
             )}
-            <div className="departures-content" aria-busy={isLoading}>
+            <div
+                className="flex min-h-0 flex-1 flex-col overflow-hidden"
+                aria-busy={isLoading}
+            >
                 {isLoading ? (
-                    <div className="departures-loading" role="status">
+                    <div className="flex h-full flex-col" role="status">
                         <span className="sr-only">Loading departures</span>
                         {[0, 1].map((pane) => (
                             <div
-                                className="departure-skeleton-pane"
+                                className="flex flex-1 flex-col justify-start gap-[25px] py-7 pr-4.5 pl-[52px] [&+div]:border-t"
                                 key={pane}
                                 aria-hidden="true"
                             >

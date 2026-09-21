@@ -86,11 +86,16 @@ function AboutTrigger({
         <Button
             {...props}
             variant="plain"
-            className={cn('about-trigger', className)}
+            className={cn(
+                'flex h-full min-h-12 flex-col items-start justify-center gap-0.5 rounded-none px-4.5 py-2 text-sm font-bold tracking-[-0.3px] [@media(max-width:360px)]:px-3',
+                className
+            )}
             aria-label={ariaLabel ?? triggerLabel}
         >
             <span>Headway</span>
-            <span className="about-trigger-label">{triggerLabel}</span>
+            <span className="text-[10px] font-medium tracking-normal text-muted-foreground">
+                {triggerLabel}
+            </span>
         </Button>
     );
 }
@@ -112,40 +117,56 @@ function AboutBody({
     const Description = isDesktop ? DialogDescription : DrawerDescription;
 
     return (
-        <div className="about-body">
-            <header className="about-heading">
+        <div className="min-h-0 overflow-y-auto overscroll-contain px-4.5 pt-6 pb-[max(24px,env(safe-area-inset-bottom))]">
+            <header className="flex items-start justify-between border-b-2 border-foreground pb-5">
                 <div>
-                    <p className="about-eyebrow">About</p>
-                    <Title className="about-title">Headway</Title>
-                    <p className="about-subtitle">Edmonton LRT</p>
+                    <p className="mb-2 text-[11px] font-bold tracking-[1px] uppercase">
+                        About
+                    </p>
+                    <Title className="text-[34px] leading-none font-bold tracking-[-1.3px]">
+                        Headway
+                    </Title>
+                    <p className="mt-1.5 text-sm leading-normal text-muted-foreground">
+                        Edmonton LRT
+                    </p>
                 </div>
                 <Button
                     variant="plain"
-                    className="about-close"
+                    className="min-h-11 rounded-none py-0 pr-0 pl-4 underline underline-offset-4"
                     onClick={onClose}
                 >
                     Close
                 </Button>
             </header>
-            <dl className="about-facts">
-                <div>
-                    <dt>Service</dt>
-                    <dd>
-                        <Description className="about-description">
+            <dl>
+                <div className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 py-4 [&+div]:border-t">
+                    <dt className="text-xs leading-[21px] font-bold">
+                        Service
+                    </dt>
+                    <dd className="text-sm leading-normal text-foreground">
+                        <Description className="text-sm leading-normal text-foreground">
                             {note}
                         </Description>
                     </dd>
                 </div>
-                <div>
-                    <dt>Made by</dt>
-                    <dd>{name}</dd>
+                <div className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 py-4 [&+div]:border-t">
+                    <dt className="text-xs leading-[21px] font-bold">
+                        Made by
+                    </dt>
+                    <dd className="text-sm leading-normal text-foreground">
+                        {name}
+                    </dd>
                 </div>
             </dl>
             {links.length > 0 && (
-                <nav className="about-links" aria-label="About Headway links">
+                <nav
+                    className="grid auto-cols-fr grid-flow-col border-y"
+                    aria-label="About Headway links"
+                >
                     {links.map((link) => (
                         <a
                             key={link.label}
+                            className="flex min-h-12 items-center justify-between gap-1.5 px-3 text-[13px] font-bold first:pl-0 last:pr-0 hover:underline hover:underline-offset-4 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid [&_svg]:size-4 [&+a]:border-l"
                             href={link.href}
                             target={link.external ? '_blank' : undefined}
                             rel={link.external ? 'noreferrer' : undefined}
@@ -158,11 +179,13 @@ function AboutBody({
                     ))}
                 </nav>
             )}
-            <div className="about-install">
-                <h3>Install</h3>
-                <p>
+            <div className="grid grid-cols-[76px_minmax(0,1fr)] gap-3 pt-4">
+                <h3 className="text-xs leading-[21px] font-bold">Install</h3>
+                <p className="text-xs leading-normal text-muted-foreground">
                     On iPhone, open Safari&apos;s Share menu and choose{' '}
-                    <strong>Add to Home Screen.</strong>
+                    <strong className="font-medium text-foreground">
+                        Add to Home Screen.
+                    </strong>
                 </p>
             </div>
         </div>
@@ -205,7 +228,7 @@ export function AboutDialog({
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger render={trigger} />
                 <DialogContent
-                    className="about-panel about-dialog"
+                    className="max-h-[85dvh] w-[min(480px,calc(100vw-32px))] gap-0 overflow-hidden rounded-none bg-background p-0 text-foreground"
                     showCloseButton={false}
                 >
                     {body}
@@ -215,8 +238,8 @@ export function AboutDialog({
     }
     return (
         <Drawer open={open} onOpenChange={setOpen}>
-            <DrawerTrigger asChild>{trigger}</DrawerTrigger>
-            <DrawerContent className="about-panel about-drawer">
+            <DrawerTrigger render={trigger} />
+            <DrawerContent className="mt-0 max-h-[92dvh] gap-0 overflow-hidden rounded-none bg-background p-0 text-foreground [&>[data-slot=drawer-handle]]:h-[3px] [&>[data-slot=drawer-handle]]:w-9 [&>[data-slot=drawer-handle]]:rounded-none [&>[data-slot=drawer-handle]]:bg-muted-foreground [&>[data-slot=drawer-handle]]:opacity-60">
                 {body}
             </DrawerContent>
         </Drawer>

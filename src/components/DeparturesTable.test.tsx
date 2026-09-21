@@ -182,5 +182,5 @@ it('labels the actual next-service date and emphasises clock times', () => {
     );
     expect(screen.getByText('Next service · Saturday, Sep 19')).toBeTruthy();
     expect(screen.getByText('6h 3mins')).toBeTruthy();
-    expect(screen.getByText('08:03').className).toBe('departure-clock');
+    expect(screen.getByText('08:03').tagName).toBe('TIME');
 });

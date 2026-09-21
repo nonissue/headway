@@ -73,8 +73,8 @@ export function StationPicker({
 }: StationPickerProps) {
     const [open, setOpen] = React.useState(false);
     const [query, setQuery] = React.useState('');
-    // Vaul offsets are viewport-relative: 92vh - 17vh gives the 75vh resting sheet.
-    const [snap, setSnap] = React.useState<number | string | null>(0.83);
+    // Base UI snap points describe the visible fraction of the viewport.
+    const [snap, setSnap] = React.useState<number | string | null>(0.75);
     const [favourites, setFavourites] = React.useState(readFavouriteStations);
     const [saveError, setSaveError] = React.useState(false);
     const searchRef = React.useRef<HTMLInputElement>(null);
@@ -109,7 +109,7 @@ export function StationPicker({
         setOpen(next);
         if (next) {
             setQuery('');
-            setSnap(0.83);
+            setSnap(0.75);
         }
     }
     function toggleFavourite(id: string) {
@@ -135,40 +135,43 @@ export function StationPicker({
         return (
             <li
                 key={station.stop_id}
-                className="station-picker-row"
+                className="flex items-stretch border-b px-4.5 data-current:bg-accent"
                 data-current={current || undefined}
             >
                 <Button
                     variant="plain"
-                    className="station-picker-select"
+                    className="h-auto min-h-16 min-w-0 flex-1 justify-start gap-3 rounded-none px-0 py-3 text-left whitespace-normal has-[>svg]:px-0"
                     aria-label={`Select ${station.stop_name}${current ? ', current station' : ''}`}
                     aria-description={station.lines?.join(', ')}
                     aria-current={current ? 'true' : undefined}
                     onClick={() => select(station)}
                 >
-                    <span className="station-picker-name-block">
-                        <span className="station-picker-name">
+                    <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
+                        <span className="text-base leading-[1.15] font-bold tracking-[-0.4px] wrap-anywhere">
                             {stationName(station)}
                             {current && (
                                 <Check
-                                    className="station-picker-current"
+                                    className="ml-1.5 inline-block align-[-2px] text-muted-foreground"
                                     aria-hidden="true"
                                 />
                             )}
                         </span>
                         {distance !== undefined && (
-                            <span className="station-picker-detail">
+                            <span className="text-[11px] leading-[1.3] font-medium text-muted-foreground">
                                 {formatStationDistance(distance)} away
                             </span>
                         )}
                     </span>
-                    <span className="station-picker-lines" aria-hidden="true">
+                    <span
+                        className="flex shrink-0 items-center justify-end gap-[5px]"
+                        aria-hidden="true"
+                    >
                         {station.lines?.length ? (
                             station.lines.map((line) => (
                                 <Badge
                                     key={line}
                                     variant="outline"
-                                    className="station-line"
+                                    className="flex size-5.5 items-center justify-center rounded-full border-0 bg-muted p-0 text-xs font-bold text-foreground data-[line=capital]:bg-line-capital data-[line=capital]:text-line-on-colour data-[line=metro]:bg-line-metro data-[line=metro]:text-line-on-amber data-[line=valley]:bg-line-valley data-[line=valley]:text-line-on-colour"
                                     data-line={line.toLowerCase()}
                                 >
                                     {line.charAt(0)}
@@ -182,12 +185,12 @@ export function StationPicker({
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="station-picker-star"
+                    className="ml-2 size-11 self-center rounded-none text-muted-foreground hover:text-muted-foreground aria-pressed:text-picker-gold aria-pressed:hover:text-picker-gold aria-pressed:[&_svg]:fill-current"
                     aria-label={`${saved ? 'Remove' : 'Add'} ${station.stop_name} ${saved ? 'from' : 'to'} favourites`}
                     aria-pressed={saved}
                     onClick={() => toggleFavourite(station.stop_id)}
                 >
-                    <Star data-icon="inline-start" />
+                    <Star data-icon="inline-start" className="size-[19px]" />
                 </Button>
             </li>
         );
@@ -196,14 +199,15 @@ export function StationPicker({
     const Description = desktop ? DialogDescription : DrawerDescription;
     const body = (
         <>
-            <div className="station-picker-header">
+            <div className="shrink-0 border-b px-4.5 py-4">
                 <Title className="sr-only">Stations</Title>
                 <Description className="sr-only">
                     Choose a station to see its departures. Save favourites for
                     quick access.
                 </Description>
-                <InputGroup className="station-picker-search">
+                <InputGroup className="h-12 min-w-0 flex-1 rounded-none bg-background shadow-none focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-ring focus-within:outline-solid has-[[data-slot=input-group-control]:focus-visible]:ring-0 dark:bg-background">
                     <InputGroupInput
+                        className="text-base font-medium md:text-base md:leading-[1.4285714286] [&::-webkit-search-cancel-button]:hidden"
                         ref={searchRef}
                         type="search"
                         aria-label="Search stations"
@@ -234,17 +238,17 @@ export function StationPicker({
                 </InputGroup>
                 {lines.length > 0 && (
                     <ul
-                        className="station-picker-legend"
+                        className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3"
                         aria-label="Transit lines"
                     >
                         {lines.map((line) => (
                             <li
-                                className="station-picker-line-label"
+                                className="flex items-center gap-1.5 text-[11px] leading-none font-medium text-muted-foreground"
                                 key={line}
                             >
                                 <Badge
                                     variant="outline"
-                                    className="station-line"
+                                    className="flex size-5.5 items-center justify-center rounded-full border-0 bg-muted p-0 text-xs font-bold text-foreground data-[line=capital]:bg-line-capital data-[line=capital]:text-line-on-colour data-[line=metro]:bg-line-metro data-[line=metro]:text-line-on-amber data-[line=valley]:bg-line-valley data-[line=valley]:text-line-on-colour"
                                     data-line={line.toLowerCase()}
                                     aria-hidden="true"
                                 >
@@ -256,9 +260,15 @@ export function StationPicker({
                     </ul>
                 )}
             </div>
-            <div className="station-picker-scroll" data-vaul-no-drag>
+            <div
+                className="min-h-0 flex-1 [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent] overflow-y-auto overscroll-contain pb-[max(24px,env(safe-area-inset-bottom))]"
+                data-base-ui-swipe-ignore
+            >
                 {saveError && (
-                    <p role="status" className="station-picker-note">
+                    <p
+                        role="status"
+                        className="mx-4.5 mt-5 text-[11px] leading-normal text-muted-foreground"
+                    >
                         Favourites are available for this visit, but couldn’t be
                         saved on this device.
                     </p>
@@ -277,7 +287,7 @@ export function StationPicker({
                             >
                                 <h3
                                     id={`${headingId}-favourites`}
-                                    className="station-picker-section"
+                                    className="flex min-h-[42px] items-center gap-1.5 border-b px-4.5 py-3 text-[10px] font-bold tracking-[1.2px] text-foreground uppercase [&_svg]:size-3 [&>span]:ml-auto [&>span]:flex [&>span]:items-center [&>span]:gap-1 [&>span]:text-[9px] [&>span]:tracking-[1px]"
                                 >
                                     <Star aria-hidden="true" /> Favourites
                                 </h3>
@@ -287,7 +297,7 @@ export function StationPicker({
                         <section aria-labelledby={`${headingId}-stations`}>
                             <h3
                                 id={`${headingId}-stations`}
-                                className="station-picker-section"
+                                className="flex min-h-[42px] items-center gap-1.5 border-b px-4.5 py-3 text-[10px] font-bold tracking-[1.2px] text-foreground uppercase [&_svg]:size-3 [&>span]:ml-auto [&>span]:flex [&>span]:items-center [&>span]:gap-1 [&>span]:text-[9px] [&>span]:tracking-[1px]"
                             >
                                 {normalized
                                     ? 'Search results'
@@ -324,7 +334,7 @@ export function StationPicker({
                                 </Empty>
                             )}
                         </section>
-                        <p className="station-picker-note">
+                        <p className="mx-4.5 mt-5 text-[11px] leading-normal text-muted-foreground">
                             {location
                                 ? 'Distances are straight-line estimates, not walking routes.'
                                 : 'Location unavailable. Stations are listed alphabetically.'}
@@ -337,7 +347,10 @@ export function StationPicker({
     const trigger = (
         <Button
             variant="plain"
-            className={cn('station-picker-trigger', className)}
+            className={cn(
+                'h-auto min-h-11 justify-start px-0 py-1 font-[Helvetica_Neue,Helvetica,Arial,sans-serif] text-2xl leading-[1.4285714286] font-bold tracking-[-0.8px] [&_svg]:text-muted-foreground',
+                className
+            )}
             aria-label={`Change station${selectedStation ? `, ${selectedStation.stop_name}` : ''}`}
         >
             <span className="truncate">
@@ -353,7 +366,7 @@ export function StationPicker({
             <Dialog open={open} onOpenChange={changeOpen}>
                 <DialogTrigger render={trigger} />
                 <DialogContent
-                    className="station-picker station-picker-dialog"
+                    className='station-picker flex h-[min(720px,85dvh)] w-[min(480px,calc(100vw-32px))] flex-col gap-0 overflow-hidden rounded-none bg-background p-0 [font-feature-settings:"tnum"] text-foreground'
                     showCloseButton={false}
                     initialFocus={searchRef}
                 >
@@ -365,23 +378,16 @@ export function StationPicker({
         <Drawer
             open={open}
             onOpenChange={changeOpen}
-            snapPoints={[0.83, 1]}
-            activeSnapPoint={snap}
-            setActiveSnapPoint={setSnap}
-            fadeFromIndex={0}
-            fixed
-            autoFocus
+            snapPoints={[0.75, 1]}
+            snapPoint={snap}
+            onSnapPointChange={setSnap}
         >
-            <DrawerTrigger asChild>{trigger}</DrawerTrigger>
+            <DrawerTrigger render={trigger} />
             <DrawerContent
                 ref={drawerRef}
                 tabIndex={-1}
-                className="station-picker station-picker-drawer"
-                data-expanded={snap === 1}
-                onOpenAutoFocus={(event) => {
-                    event.preventDefault();
-                    drawerRef.current?.focus();
-                }}
+                className='station-picker mt-0 h-[92dvh] max-h-[92dvh] pb-(--drawer-snap-point-offset) overflow-hidden rounded-none bg-background [font-feature-settings:"tnum"] text-foreground outline-none [&>[data-slot=drawer-handle]]:h-[3px] [&>[data-slot=drawer-handle]]:w-9 [&>[data-slot=drawer-handle]]:rounded-none [&>[data-slot=drawer-handle]]:bg-muted-foreground [&>[data-slot=drawer-handle]]:opacity-60'
+                initialFocus={drawerRef}
             >
                 {body}
             </DrawerContent>

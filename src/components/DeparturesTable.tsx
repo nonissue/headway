@@ -49,26 +49,29 @@ function DepartureRow({
         age === 0 ? 'Now' : `-${age} ${age === 1 ? 'min' : 'mins'}`;
     return (
         <li
-            className="departure-row"
+            className="group/row grid min-h-11 grid-cols-[minmax(0,1fr)_var(--clock-column)_var(--countdown-column)] items-center gap-2.5 border-b px-(--board-gutter) data-hero:min-h-14 data-recent:min-h-9 data-recent:text-muted-foreground"
             data-hero={hero || undefined}
             data-recent={recent || undefined}
             data-next-service={nextService || undefined}
         >
             <span
-                className="departure-destination"
+                className="min-w-0 py-2 text-[15px] leading-[1.2] font-medium tracking-[-0.25px] wrap-anywhere group-data-hero/row:text-[18px] group-data-hero/row:font-bold group-data-hero/row:tracking-[-0.3px] group-data-recent/row:text-[14px] group-data-recent/row:font-normal"
                 title={departure.displayHeadsign}
             >
                 {destination}
-                <LineBadge line={departure.line} />
+                <LineBadge
+                    line={departure.line}
+                    className="ml-2 inline-flex align-[1px] group-data-recent/row:opacity-45"
+                />
             </span>
             <time
-                className="departure-clock"
+                className="flex items-center justify-end font-mono text-[15px] leading-[1.2] font-normal tracking-normal whitespace-nowrap text-foreground tabular-nums group-data-hero/row:text-[16px] group-data-hero/row:font-bold group-data-next-service/row:font-bold group-data-recent/row:text-[12px] group-data-recent/row:font-normal group-data-recent/row:tracking-normal group-data-recent/row:text-muted-foreground"
                 dateTime={departure.scheduled_at ?? departure.displayTime}
             >
                 {departure.displayTime.slice(0, 5)}
             </time>
             <span
-                className="departure-countdown"
+                className="flex items-center justify-end font-mono text-[15px] leading-[1.2] font-semibold tracking-normal whitespace-nowrap tabular-nums group-data-hero/row:text-[16px] group-data-hero/row:font-bold group-data-next-service/row:font-medium group-data-next-service/row:tracking-normal group-data-recent/row:text-[12px] group-data-recent/row:font-normal group-data-recent/row:tracking-normal group-data-recent/row:text-muted-foreground"
                 aria-label={
                     recent
                         ? age === 0
@@ -81,7 +84,7 @@ function DepartureRow({
                             : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
                 }
             >
-                <span className="departure-relative-time">
+                <span className="inline-flex items-baseline gap-0">
                     <span>
                         {recent
                             ? recentLabel
@@ -97,7 +100,7 @@ function DepartureRow({
                         !nextService &&
                         minutes !== 0 &&
                         minutes !== undefined && (
-                            <span className="departure-unit" aria-hidden="true">
+                            <span className="font-normal" aria-hidden="true">
                                 mins
                             </span>
                         )}
@@ -122,7 +125,10 @@ export function DeparturesTable({
     );
     if (!hasVisibleDepartures)
         return (
-            <Empty className="departures-empty" role="status">
+            <Empty
+                className="h-full p-6 md:p-6 [&_[data-slot=empty-description]]:text-[12px] [&_[data-slot=empty-title]]:text-[16px]"
+                role="status"
+            >
                 <EmptyHeader>
                     <TrainFront aria-hidden="true" />
                     <EmptyTitle>
@@ -141,7 +147,10 @@ export function DeparturesTable({
     return (
         <>
             {nextServiceAt && (
-                <Alert role="status" className="departures-service-notice">
+                <Alert
+                    role="status"
+                    className="shrink-0 rounded-none border-0 border-b px-4.5"
+                >
                     <AlertTitle>
                         Next service ·{' '}
                         {new Intl.DateTimeFormat('en-CA', {
@@ -153,12 +162,15 @@ export function DeparturesTable({
                     </AlertTitle>
                 </Alert>
             )}
-            <div className="departure-board" aria-label="Scheduled departures">
+            <div
+                className="flex min-h-0 flex-1 flex-col"
+                aria-label="Scheduled departures"
+            >
                 {groups.map((group, index) => {
                     const headingId = `direction-${index}`;
                     return (
                         <section
-                            className="departure-pane"
+                            className="flex min-h-0 flex-1 flex-col [--board-gutter:18px] [--clock-column:48px] [--countdown-column:68px] has-[[data-next-service]]:[--countdown-column:96px] [&+section]:border-t-2 [&+section]:border-foreground [@media(max-width:360px)]:[--board-gutter:12px]"
                             key={`${index}-${group.heading}`}
                             aria-labelledby={headingId}
                         >
@@ -166,10 +178,10 @@ export function DeparturesTable({
                                 {group.heading}
                             </h2>
                             <ScrollArea
-                                className="departure-scroll"
+                                className="departure-scroll min-h-0 min-w-0 flex-1"
                                 key={lineFilter}
                             >
-                                <ol className="departure-list">
+                                <ol>
                                     {group.recent && (
                                         <DepartureRow
                                             key={`${group.recent.trip_id}-${group.recent.scheduled_at ?? group.recent.departure_time}`}
@@ -189,7 +201,7 @@ export function DeparturesTable({
                                     ))}
                                 </ol>
                                 {!group.upcoming.length && (
-                                    <Empty className="departures-empty">
+                                    <Empty className="h-full p-6 md:p-6 [&_[data-slot=empty-description]]:text-[12px] [&_[data-slot=empty-title]]:text-[16px]">
                                         <EmptyHeader>
                                             <EmptyTitle>
                                                 No upcoming trains

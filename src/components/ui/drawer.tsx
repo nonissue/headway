@@ -1,20 +1,28 @@
 'use client';
 
 import * as React from 'react';
-import { Drawer as DrawerPrimitive } from 'vaul';
+import { Drawer as DrawerPrimitive } from '@base-ui/react/drawer';
 
 import { cn } from '@/components/lib/utils';
 
+type StyledProps<T extends React.ElementType> = Omit<
+    React.ComponentProps<T>,
+    'className'
+> & { className?: string };
+
+// Headway uses bottom sheets only. Keep the existing wrapper's visual contract.
 function Drawer({
-    shouldScaleBackground = false,
+    children,
     ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Root>) {
+}: Omit<DrawerPrimitive.Root.Props, 'children' | 'swipeDirection'> & {
+    children?: React.ReactNode;
+}) {
     return (
-        <DrawerPrimitive.Root
-            data-slot="drawer"
-            shouldScaleBackground={shouldScaleBackground}
-            {...props}
-        />
+        <DrawerPrimitive.Root swipeDirection="down" {...props}>
+            <DrawerPrimitive.VirtualKeyboardProvider>
+                {children}
+            </DrawerPrimitive.VirtualKeyboardProvider>
+        </DrawerPrimitive.Root>
     );
 }
 
@@ -39,12 +47,12 @@ function DrawerClose({
 function DrawerOverlay({
     className,
     ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Overlay>) {
+}: StyledProps<typeof DrawerPrimitive.Backdrop>) {
     return (
-        <DrawerPrimitive.Overlay
+        <DrawerPrimitive.Backdrop
             data-slot="drawer-overlay"
             className={cn(
-                'fixed inset-0 z-50 bg-background/25 backdrop-blur-md data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 dark:bg-background/75',
+                'fixed inset-0 z-50 min-h-dvh bg-background/25 backdrop-blur-md transition-opacity duration-300 data-ending-style:opacity-0 data-ending-style:duration-200 data-starting-style:opacity-0 supports-[-webkit-touch-callout:none]:absolute dark:bg-background/75',
                 className
             )}
             {...props}
@@ -56,24 +64,32 @@ function DrawerContent({
     className,
     children,
     ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+}: StyledProps<typeof DrawerPrimitive.Popup>) {
     return (
         <DrawerPortal>
             <DrawerOverlay />
-            <DrawerPrimitive.Content
-                data-slot="drawer-content"
-                className={cn(
-                    'fixed inset-x-0 bottom-0 z-50 mt-24 flex max-h-[92dvh] flex-col rounded-t-[1.5rem] border bg-background data-[state=closed]:animate-out data-[state=closed]:duration-200 data-[state=closed]:slide-out-to-bottom data-[state=open]:animate-in data-[state=open]:duration-300 data-[state=open]:slide-in-from-bottom',
-                    className
-                )}
-                {...props}
+            <DrawerPrimitive.Viewport
+                data-slot="drawer-viewport"
+                className="fixed inset-0 z-50 flex touch-none items-end justify-center"
             >
-                <div
-                    data-slot="drawer-handle"
-                    className="mx-auto mt-3 h-1.5 w-14 shrink-0 rounded-full bg-muted"
-                />
-                {children}
-            </DrawerPrimitive.Content>
+                <DrawerPrimitive.Popup
+                    data-slot="drawer-content"
+                    className={cn(
+                        'relative flex max-h-[92dvh] min-h-0 w-full [transform:translateY(calc(var(--drawer-snap-point-offset,0px)+var(--drawer-swipe-movement-y,0px)))] flex-col rounded-t-[1.5rem] border bg-background transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] outline-none data-ending-style:[transform:translateY(calc(100%+2px))] data-ending-style:duration-200 data-starting-style:[transform:translateY(calc(100%+2px))] data-swiping:duration-0',
+                        className
+                    )}
+                    {...props}
+                >
+                    <div
+                        aria-hidden="true"
+                        data-slot="drawer-handle"
+                        className="mx-auto mt-3 h-1.5 w-14 shrink-0 rounded-full bg-muted"
+                    />
+                    <DrawerPrimitive.Content className="contents">
+                        {children}
+                    </DrawerPrimitive.Content>
+                </DrawerPrimitive.Popup>
+            </DrawerPrimitive.Viewport>
         </DrawerPortal>
     );
 }
@@ -101,7 +117,7 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<'div'>) {
 function DrawerTitle({
     className,
     ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Title>) {
+}: StyledProps<typeof DrawerPrimitive.Title>) {
     return (
         <DrawerPrimitive.Title
             data-slot="drawer-title"
@@ -114,7 +130,7 @@ function DrawerTitle({
 function DrawerDescription({
     className,
     ...props
-}: React.ComponentProps<typeof DrawerPrimitive.Description>) {
+}: StyledProps<typeof DrawerPrimitive.Description>) {
     return (
         <DrawerPrimitive.Description
             data-slot="drawer-description"

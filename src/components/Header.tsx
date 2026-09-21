@@ -26,19 +26,19 @@ export function Header({
     onLineFilterChange,
 }: HeaderProps) {
     return (
-        <header className="departures-header">
+        <header className="flex min-h-16 shrink-0 items-stretch border-b-2 border-foreground">
             <StationPicker
                 selectedStation={selectedStation}
                 stations={stations}
                 isLoading={isStationsLoading}
                 onStationSelect={onStationSelect}
                 location={location}
-                className="max-w-full min-w-0"
+                className="max-w-full min-w-0 flex-1 rounded-none px-4.5 py-3 has-[>svg]:px-4.5 [@media(max-width:360px)]:px-3 [@media(max-width:360px)]:text-[22px] [@media(max-width:360px)]:has-[>svg]:px-3"
             />
             {lines.length > 0 && (
                 <ToggleGroup
-                    className="line-filters"
-                    variant="outline"
+                    className="group/filters shrink-0 items-stretch gap-0 rounded-none"
+                    variant="board"
                     spacing={0}
                     value={lineFilter === 'all' ? [] : [lineFilter]}
                     onValueChange={(values) =>
@@ -50,6 +50,7 @@ export function Header({
                         <ToggleGroupItem
                             key={line}
                             value={line}
+                            className="h-auto min-h-12 w-12 p-0"
                             aria-label={`${line} Line`}
                             title={
                                 lineFilter === line
@@ -57,7 +58,11 @@ export function Header({
                                     : `Show only ${line} Line`
                             }
                         >
-                            <LineBadge line={line} />
+                            <LineBadge
+                                line={line}
+                                hero
+                                className="group-has-[[aria-pressed=true]]/filters:in-[[aria-pressed=false]]:opacity-40"
+                            />
                         </ToggleGroupItem>
                     ))}
                 </ToggleGroup>

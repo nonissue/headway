@@ -40,8 +40,8 @@ vi.mock('@/components/ui/dialog', () => ({
 
 vi.mock('@/components/ui/drawer', () => ({
     Drawer: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-    DrawerTrigger: ({ children }: { children: ReactNode }) =>
-        withInjectedTriggerProps(children, {
+    DrawerTrigger: ({ render }: { render: ReactNode }) =>
+        withInjectedTriggerProps(render, {
             'data-trigger-probe': 'drawer',
         }),
     DrawerContent: ({ children }: { children: ReactNode }) => (
