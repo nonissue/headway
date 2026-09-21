@@ -59,13 +59,13 @@ describe('DeparturesTable', () => {
         expect(screen.getByText('Gone').closest('li')?.dataset.recent).toBe(
             'true'
         );
-        expect(
-            screen.getByText('Gone').closest('li')?.dataset.hero
-        ).toBeUndefined();
-        expect(screen.getByLabelText('Scheduled 1 minute ago')).toBeTruthy();
-        expect(screen.getByText('Clareview').closest('li')?.dataset.hero).toBe(
-            'true'
+        expect(screen.getByText('Gone').closest('li')?.dataset.emphasis).toBe(
+            'recent'
         );
+        expect(screen.getByLabelText('Scheduled 1 minute ago')).toBeTruthy();
+        expect(
+            screen.getByText('Clareview').closest('li')?.dataset.emphasis
+        ).toBe('next');
     });
     it.each(['Eastbound', 'Westbound', 'Platform'])(
         'preserves the accessible %s group after filtering',
@@ -95,9 +95,76 @@ describe('DeparturesTable', () => {
         expect(screen.queryByText('Clareview')).toBeNull();
         expect(screen.queryByText('Century Park')).toBeNull();
         for (const name of ['NAIT / Blatchford', 'Health Sciences'])
-            expect(screen.getByText(name).closest('li')?.dataset.hero).toBe(
-                'true'
+            expect(screen.getByText(name).closest('li')?.dataset.emphasis).toBe(
+                'next'
             );
+    });
+    it('features three upcoming trains per direction and reranks after filtering or a departure', () => {
+        const departures = [
+            train('Capital', -1, 'Recent'),
+            train('Capital', 1, 'First'),
+            train('Metro', 2, 'Second'),
+            train('Capital', 3, 'Third'),
+            train('Metro', 4, 'Fourth'),
+            train('Metro', 5, 'Fifth'),
+            train('Metro', 6, 'Sixth'),
+        ];
+        const directions = ['Northbound', 'Southbound'].map((heading) => ({
+            heading,
+            destinations: [],
+            departures,
+        }));
+        const { rerender } = render(
+            <DeparturesTable departureGroups={directions} now={now} />
+        );
+        const states = (heading: string) =>
+            within(screen.getByRole('region', { name: heading }))
+                .getAllByRole('listitem')
+                .map((row) => row.dataset.emphasis);
+        for (const heading of ['Northbound', 'Southbound']) {
+            expect(states(heading)).toEqual([
+                'recent',
+                'next',
+                'second',
+                'third',
+                'regular',
+                'regular',
+                'regular',
+            ]);
+        }
+        rerender(
+            <DeparturesTable
+                departureGroups={directions}
+                now={now}
+                lineFilter="Metro"
+            />
+        );
+        expect(states('Northbound')).toEqual([
+            'next',
+            'second',
+            'third',
+            'regular',
+        ]);
+        expect(
+            screen.getAllByText('Second')[0].closest('li')?.dataset.emphasis
+        ).toBe('next');
+        rerender(
+            <DeparturesTable departureGroups={directions} now={now + 90000} />
+        );
+        expect(states('Northbound')).toEqual([
+            'recent',
+            'next',
+            'second',
+            'third',
+            'regular',
+            'regular',
+        ]);
+        expect(
+            screen.getAllByText('Second')[0].closest('li')?.dataset.emphasis
+        ).toBe('next');
+        expect(
+            screen.getAllByText('First')[0].closest('li')?.dataset.emphasis
+        ).toBe('recent');
     });
     it('shows one board-level empty state when neither direction matches', () => {
         render(
@@ -172,7 +239,7 @@ describe('DeparturesTable', () => {
     });
 });
 
-it('labels the actual next-service date and emphasises clock times', () => {
+it('labels the actual next-service date and renders overnight countdowns', () => {
     render(
         <DeparturesTable
             departureGroups={groups}

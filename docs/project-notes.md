@@ -178,3 +178,17 @@ The initial [design QA record](../design-qa.md) and
 [station-picker review](qa/station-picker/initial-review.md) retain historical
 evidence; their earlier typography, rails, pills, and close-button descriptions
 are superseded by the decisions above.
+
+## Departure hierarchy refinement — 2026-09-20
+
+- Feature the next three trains per direction with decreasing emphasis, after
+  filtering: 18px bold, 16px semibold, 16px medium; later rows are 14px regular
+  and the recent row is 12px regular. All sizes come from the Tailwind scale.
+- Move line badges before destinations and scale the circle, letter, and fallback
+  icon with the inherited row size. Header filter badges keep their fixed sizing.
+- Clocks and countdowns inherit the row size. Clocks use regular weight and
+  `muted-foreground`; countdowns remain the primary timing cue.
+- Consolidate row styles in `rowVariants`, replace repeated custom type sizes and
+  line heights, and let shared grid columns accommodate numerical content.
+- The [typography guide](./typography.md) describes the current hierarchy and
+  integration; the earlier single-featured-row notes above are historical.

@@ -1,3 +1,4 @@
+import { cva } from 'class-variance-authority';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { DEFAULT_TIMEZONE } from '../config';
 import { TrainFront } from 'lucide-react';
@@ -23,19 +24,36 @@ interface DeparturesTableProps {
     nextServiceAt?: string;
 }
 
+// The row owns the type scale; destinations, clocks and countdowns inherit it.
+const rowVariants = cva(
+    'group/row col-span-3 grid grid-cols-subgrid items-center gap-2.5 border-b px-(--board-gutter) leading-tight',
+    {
+        variants: {
+            emphasis: {
+                next: 'min-h-14 text-lg font-bold',
+                second: 'min-h-12 text-base font-semibold',
+                third: 'min-h-12 text-base font-medium',
+                regular: 'min-h-11 text-sm font-normal',
+                recent: 'min-h-9 text-xs font-normal text-muted-foreground',
+            },
+        },
+    }
+);
+const upcomingEmphasis = ['next', 'second', 'third'] as const;
+type RowEmphasis = (typeof upcomingEmphasis)[number] | 'regular' | 'recent';
+
 function DepartureRow({
     departure,
     now,
-    hero = false,
-    recent = false,
+    emphasis = 'regular',
     nextService = false,
 }: {
     departure: ProcessedDeparture;
     now: number;
-    hero?: boolean;
-    recent?: boolean;
+    emphasis?: RowEmphasis;
     nextService?: boolean;
 }) {
+    const recent = emphasis === 'recent';
     const destination = /^NAIT[\s-]+Blatchford Market$/i.test(
         departure.displayHeadsign
     )
@@ -49,29 +67,29 @@ function DepartureRow({
         age === 0 ? 'Now' : `-${age} ${age === 1 ? 'min' : 'mins'}`;
     return (
         <li
-            className="group/row grid min-h-11 grid-cols-[minmax(0,1fr)_var(--clock-column)_var(--countdown-column)] items-center gap-2.5 border-b px-(--board-gutter) data-hero:min-h-14 data-recent:min-h-9 data-recent:text-muted-foreground"
-            data-hero={hero || undefined}
+            className={rowVariants({ emphasis })}
+            data-emphasis={emphasis}
             data-recent={recent || undefined}
-            data-next-service={nextService || undefined}
         >
             <span
-                className="min-w-0 py-2 text-[15px] leading-[1.2] font-medium tracking-[-0.25px] wrap-anywhere group-data-hero/row:text-[18px] group-data-hero/row:font-bold group-data-hero/row:tracking-[-0.3px] group-data-recent/row:text-[14px] group-data-recent/row:font-normal"
+                className="flex min-w-0 items-center gap-2 py-2 tracking-tight"
                 title={departure.displayHeadsign}
             >
-                {destination}
                 <LineBadge
                     line={departure.line}
-                    className="ml-2 inline-flex align-[1px] group-data-recent/row:opacity-45"
+                    proportional
+                    className="group-data-recent/row:opacity-45"
                 />
+                <span className="min-w-0 wrap-anywhere">{destination}</span>
             </span>
             <time
-                className="flex items-center justify-end font-mono text-[15px] leading-[1.2] font-normal tracking-normal whitespace-nowrap text-foreground tabular-nums group-data-hero/row:text-[16px] group-data-hero/row:font-medium group-data-next-service/row:font-medium group-data-recent/row:text-[12px] group-data-recent/row:font-normal group-data-recent/row:tracking-normal group-data-recent/row:text-muted-foreground"
+                className="text-right font-mono font-normal whitespace-nowrap text-muted-foreground tabular-nums"
                 dateTime={departure.scheduled_at ?? departure.displayTime}
             >
                 {departure.displayTime.slice(0, 5)}
             </time>
             <span
-                className="flex items-center justify-end font-mono text-[15px] leading-[1.2] font-semibold tracking-normal whitespace-nowrap tabular-nums group-data-hero/row:text-[16px] group-data-hero/row:font-medium group-data-next-service/row:font-medium group-data-next-service/row:tracking-normal group-data-recent/row:text-[12px] group-data-recent/row:font-normal group-data-recent/row:tracking-normal group-data-recent/row:text-muted-foreground"
+                className="text-right font-mono font-normal whitespace-nowrap tabular-nums group-data-[emphasis=next]/row:font-medium group-data-[emphasis=second]/row:font-medium"
                 aria-label={
                     recent
                         ? age === 0
@@ -84,7 +102,7 @@ function DepartureRow({
                             : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
                 }
             >
-                <span className="inline-flex items-baseline gap-0">
+                <span className="inline-flex items-baseline">
                     <span>
                         {recent
                             ? recentLabel
@@ -126,7 +144,7 @@ export function DeparturesTable({
     if (!hasVisibleDepartures)
         return (
             <Empty
-                className="h-full p-6 md:p-6 [&_[data-slot=empty-description]]:text-[12px] [&_[data-slot=empty-title]]:text-[16px]"
+                className="h-full p-6 md:p-6 [&_[data-slot=empty-description]]:text-xs [&_[data-slot=empty-title]]:text-base"
                 role="status"
             >
                 <EmptyHeader>
@@ -170,7 +188,7 @@ export function DeparturesTable({
                     const headingId = `direction-${index}`;
                     return (
                         <section
-                            className="flex min-h-0 flex-1 flex-col [--board-gutter:18px] [--clock-column:48px] [--countdown-column:68px] has-[[data-next-service]]:[--countdown-column:96px] [&+section]:border-t-2 [&+section]:border-foreground [@media(max-width:360px)]:[--board-gutter:12px]"
+                            className="flex min-h-0 flex-1 flex-col [--board-gutter:--spacing(4.5)] max-[360px]:[--board-gutter:--spacing(3)] [&+section]:border-t-2 [&+section]:border-foreground"
                             key={`${index}-${group.heading}`}
                             aria-labelledby={headingId}
                         >
@@ -181,13 +199,13 @@ export function DeparturesTable({
                                 className="departure-scroll min-h-0 min-w-0 flex-1"
                                 key={lineFilter}
                             >
-                                <ol>
+                                <ol className="grid grid-cols-[minmax(0,1fr)_max-content_max-content]">
                                     {group.recent && (
                                         <DepartureRow
                                             key={`${group.recent.trip_id}-${group.recent.scheduled_at ?? group.recent.departure_time}`}
                                             departure={group.recent}
                                             now={now}
-                                            recent
+                                            emphasis="recent"
                                         />
                                     )}
                                     {group.upcoming.map((departure, row) => (
@@ -195,13 +213,16 @@ export function DeparturesTable({
                                             key={`${departure.trip_id}-${departure.scheduled_at ?? departure.departure_time}`}
                                             departure={departure}
                                             now={now}
-                                            hero={row === 0}
+                                            emphasis={
+                                                upcomingEmphasis[row] ??
+                                                'regular'
+                                            }
                                             nextService={Boolean(nextServiceAt)}
                                         />
                                     ))}
                                 </ol>
                                 {!group.upcoming.length && (
-                                    <Empty className="h-full p-6 md:p-6 [&_[data-slot=empty-description]]:text-[12px] [&_[data-slot=empty-title]]:text-[16px]">
+                                    <Empty className="h-full p-6 md:p-6 [&_[data-slot=empty-description]]:text-xs [&_[data-slot=empty-title]]:text-base">
                                         <EmptyHeader>
                                             <EmptyTitle>
                                                 No upcoming trains

@@ -11,11 +11,15 @@ Vignelli's NYC subway graphics: direct language, strong alignment, restrained
 rules, and a clear hierarchy. The fonts support that structure. Avoid decorative
 letterforms, oversized countdowns, and unnecessary differences between rows.
 
-The station establishes context; destinations lead the board; clocks and
-countdowns provide the timing. The first upcoming destination is bold, while its
-numbers use medium weight. The user explicitly preferred this lighter numerical
-emphasis after finding bold Geist Mono too strong. Colour and type size were not
-changed as part of that weight adjustment.
+The station establishes context; destinations lead the board; countdowns are the
+primary timing cue and clocks are quieter supporting information. The next three
+upcoming trains in each direction receive decreasing emphasis. Ranking is applied
+after line filtering and recalculated as trains depart; the recent departure does
+not consume one of the three positions.
+
+Use size and weight together, with restrained differences. Avoid making clock
+times compete with destinations: they use regular weight and the existing
+`muted-foreground` colour in both themes.
 
 Helvetica paired well with Söhne Mono in the comparisons. The complete Geist
 pairing was selected for its appearance and consistent delivery across devices.
@@ -24,37 +28,45 @@ Earlier comparison mockups are exploratory references, not the implementation.
 
 ## Current hierarchy
 
-These values describe the current implementation, rather than defining a new
-set of reusable design tokens. Weights are CSS numeric weights.
+The row owns the type size and line height. Destinations use Geist; clocks and
+countdowns use Geist Mono and inherit the same size. The selected station remains
+24px / 700. The departure hierarchy uses the standard Tailwind scale:
 
-| Role | Family | Size | Weight |
-| --- | --- | --- | --- |
-| Selected station | Geist | 24px | 700 |
-| Upcoming destination | Geist | 15px | 500 |
-| First upcoming destination | Geist | 18px | 700 |
-| Recently departed destination | Geist | 14px | 400 |
-| Upcoming clock | Geist Mono | 15px | 400 |
-| Upcoming countdown number | Geist Mono | 15px | 600 |
-| First upcoming clock and countdown | Geist Mono | 16px | 500 |
-| Recently departed clock and label | Geist Mono | 12px | 400 |
+| Row | Type size | Destination weight | Clock weight | Countdown number weight | Badge diameter |
+| --- | --- | --- | --- | --- | --- |
+| Next | `text-lg` / 18px | 700 | 400 | 500 | 22.5px |
+| Second | `text-base` / 16px | 600 | 400 | 500 | 20px |
+| Third | `text-base` / 16px | 500 | 400 | 400 | 20px |
+| Later | `text-sm` / 14px | 400 | 400 | 400 | 17.5px |
+| Recently departed | `text-xs` / 12px | 400 | 400 | 400 | 15px |
+
+The second and third rows share a size; weight supplies the intermediate step.
+All rows use `leading-tight` (1.25). Minimum row heights are 56px, 48px, 48px,
+44px, and 36px respectively; wrapped destinations can make a row taller.
+
+The line badge sits to the **left** of the destination, vertically centred. The
+`proportional` variant of `LineBadge` uses a diameter of `1.25em`, letter size of
+`0.65em`, and fallback icon size of `0.85em`. These optical proportions are defined
+once in `src/globals.css`, so they scale with the inherited row size. The badge
+cannot shrink, and a wrapping destination stays in its own text column. Recent
+badges are subdued. Header filter badges retain their independent fixed sizing.
 
 The `mins` suffix remains regular weight (400), with no inserted space:
-`12mins`. A zero-minute countdown displays `Now`. Next-service rows use medium
-clock and countdown weights, with elapsed hours and minutes in the countdown.
+`12mins`. A zero-minute countdown displays `Now`. Next-service rows use the same
+three-level hierarchy, with elapsed hours and minutes in the countdown.
 
-Clock and countdown text use natural letter spacing and tabular numerals.
-Rows have shared column widths within each direction: 48px for the clock,
-68px for the countdown, and 96px for the overnight countdown variant. Do not
-shrink the destination by adding extra numerical emphasis. Long destinations
-may wrap at narrow widths; both direction panes must remain visible and scroll
-independently.
+Clock and countdown text use natural letter spacing and tabular numerals. Each
+direction's list defines a grid with a flexible destination column and two
+`max-content` numerical columns. Rows use `grid-cols-subgrid` to share those
+columns, allowing larger text, three-digit counts, and overnight labels to size
+the columns without fixed pixel widths. Both direction panes must remain visible
+and scroll independently, including when long destinations wrap on narrow phones.
 
-The component still contains inherited arbitrary sizes, tracking, and `1.2`
-line-height values. Their repetition is not an endorsed styling pattern. For
-future cleanup, establish shared typography on the row, prefer the standard
-Tailwind scale, and limit child overrides to meaningful state differences.
-Introduce a named token only where a deliberate custom value is necessary.
-Verify visual changes separately; that cleanup is not part of this font release.
+`rowVariants` in `DeparturesTable.tsx` is the single source for row typography.
+Keep child overrides limited to numerical font family, weight, and clock colour.
+Use standard Tailwind size and line-height utilities; do not reintroduce repeated
+`text-[15px]` or `leading-[1.2]` values. The proportional badge ratios and shared
+grid structure are deliberate component rules, not per-row adjustments.
 
 ## Installation and integration
 
@@ -78,6 +90,7 @@ do not download packages or contact npm.
 | [`src/globals.css`](../src/globals.css) | Imports the font stylesheet and sets `--font-sans`, `--font-display`, and `--font-mono`, retaining system fallbacks. |
 | [`index.html`](../index.html) | Preloads the same two WOFF2 files with `as="font"`, the WOFF2 MIME type, and `crossorigin`. Vite rewrites the package paths to hashed production URLs. |
 | [`DeparturesTable.tsx`](../src/components/DeparturesTable.tsx) | Applies the numerical family, weights, and departure-state hierarchy. |
+| [`LineBadge.tsx`](../src/components/LineBadge.tsx) | Renders the line identity before the destination; the proportional variant inherits row sizing. |
 | [`StationPicker.tsx`](../src/components/StationPicker.tsx) | Uses the shared sans family, including the station trigger; it no longer hard-codes Helvetica. |
 | [`src/server.ts`](../src/server.ts) | Successful font responses beneath `/assets/` receive `Cache-Control: public, max-age=31536000, immutable`. |
 | [`vite.config.ts`](../vite.config.ts) | Includes WOFF2 files in the existing service worker's precache alongside the application assets. |
