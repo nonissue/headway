@@ -3,6 +3,23 @@
 Updated 2026-09-24. This records the current design decisions and session results;
 older mockups and QA captures are historical references, not the current specification.
 
+## Release validation — 2026-09-24
+
+- Release scope: upcoming-only departures, official scroll fades, drawer exit
+  timing, simplified footer with refresh feedback, the refined station picker,
+  and smaller line initials on solid discs.
+- Preserved the remote weekly GTFS update (`f27b87b`) by merging it into the
+  release branch; no new timetable import was run for this UI work.
+- Final merged tree passed all 162 tests across 23 files and the production
+  Vite/TypeScript build. QA fixtures remain excluded from production output.
+- Final mobile preview checks at 320px and 390px confirmed single-line names
+  and stationary search focus with a subtle divider. Solid badges were checked
+  on the departure board. Physical iPhone keyboard, VoiceOver, and fast-flick
+  scrolling checks remain outstanding.
+- Publication follows [the release workflow](releasing.md): both branches must
+  contain this release, with Fly Deploy success and live checks verified after
+  the push. Earlier release records below are historical.
+
 ## Line badge refinement — 2026-09-24
 
 - Retained solid line-colour discs after trying transparent, coloured outlines.
