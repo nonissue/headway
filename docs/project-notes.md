@@ -3,6 +3,39 @@
 Updated 2026-09-24. This records the current design decisions and session results;
 older mockups and QA captures are historical references, not the current specification.
 
+## Station picker refinement — 2026-09-24
+
+- Replaced the boxed search and line legend with a full-width “Search stations”
+  row above a single heavy rule. Compact section labels omit station counts;
+  search results have no visible section heading but retain an accessible result
+  count, clear button, and empty-state feedback.
+- Station rows use the existing Geist/Geist Mono pairing, a 56px minimum height,
+  and shared columns for names, distances, and stars. Line badges are omitted
+  at every width to prioritise readable station names; accessible line
+  descriptions remain. Names never wrap: concise display labels and ellipsis
+  handle overflow. Favourites and all stations share column widths
+  and one scrolling area; favourites still repeat in the main list.
+- Current selection uses a left edge bar, check, and modest semibold name with
+  no permanent background fill. Favourite stars use outline/filled foreground
+  styling and keep separate 44px touch targets.
+- Concise display names include “Bay / Enterprise”, “Kingsway / Royal Alex”,
+  “Health Sciences”, “South Campus”, and “NAIT / Blatchford”. “Churchill” identifies
+  the underground station; “Churchill · Valley” identifies the surface stop.
+  Search still matches full feed names, which remain
+  available as accessible labels and titles. IDs and selection data are unchanged.
+- Distances remain straight-line estimates with no repeated “away” suffix.
+  Without device location, distances remain hidden and stations sort alphabetically.
+- The [local picker preview](qa/station-picker/index.html) renders the real
+  component with current station data and a fixed example location near Corona.
+  It is development-only and excluded from production and coverage, like the
+  departure typography fixture. Check 320px/390px names, search expansion,
+  favourites, selection, and mobile/desktop themes before changing this layout.
+- Validation: all 162 tests and production build passed; browser checks covered
+  320px/390px layouts, light/dark themes, alias search, 44px favourite targets,
+  independent favourite toggling, and selecting a station. All station names
+  fit untruncated at 390px. At 320px, Kingsway and Millbourne/Woodvale use ellipsis;
+  every row stays on one line at both widths. Physical-device QA remains open.
+
 ## Footer and refresh feedback — 2026-09-24
 
 - Removed the scheduled-times/updated-at footer block. The countdown clock runs
@@ -88,11 +121,12 @@ closure. That was session context, not a permanent restriction or inferred UI bu
   icon buttons on the right. A strong top rule and thin bottom border sit above
   the phone's safe-area space. The About surface and station picker follow the
   same compact, square-edged treatment.
-- Station picker: aligned names on the left, line monograms beside the favourite
-  control on the right, and a line-name legend beneath search. Current selection
-  uses a check rather than an extra text subtitle. Favourites precede stations
-  ordered by distance when location is available, otherwise alphabetically.
-  Distances are not walking-time estimates.
+- Station picker: single-line station names, aligned distances, and separate
+  favourite buttons on the right. Line badges are omitted to give names space.
+  A plain search row replaces the boxed input and legend. Current selection uses
+  a check and left edge bar.
+  Favourites precede stations ordered by distance when location is available,
+  otherwise alphabetically. Distances are not walking-time estimates.
 - No visible Stations heading or dedicated close button in the mobile picker.
   Retain the drag handle and overlay dismissal, plus accessible labelling.
   The search-clear control only clears the query.

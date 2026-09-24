@@ -87,6 +87,23 @@ do not reintroduce repeated
 `text-[15px]` or `leading-[1.2]` values. The proportional badge ratios and shared
 grid structure are deliberate component rules, not per-row adjustments.
 
+## Station picker
+
+Station names use Geist at `text-lg` / 18px and medium weight (500), with a
+modest semibold (600) current-station label. Distances use Geist Mono at
+`text-sm` / 14px in the muted colour. Rows have a 56px minimum height.
+
+Names must stay on one line at every viewport. Line badges are omitted from
+the picker to prioritise name width. Use concise display labels and ellipsis
+for remaining overflow; preserve full feed names for search and accessible
+labels. “Churchill” and “Churchill · Valley” distinguish the two stops.
+
+Favourites and the main list share content-sized distance columns, flexible
+name columns, and separate 44px favourite controls. The full-width search row
+uses `text-xl` / 20px and a single heavy bottom rule. Compact section labels use
+`text-xs` / 12px. The [picker preview](qa/station-picker/index.html) provides a
+fixed example location and real station data for narrow-phone checks.
+
 ## Installation and integration
 
 The dependencies are `@fontsource-variable/geist` and

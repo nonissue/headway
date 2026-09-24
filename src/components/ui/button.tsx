@@ -19,6 +19,8 @@ const buttonVariants = cva(
                     'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
                 ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
                 plain: 'cursor-pointer',
+                station:
+                    'cursor-pointer rounded-none bg-transparent text-foreground hover:bg-accent focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid aria-pressed:[&_svg]:fill-current',
                 footer: 'cursor-pointer rounded-none border-0 border-l bg-transparent p-0 text-foreground shadow-none hover:bg-accent focus-visible:border-border focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-3 focus-visible:outline-ring focus-visible:outline-solid',
                 link: 'text-primary underline-offset-4 hover:underline',
             },
@@ -28,6 +30,8 @@ const buttonVariants = cva(
                 lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
                 icon: 'size-9',
                 'icon-sm': 'size-8',
+                'icon-lg': 'size-11 [&_svg]:size-4.5',
+                'station-row': 'h-auto min-h-14 px-0 py-2',
                 'footer-icon': 'h-full min-h-12 w-12',
                 'footer-label':
                     'h-full min-h-12 px-4.5 font-bold tracking-tight',

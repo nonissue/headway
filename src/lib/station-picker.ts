@@ -49,8 +49,21 @@ export function formatStationDistance(metres: number): string {
         : `${(metres / 1000).toFixed(1)} km`;
 }
 
+// Display labels only: retain feed names and IDs for searching and selection.
+const STATION_DISPLAY_NAMES: Record<string, string> = {
+    'Bay Enterprise Station': 'Bay / Enterprise',
+    'Kingsway RAH Station': 'Kingsway / Royal Alex',
+    'Churchill Station Underground': 'Churchill',
+    'Churchill Stop': 'Churchill · Valley',
+    'Health Sciences Jubilee Station': 'Health Sciences',
+    'NAIT-Blatchford Market Station': 'NAIT / Blatchford',
+    'South Camputs Ft. Edmonton Station': 'South Campus',
+    'DL Macdonald Platform': 'DL Macdonald',
+};
+
 export function stationName(station: Station): string {
-    return station.stop_name
-        .replace(/\s+Station$/i, '')
-        .replace(/\s+Stop$/i, '');
+    return (
+        STATION_DISPLAY_NAMES[station.stop_name] ??
+        station.stop_name.replace(/\s+Station$/i, '').replace(/\s+Stop$/i, '')
+    );
 }

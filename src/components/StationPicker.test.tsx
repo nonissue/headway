@@ -124,11 +124,54 @@ describe('StationPicker', () => {
                 'Distances are straight-line estimates, not walking routes.'
             )
         ).toBeTruthy();
+        expect(screen.getByText('0 m')).toBeTruthy();
+        expect(screen.queryByText(/ m away/)).toBeNull();
+    });
+    it('finds the displayed station name and still selects the original station', () => {
+        const station: Station = {
+            stop_id: 'kingsway',
+            stop_name: 'Kingsway RAH Station',
+            lines: ['Metro'],
+        };
+        const select = openPicker({ stations: [station] });
+        fireEvent.change(screen.getByRole('searchbox'), {
+            target: { value: 'Royal Alex' },
+        });
+        expect(screen.getByText('Kingsway / Royal Alex')).toBeTruthy();
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Select Kingsway RAH Station' })
+        );
+        expect(select).toHaveBeenCalledWith(station);
     });
     it('does not imply proximity without a device location', () => {
         openPicker();
         expect(screen.getByText('All stations')).toBeTruthy();
         expect(screen.queryByText('Near you')).toBeNull();
+    });
+    it('keeps the two Churchill stops distinct when their display names are shortened', () => {
+        const underground: Station = {
+            stop_id: 'churchill-underground',
+            stop_name: 'Churchill Station Underground',
+            lines: ['Capital', 'Metro'],
+        };
+        const valley: Station = {
+            stop_id: 'churchill-valley',
+            stop_name: 'Churchill Stop',
+            lines: ['Valley'],
+        };
+        const select = openPicker({ stations: [underground, valley] });
+        expect(screen.getByText('Churchill')).toBeTruthy();
+        expect(screen.getByText('Churchill · Valley')).toBeTruthy();
+        fireEvent.change(screen.getByRole('searchbox'), {
+            target: { value: 'Underground' },
+        });
+        expect(screen.queryByText('Churchill · Valley')).toBeNull();
+        fireEvent.click(
+            screen.getByRole('button', {
+                name: 'Select Churchill Station Underground',
+            })
+        );
+        expect(select).toHaveBeenCalledWith(underground);
     });
     it('handles corrupt storage and loading stations', () => {
         localStorage.setItem(FAVOURITES_KEY, '{broken');

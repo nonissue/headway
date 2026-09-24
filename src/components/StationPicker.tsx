@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { Check, ChevronDown, Search, Star, TrainFront, X } from 'lucide-react';
+import { Check, ChevronDown, Search, Star, X } from 'lucide-react';
 import { cn } from '@/components/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
     InputGroup,
     InputGroupAddon,
@@ -96,11 +95,10 @@ export function StationPicker({
         [stations, location]
     );
     const results = sorted.filter((station) =>
-        station.stop_name.toLocaleLowerCase().includes(normalized)
+        [station.stop_name, stationName(station)].some((name) =>
+            name.toLocaleLowerCase().includes(normalized)
+        )
     );
-    const lines = [
-        ...new Set(stations.flatMap((station) => station.lines ?? [])),
-    ].sort();
     const savedStations = favourites
         .map((id) => stations.find((station) => station.stop_id === id))
         .filter((station): station is Station => !!station);
@@ -128,6 +126,10 @@ export function StationPicker({
         onStationSelect(station);
         changeOpen(false);
     }
+    const listClassName = 'col-span-full grid grid-cols-subgrid';
+    const sectionClassName =
+        'col-span-full flex min-h-7 items-center border-b px-4.5 py-1 text-xs font-semibold tracking-widest text-muted-foreground uppercase';
+
     function row(station: Station) {
         const current = station.stop_id === selectedStation?.stop_id;
         const saved = favourites.includes(station.stop_id);
@@ -135,62 +137,37 @@ export function StationPicker({
         return (
             <li
                 key={station.stop_id}
-                className="flex items-stretch border-b px-4.5 data-current:bg-accent"
+                className="group/station relative col-span-full grid min-w-0 grid-cols-subgrid items-center gap-x-3 border-b pr-1.5 pl-4.5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-1 data-current:before:bg-foreground"
                 data-current={current || undefined}
             >
                 <Button
-                    variant="plain"
-                    className="h-auto min-h-16 min-w-0 flex-1 justify-start gap-3 rounded-none px-0 py-3 text-left whitespace-normal has-[>svg]:px-0"
+                    variant="station"
+                    size="station-row"
+                    className="col-span-2 grid min-w-0 grid-cols-subgrid gap-x-3 text-left"
                     aria-label={`Select ${station.stop_name}${current ? ', current station' : ''}`}
                     aria-description={station.lines?.join(', ')}
                     aria-current={current ? 'true' : undefined}
+                    title={station.stop_name}
                     onClick={() => select(station)}
                 >
-                    <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
-                        <span className="text-base leading-[1.15] font-bold tracking-[-0.4px] wrap-anywhere">
-                            {stationName(station)}
-                            {current && (
-                                <Check
-                                    className="ml-1.5 inline-block align-[-2px] text-muted-foreground"
-                                    aria-hidden="true"
-                                />
-                            )}
-                        </span>
-                        {distance !== undefined && (
-                            <span className="text-[11px] leading-[1.3] font-medium text-muted-foreground">
-                                {formatStationDistance(distance)} away
-                            </span>
-                        )}
+                    <span className="flex min-w-0 items-center gap-2 text-lg leading-tight font-medium group-data-current/station:font-semibold">
+                        <span className="truncate">{stationName(station)}</span>
+                        {current && <Check aria-hidden="true" />}
                     </span>
-                    <span
-                        className="flex shrink-0 items-center justify-end gap-[5px]"
-                        aria-hidden="true"
-                    >
-                        {station.lines?.length ? (
-                            station.lines.map((line) => (
-                                <Badge
-                                    key={line}
-                                    variant="outline"
-                                    className="flex size-5.5 items-center justify-center rounded-full border-0 bg-muted p-0 text-xs font-bold text-foreground data-[line=capital]:bg-line-capital data-[line=capital]:text-line-on-colour data-[line=metro]:bg-line-metro data-[line=metro]:text-line-on-amber data-[line=valley]:bg-line-valley data-[line=valley]:text-line-on-colour"
-                                    data-line={line.toLowerCase()}
-                                >
-                                    {line.charAt(0)}
-                                </Badge>
-                            ))
-                        ) : (
-                            <TrainFront />
-                        )}
+                    <span className="text-right font-mono text-sm font-normal whitespace-nowrap text-muted-foreground">
+                        {distance !== undefined
+                            ? formatStationDistance(distance)
+                            : null}
                     </span>
                 </Button>
                 <Button
-                    variant="ghost"
-                    size="icon"
-                    className="ml-2 size-11 self-center rounded-none text-muted-foreground hover:text-muted-foreground aria-pressed:text-picker-gold aria-pressed:hover:text-picker-gold aria-pressed:[&_svg]:fill-current"
+                    variant="station"
+                    size="icon-lg"
                     aria-label={`${saved ? 'Remove' : 'Add'} ${station.stop_name} ${saved ? 'from' : 'to'} favourites`}
                     aria-pressed={saved}
                     onClick={() => toggleFavourite(station.stop_id)}
                 >
-                    <Star data-icon="inline-start" className="size-[19px]" />
+                    <Star data-icon="inline-start" aria-hidden="true" />
                 </Button>
             </li>
         );
@@ -199,15 +176,15 @@ export function StationPicker({
     const Description = desktop ? DialogDescription : DrawerDescription;
     const body = (
         <>
-            <div className="shrink-0 border-b px-4.5 py-4">
+            <div className="shrink-0">
                 <Title className="sr-only">Stations</Title>
                 <Description className="sr-only">
                     Choose a station to see its departures. Save favourites for
                     quick access.
                 </Description>
-                <InputGroup className="h-12 min-w-0 flex-1 rounded-none bg-background shadow-none focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-ring focus-within:outline-solid has-[[data-slot=input-group-control]:focus-visible]:ring-0 dark:bg-background">
+                <InputGroup variant="row">
                     <InputGroupInput
-                        className="text-base font-medium md:text-base md:leading-[1.4285714286] [&::-webkit-search-cancel-button]:hidden"
+                        className="[&::-webkit-search-cancel-button]:hidden"
                         ref={searchRef}
                         type="search"
                         aria-label="Search stations"
@@ -231,50 +208,30 @@ export function StationPicker({
                                     searchRef.current?.focus();
                                 }}
                             >
-                                <X />
+                                <X
+                                    data-icon="inline-start"
+                                    aria-hidden="true"
+                                />
                             </InputGroupButton>
                         </InputGroupAddon>
                     )}
                 </InputGroup>
-                {lines.length > 0 && (
-                    <ul
-                        className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3"
-                        aria-label="Transit lines"
-                    >
-                        {lines.map((line) => (
-                            <li
-                                className="flex items-center gap-1.5 text-[11px] leading-none font-medium text-muted-foreground"
-                                key={line}
-                            >
-                                <Badge
-                                    variant="outline"
-                                    className="flex size-5.5 items-center justify-center rounded-full border-0 bg-muted p-0 text-xs font-bold text-foreground data-[line=capital]:bg-line-capital data-[line=capital]:text-line-on-colour data-[line=metro]:bg-line-metro data-[line=metro]:text-line-on-amber data-[line=valley]:bg-line-valley data-[line=valley]:text-line-on-colour"
-                                    data-line={line.toLowerCase()}
-                                    aria-hidden="true"
-                                >
-                                    {line.charAt(0)}
-                                </Badge>
-                                <span>{line}</span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
             </div>
             <div
-                className="min-h-0 flex-1 [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent] overflow-y-auto overscroll-contain pb-[max(24px,env(safe-area-inset-bottom))]"
+                className="grid min-h-0 flex-1 [scrollbar-width:thin] [scrollbar-color:var(--border)_transparent] grid-cols-[minmax(0,1fr)_max-content_2.75rem] content-start gap-x-3 overflow-y-auto overscroll-contain pb-[max(24px,env(safe-area-inset-bottom))]"
                 data-base-ui-swipe-ignore
             >
                 {saveError && (
                     <p
                         role="status"
-                        className="mx-4.5 mt-5 text-[11px] leading-normal text-muted-foreground"
+                        className="col-span-full mx-4.5 mt-5 text-xs leading-normal text-muted-foreground"
                     >
                         Favourites are available for this visit, but couldn’t be
                         saved on this device.
                     </p>
                 )}
                 {isLoading ? (
-                    <Empty>
+                    <Empty className="col-span-full">
                         <EmptyHeader>
                             <EmptyTitle>Loading stations…</EmptyTitle>
                         </EmptyHeader>
@@ -284,31 +241,34 @@ export function StationPicker({
                         {!normalized && savedStations.length > 0 && (
                             <section
                                 aria-labelledby={`${headingId}-favourites`}
+                                className={listClassName}
                             >
                                 <h3
                                     id={`${headingId}-favourites`}
-                                    className="flex min-h-[42px] items-center gap-1.5 border-b px-4.5 py-3 text-[10px] font-bold tracking-[1.2px] text-foreground uppercase [&_svg]:size-3 [&>span]:ml-auto [&>span]:flex [&>span]:items-center [&>span]:gap-1 [&>span]:text-[9px] [&>span]:tracking-[1px]"
+                                    className={sectionClassName}
                                 >
-                                    <Star aria-hidden="true" /> Favourites
+                                    Favourites
                                 </h3>
-                                <ul>{savedStations.map(row)}</ul>
+                                <ul className={listClassName}>
+                                    {savedStations.map(row)}
+                                </ul>
                             </section>
                         )}
-                        <section aria-labelledby={`${headingId}-stations`}>
+                        <section
+                            aria-labelledby={`${headingId}-stations`}
+                            className={listClassName}
+                        >
                             <h3
                                 id={`${headingId}-stations`}
-                                className="flex min-h-[42px] items-center gap-1.5 border-b px-4.5 py-3 text-[10px] font-bold tracking-[1.2px] text-foreground uppercase [&_svg]:size-3 [&>span]:ml-auto [&>span]:flex [&>span]:items-center [&>span]:gap-1 [&>span]:text-[9px] [&>span]:tracking-[1px]"
+                                className={cn(
+                                    normalized ? 'sr-only' : sectionClassName
+                                )}
                             >
                                 {normalized
                                     ? 'Search results'
                                     : location
                                       ? 'By distance'
                                       : 'All stations'}
-                                <span>
-                                    {normalized
-                                        ? `${results.length} found`
-                                        : `${stations.length} stations`}
-                                </span>
                             </h3>
                             <span className="sr-only" role="status">
                                 {normalized
@@ -316,9 +276,11 @@ export function StationPicker({
                                     : ''}
                             </span>
                             {results.length > 0 ? (
-                                <ul>{results.map(row)}</ul>
+                                <ul className={listClassName}>
+                                    {results.map(row)}
+                                </ul>
                             ) : (
-                                <Empty>
+                                <Empty className="col-span-full">
                                     <EmptyHeader>
                                         <EmptyTitle>
                                             {normalized
@@ -334,7 +296,7 @@ export function StationPicker({
                                 </Empty>
                             )}
                         </section>
-                        <p className="mx-4.5 mt-5 text-[11px] leading-normal text-muted-foreground">
+                        <p className="col-span-full mx-4.5 mt-5 text-xs leading-normal text-muted-foreground">
                             {location
                                 ? 'Distances are straight-line estimates, not walking routes.'
                                 : 'Location unavailable. Stations are listed alphabetically.'}
@@ -386,7 +348,7 @@ export function StationPicker({
             <DrawerContent
                 ref={drawerRef}
                 tabIndex={-1}
-                className='station-picker mt-0 h-[92dvh] max-h-[92dvh] pb-(--drawer-snap-point-offset) overflow-hidden rounded-none bg-background [font-feature-settings:"tnum"] text-foreground outline-none [&>[data-slot=drawer-handle]]:h-[3px] [&>[data-slot=drawer-handle]]:w-9 [&>[data-slot=drawer-handle]]:rounded-none [&>[data-slot=drawer-handle]]:bg-muted-foreground [&>[data-slot=drawer-handle]]:opacity-60'
+                className='station-picker mt-0 h-[92dvh] max-h-[92dvh] overflow-hidden rounded-none bg-background pb-(--drawer-snap-point-offset) [font-feature-settings:"tnum"] text-foreground outline-none [&>[data-slot=drawer-handle]]:h-[3px] [&>[data-slot=drawer-handle]]:w-9 [&>[data-slot=drawer-handle]]:rounded-none [&>[data-slot=drawer-handle]]:bg-muted-foreground [&>[data-slot=drawer-handle]]:opacity-60'
                 initialFocus={drawerRef}
             >
                 {body}

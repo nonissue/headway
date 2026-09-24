@@ -6,14 +6,29 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
-function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
+const inputGroupVariants = cva('', {
+    variants: {
+        variant: {
+            default:
+                'h-9 rounded-md border border-input shadow-xs dark:bg-input/30',
+            row: 'h-14 rounded-none border-0 border-b-2 border-foreground bg-background shadow-none focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-ring focus-within:outline-solid has-[[data-slot=input-group-control]:focus-visible]:ring-0 [&>[data-align=inline-end]]:pr-1.5 [&>[data-align=inline-end]]:has-[>button]:mr-0 [&>[data-align=inline-start]]:pl-4.5 [&>[data-slot=input-group-addon]]:text-foreground [&>[data-slot=input-group-addon]>svg]:size-5 [&>[data-slot=input-group-control]]:h-full [&>[data-slot=input-group-control]]:text-xl [&>[data-slot=input-group-control]]:font-normal has-[>[data-align=inline-start]]:[&>input]:pl-3',
+        },
+    },
+    defaultVariants: { variant: 'default' },
+});
+
+function InputGroup({
+    className,
+    variant,
+    ...props
+}: React.ComponentProps<'div'> & VariantProps<typeof inputGroupVariants>) {
     return (
         <div
             data-slot="input-group"
             role="group"
             className={cn(
-                'group/input-group relative flex w-full items-center rounded-md border border-input shadow-xs transition-[color,box-shadow] outline-none dark:bg-input/30',
-                'h-9 has-[>textarea]:h-auto',
+                'group/input-group relative flex w-full items-center transition-[color,box-shadow] outline-none',
+                'has-[>textarea]:h-auto',
 
                 // Variants based on alignment.
                 'has-[>[data-align=inline-start]]:[&>input]:pl-2',
@@ -27,6 +42,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<'div'>) {
                 // Error state.
                 'has-[[data-slot][aria-invalid=true]]:border-destructive has-[[data-slot][aria-invalid=true]]:ring-destructive/20 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40',
 
+                inputGroupVariants({ variant }),
                 className
             )}
             {...props}
