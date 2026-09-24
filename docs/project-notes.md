@@ -16,9 +16,16 @@ older mockups and QA captures are historical references, not the current specifi
   and stationary search focus with a subtle divider. Solid badges were checked
   on the departure board. Physical iPhone keyboard, VoiceOver, and fast-flick
   scrolling checks remain outstanding.
-- Publication follows [the release workflow](releasing.md): both branches must
-  contain this release, with Fly Deploy success and live checks verified after
-  the push. Earlier release records below are historical.
+- Release `2fb1c8d` was pushed to `develop` and `main` and deployed successfully
+  in [Fly Deploy run 35973945241](https://github.com/nonissue/headway/actions/runs/35973945241).
+  Production health returned 200; Corona returned 15 upcoming departures across
+  two platforms. The served stylesheet matched the local production build, and
+  both WOFF2 files returned 200 with immutable caching.
+- After the existing PWA installed its update, a second reload loaded the new
+  bundle. Live 390px checks confirmed the new footer, successful refresh toast,
+  dark-mode picker, distinct Churchill search results, and unchanged drawer
+  height on search focus. This documentation-only follow-up does not change the
+  deployed application. Earlier release records below are historical.
 
 ## Line badge refinement — 2026-09-24
 
