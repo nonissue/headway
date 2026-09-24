@@ -25,7 +25,7 @@ The Dockerfile copies prebuilt `dist/`, so a manual deployment must also build
 first. Avoid changing GTFS data as part of a visual release unless requested.
 
 For departure layout changes, use the [typography QA preview](typography.md#verification-when-changing-fonts)
-with mixed lines, long destinations, recent departures, and narrow viewports.
+with mixed lines, long destinations, upcoming departures, and narrow viewports.
 The preview fixes both schedule data and `now`; changing the device clock is
 unnecessary and can make a live client disagree with the server. Check both
 direction panes and destination truncation. The preview is development-only,

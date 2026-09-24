@@ -20,7 +20,7 @@ const buttonVariants = cva(
                 ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
                 plain: 'cursor-pointer',
                 station:
-                    'cursor-pointer rounded-none bg-transparent text-foreground hover:bg-accent focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid aria-pressed:[&_svg]:fill-current',
+                    'cursor-pointer rounded-none bg-transparent text-foreground focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring focus-visible:outline-solid aria-pressed:[&_svg]:fill-current',
                 footer: 'cursor-pointer rounded-none border-0 border-l bg-transparent p-0 text-foreground shadow-none hover:bg-accent focus-visible:border-border focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-3 focus-visible:outline-ring focus-visible:outline-solid',
                 link: 'text-primary underline-offset-4 hover:underline',
             },

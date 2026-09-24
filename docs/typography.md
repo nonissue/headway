@@ -52,8 +52,9 @@ The line badge sits to the **left** of the destination, vertically centred in a
 fixed `w-6` (24px) column. Destination text therefore shares one left edge
 across every row. The `proportional` variant of `LineBadge` uses a diameter
 of `1.125em` and fallback icon size of `0.85em`. Letter sizes are deliberately
-whole pixels: 12px for all rows. Badge tracking
-is reset to normal, independently of destination tracking. `text-box: trim-both cap alphabetic` centres the capital-height box;
+whole pixels: 11px at semibold (600) for all rows, with 12px header initials.
+Badge tracking is reset to normal, independently of destination tracking.
+`text-box: trim-both cap alphabetic` centres the capital-height box;
 browsers without text-box support retain ordinary flex centring. These rules
 live together in `src/globals.css`. The badge cannot shrink.
 
@@ -61,7 +62,9 @@ Destinations use `truncate` inside their own text column, showing
 an ellipsis when space runs out. The full destination remains in the DOM for
 assistive technology and in the existing `title` attribute for pointer hover.
 
-Rows remain flat. Header filter badges retain their independent fixed sizing.
+Rows remain flat. Line badges use solid line-colour discs with contrasting
+letters: white for Capital and Valley, dark for Metro. Header filter badges
+share this treatment and retain their independent fixed sizing.
 
 The `mins` suffix remains regular weight (400), with no inserted space:
 `12mins`. A zero-minute countdown displays `Now`. Next-service rows use the same
@@ -98,10 +101,11 @@ the picker to prioritise name width. Use concise display labels and ellipsis
 for remaining overflow; preserve full feed names for search and accessible
 labels. “Churchill” and “Churchill · Valley” distinguish the two stops.
 
-Favourites and the main list share content-sized distance columns, flexible
-name columns, and separate 44px favourite controls. The full-width search row
-uses `text-xl` / 20px and a single heavy bottom rule. Compact section labels use
-`text-xs` / 12px. The [picker preview](qa/station-picker/index.html) provides a
+One list, with favourites first, shares content-sized distance columns, flexible
+name columns, and separate 44px favourite controls. There are no visible section
+labels or duplicate stations. The full-width search row uses `text-xl` / 20px
+and a thin bottom divider that changes colour on focus, without an input outline
+or ring. The [picker preview](qa/station-picker/index.html) provides a
 fixed example location and real station data for narrow-phone checks.
 
 ## Installation and integration

@@ -3,32 +3,48 @@
 Updated 2026-09-24. This records the current design decisions and session results;
 older mockups and QA captures are historical references, not the current specification.
 
+## Line badge refinement — 2026-09-24
+
+- Retained solid line-colour discs after trying transparent, coloured outlines.
+  The solid treatment better preserves the transit-signage reference and makes
+  the line colours easier to recognise.
+- Reduced initials by 1px and changed bold (700) to semibold (600): 11px in
+  departure rows and 12px in header filters. Circle dimensions are unchanged.
+  Capital and Valley retain white letters; Metro retains dark letters.
+- Checked the final solid treatment in the local board. The outlined experiment
+  is not part of this release.
+
 ## Station picker refinement — 2026-09-24
 
 - Replaced the boxed search and line legend with a full-width “Search stations”
-  row above a single heavy rule. Compact section labels omit station counts;
-  search results have no visible section heading but retain an accessible result
-  count, clear button, and empty-state feedback.
+  row and a thin divider. Focus changes the divider colour rather than drawing
+  an outline or ring. Focusing search no longer expands the drawer; manual
+  dragging between snap points remains available.
+- One unlabelled list shows favourites first, then other stations by distance
+  or alphabetically without location. Each station appears once, including in
+  search results. Filled stars identify favourites. Accessible list names,
+  result counts, clear search, and empty-state feedback remain.
 - Station rows use the existing Geist/Geist Mono pairing, a 56px minimum height,
   and shared columns for names, distances, and stars. Line badges are omitted
   at every width to prioritise readable station names; accessible line
   descriptions remain. Names never wrap: concise display labels and ellipsis
-  handle overflow. Favourites and all stations share column widths
-  and one scrolling area; favourites still repeat in the main list.
+  handle overflow. All stations share column widths and one scrolling area.
 - Current selection uses a left edge bar, check, and modest semibold name with
   no permanent background fill. Favourite stars use outline/filled foreground
-  styling and keep separate 44px touch targets.
+  styling and keep separate 44px touch targets. Hover feedback spans the entire
+  row, including gutters and the favourite control; each button stays transparent
+  and retains its own keyboard focus outline.
 - Concise display names include “Bay / Enterprise”, “Kingsway / Royal Alex”,
   “Health Sciences”, “South Campus”, and “NAIT / Blatchford”. “Churchill” identifies
   the underground station; “Churchill · Valley” identifies the surface stop.
   Search still matches full feed names, which remain
   available as accessible labels and titles. IDs and selection data are unchanged.
 - Distances remain straight-line estimates with no repeated “away” suffix.
-  Without device location, distances remain hidden and stations sort alphabetically.
+  Without device location, distances remain hidden and non-favourites sort alphabetically.
 - The [local picker preview](qa/station-picker/index.html) renders the real
   component with current station data and a fixed example location near Corona.
   It is development-only and excluded from production and coverage, like the
-  departure typography fixture. Check 320px/390px names, search expansion,
+  departure typography fixture. Check 320px/390px names, stationary search focus,
   favourites, selection, and mobile/desktop themes before changing this layout.
 - Validation: all 162 tests and production build passed; browser checks covered
   320px/390px layouts, light/dark themes, alias search, 44px favourite targets,
@@ -69,7 +85,8 @@ older mockups and QA captures are historical references, not the current specifi
   independent departure scrolling, zero fade at the list end and without
   overflow, and the desktop dialog at 900px. The originally reported abrupt
   outside-tap close did not reproduce in the in-app browser before the change;
-  physical iPhone/Safari confirmation is still needed. These changes are local.
+  physical iPhone/Safari confirmation is still needed. Search expansion was
+  subsequently removed as described in the station picker refinement above.
 
 ## Product and design direction
 
@@ -98,8 +115,8 @@ closure. That was session context, not a permanent restriction or inferred UI bu
   clock/countdown columns. The standalone offline fallback
   retains its system fonts. Build and all 155 tests passed; live desktop/mobile
   browser checks covered 320px and 390px rows, dark mode, and the station picker.
-  First upcoming clocks and countdowns use medium weight (500), reduced from
-  bold (700); destination emphasis is unchanged. Physical-device rendering
+  Upcoming clocks use regular weight (400); only the next countdown uses medium
+  weight (500). Physical-device rendering
   remains unverified. See the [typography guide](typography.md) for integration,
   current hierarchy, performance details, resources, and remaining style cleanup.
 - Two equal, independently scrolling direction panes; a terminus uses one pane.
@@ -123,10 +140,12 @@ closure. That was session context, not a permanent restriction or inferred UI bu
   same compact, square-edged treatment.
 - Station picker: single-line station names, aligned distances, and separate
   favourite buttons on the right. Line badges are omitted to give names space.
-  A plain search row replaces the boxed input and legend. Current selection uses
+  A plain search row with a thin divider replaces the boxed input and legend.
+  Focus subtly changes the divider colour without expanding the drawer. Current selection uses
   a check and left edge bar.
-  Favourites precede stations ordered by distance when location is available,
-  otherwise alphabetically. Distances are not walking-time estimates.
+  Favourites appear first in one list without duplicate rows or section labels.
+  Other stations sort by distance when location is available, otherwise
+  alphabetically. Distances are not walking-time estimates.
 - No visible Stations heading or dedicated close button in the mobile picker.
   Retain the drag handle and overlay dismissal, plus accessible labelling.
   The search-clear control only clears the query.
@@ -152,7 +171,7 @@ closure. That was session context, not a permanent restriction or inferred UI bu
 - `ui-overhaul-pre-next-service` tags `584c44e`, the UI checkpoint before fallback
   work. It retains the old time-query behaviour, so it is not a timing bug fix.
 
-## Latest release and verification
+## Earlier release verification — historical
 
 - Release `ad11a2b`: larger standalone arrows, footer bottom border, and scrolling
   refinements. Pushed to `develop` and `main`; deployed successfully to
@@ -169,7 +188,7 @@ closure. That was session context, not a permanent restriction or inferred UI bu
   `overscroll-behavior: none`. These target the reported iPhone flick-at-bottom
   stutter; the cause and on-device resolution are not yet confirmed.
 
-## Local checkpoint verification
+## Earlier local checkpoint verification — historical
 
 - All 155 tests across 23 files passed with `npx vitest run --coverage.enabled=false`.
 - `SENTRY_UPLOAD=false npm run build` passed, including TypeScript compilation.

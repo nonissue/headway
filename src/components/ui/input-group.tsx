@@ -11,7 +11,7 @@ const inputGroupVariants = cva('', {
         variant: {
             default:
                 'h-9 rounded-md border border-input shadow-xs dark:bg-input/30',
-            row: 'h-14 rounded-none border-0 border-b-2 border-foreground bg-background shadow-none focus-within:outline-2 focus-within:-outline-offset-2 focus-within:outline-ring focus-within:outline-solid has-[[data-slot=input-group-control]:focus-visible]:ring-0 [&>[data-align=inline-end]]:pr-1.5 [&>[data-align=inline-end]]:has-[>button]:mr-0 [&>[data-align=inline-start]]:pl-4.5 [&>[data-slot=input-group-addon]]:text-foreground [&>[data-slot=input-group-addon]>svg]:size-5 [&>[data-slot=input-group-control]]:h-full [&>[data-slot=input-group-control]]:text-xl [&>[data-slot=input-group-control]]:font-normal has-[>[data-align=inline-start]]:[&>input]:pl-3',
+            row: 'h-14 rounded-none border-0 border-b border-border bg-background shadow-none focus-within:border-muted-foreground has-[[data-slot=input-group-control]:focus-visible]:ring-0 [&>[data-align=inline-end]]:pr-1.5 [&>[data-align=inline-end]]:has-[>button]:mr-0 [&>[data-align=inline-start]]:pl-4.5 [&>[data-slot=input-group-addon]]:text-foreground [&>[data-slot=input-group-addon]>svg]:size-5 [&>[data-slot=input-group-control]]:h-full [&>[data-slot=input-group-control]]:text-xl [&>[data-slot=input-group-control]]:font-normal has-[>[data-align=inline-start]]:[&>input]:pl-3',
         },
     },
     defaultVariants: { variant: 'default' },

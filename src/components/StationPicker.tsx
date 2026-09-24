@@ -79,7 +79,6 @@ export function StationPicker({
     const searchRef = React.useRef<HTMLInputElement>(null);
     const drawerRef = React.useRef<HTMLDivElement>(null);
     const desktop = useDesktop();
-    const headingId = React.useId();
     const normalized = query.trim().toLocaleLowerCase();
     const sorted = React.useMemo(
         () =>
@@ -94,14 +93,18 @@ export function StationPicker({
             }),
         [stations, location]
     );
-    const results = sorted.filter((station) =>
+    const savedStations = favourites
+        .map((id) => stations.find((station) => station.stop_id === id))
+        .filter((station): station is Station => !!station);
+    const orderedStations = [
+        ...savedStations,
+        ...sorted.filter((station) => !favourites.includes(station.stop_id)),
+    ];
+    const results = orderedStations.filter((station) =>
         [station.stop_name, stationName(station)].some((name) =>
             name.toLocaleLowerCase().includes(normalized)
         )
     );
-    const savedStations = favourites
-        .map((id) => stations.find((station) => station.stop_id === id))
-        .filter((station): station is Station => !!station);
 
     function changeOpen(next: boolean) {
         setOpen(next);
@@ -127,8 +130,6 @@ export function StationPicker({
         changeOpen(false);
     }
     const listClassName = 'col-span-full grid grid-cols-subgrid';
-    const sectionClassName =
-        'col-span-full flex min-h-7 items-center border-b px-4.5 py-1 text-xs font-semibold tracking-widest text-muted-foreground uppercase';
 
     function row(station: Station) {
         const current = station.stop_id === selectedStation?.stop_id;
@@ -137,7 +138,7 @@ export function StationPicker({
         return (
             <li
                 key={station.stop_id}
-                className="group/station relative col-span-full grid min-w-0 grid-cols-subgrid items-center gap-x-3 border-b pr-1.5 pl-4.5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-1 data-current:before:bg-foreground"
+                className="group/station relative col-span-full grid min-w-0 grid-cols-subgrid items-center gap-x-3 border-b pr-1.5 pl-4.5 before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-1 hover:bg-accent data-current:before:bg-foreground"
                 data-current={current || undefined}
             >
                 <Button
@@ -191,7 +192,6 @@ export function StationPicker({
                         placeholder="Search stations"
                         value={query}
                         onChange={(event) => setQuery(event.target.value)}
-                        onFocus={() => setSnap(1)}
                         autoComplete="off"
                     />
                     <InputGroupAddon>
@@ -238,68 +238,40 @@ export function StationPicker({
                     </Empty>
                 ) : (
                     <>
-                        {!normalized && savedStations.length > 0 && (
-                            <section
-                                aria-labelledby={`${headingId}-favourites`}
+                        <span className="sr-only" role="status">
+                            {normalized
+                                ? `${results.length} stations found`
+                                : ''}
+                        </span>
+                        {results.length > 0 ? (
+                            <ul
                                 className={listClassName}
+                                aria-label={
+                                    normalized ? 'Search results' : 'Stations'
+                                }
                             >
-                                <h3
-                                    id={`${headingId}-favourites`}
-                                    className={sectionClassName}
-                                >
-                                    Favourites
-                                </h3>
-                                <ul className={listClassName}>
-                                    {savedStations.map(row)}
-                                </ul>
-                            </section>
+                                {results.map(row)}
+                            </ul>
+                        ) : (
+                            <Empty className="col-span-full">
+                                <EmptyHeader>
+                                    <EmptyTitle>
+                                        {normalized
+                                            ? 'No stations match'
+                                            : 'No stations available'}
+                                    </EmptyTitle>
+                                    <EmptyDescription>
+                                        {normalized
+                                            ? 'Try another station name.'
+                                            : 'Close the picker and refresh to try again.'}
+                                    </EmptyDescription>
+                                </EmptyHeader>
+                            </Empty>
                         )}
-                        <section
-                            aria-labelledby={`${headingId}-stations`}
-                            className={listClassName}
-                        >
-                            <h3
-                                id={`${headingId}-stations`}
-                                className={cn(
-                                    normalized ? 'sr-only' : sectionClassName
-                                )}
-                            >
-                                {normalized
-                                    ? 'Search results'
-                                    : location
-                                      ? 'By distance'
-                                      : 'All stations'}
-                            </h3>
-                            <span className="sr-only" role="status">
-                                {normalized
-                                    ? `${results.length} stations found`
-                                    : ''}
-                            </span>
-                            {results.length > 0 ? (
-                                <ul className={listClassName}>
-                                    {results.map(row)}
-                                </ul>
-                            ) : (
-                                <Empty className="col-span-full">
-                                    <EmptyHeader>
-                                        <EmptyTitle>
-                                            {normalized
-                                                ? 'No stations match'
-                                                : 'No stations available'}
-                                        </EmptyTitle>
-                                        <EmptyDescription>
-                                            {normalized
-                                                ? 'Try another station name.'
-                                                : 'Close the picker and refresh to try again.'}
-                                        </EmptyDescription>
-                                    </EmptyHeader>
-                                </Empty>
-                            )}
-                        </section>
                         <p className="col-span-full mx-4.5 mt-5 text-xs leading-normal text-muted-foreground">
                             {location
                                 ? 'Distances are straight-line estimates, not walking routes.'
-                                : 'Location unavailable. Stations are listed alphabetically.'}
+                                : 'Location unavailable. Favourites first, then A–Z.'}
                         </p>
                     </>
                 )}

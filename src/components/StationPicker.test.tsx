@@ -101,18 +101,22 @@ describe('StationPicker', () => {
         ]);
         cleanup();
         openPicker();
-        const section = screen.getByRole('region', { name: 'Favourites' });
-        expect(
-            within(section).getByRole('button', {
-                name: 'Select Health Sciences',
-            })
-        ).toBeTruthy();
+        const list = screen.getByRole('list', { name: 'Stations' });
+        const rows = within(list).getAllByRole('button', { name: /^Select / });
+        expect(rows).toHaveLength(2);
+        expect(rows[0].getAttribute('aria-label')).toBe(
+            'Select Health Sciences'
+        );
         fireEvent.click(
-            within(section).getByRole('button', {
+            within(list).getByRole('button', {
                 name: 'Remove Health Sciences from favourites',
             })
         );
-        expect(screen.queryByRole('region', { name: 'Favourites' })).toBeNull();
+        expect(
+            within(list)
+                .getAllByRole('button', { name: /^Select / })[0]
+                .getAttribute('aria-label')
+        ).toContain('Central');
     });
     it('sorts by real location and labels straight-line distances', () => {
         openPicker({ location: { lat: 53.52, lon: -113.52 } });
@@ -145,7 +149,12 @@ describe('StationPicker', () => {
     });
     it('does not imply proximity without a device location', () => {
         openPicker();
-        expect(screen.getByText('All stations')).toBeTruthy();
+        expect(screen.getByRole('list', { name: 'Stations' })).toBeTruthy();
+        expect(
+            screen.getByText(
+                'Location unavailable. Favourites first, then A–Z.'
+            )
+        ).toBeTruthy();
         expect(screen.queryByText('Near you')).toBeNull();
     });
     it('keeps the two Churchill stops distinct when their display names are shortened', () => {
@@ -190,7 +199,7 @@ describe('StationPicker', () => {
         );
         expect(screen.getByText(/couldn’t be saved/)).toBeTruthy();
     });
-    it('opens the mobile drawer without focusing search and expands on search focus', () => {
+    it('keeps the mobile drawer at its opening height when search is focused', () => {
         vi.mocked(window.matchMedia).mockReturnValue({
             matches: false,
             addEventListener: vi.fn(),
@@ -201,6 +210,6 @@ describe('StationPicker', () => {
         expect(dialog.hasAttribute('data-expanded')).toBe(false);
         expect(document.activeElement).not.toBe(screen.getByRole('searchbox'));
         fireEvent.focus(screen.getByRole('searchbox'));
-        expect(dialog.hasAttribute('data-expanded')).toBe(true);
+        expect(dialog.hasAttribute('data-expanded')).toBe(false);
     });
 });
