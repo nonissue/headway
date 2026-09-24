@@ -313,12 +313,15 @@ describe('useDeparturesApp', () => {
 
     it('refreshes the selected station without requesting location again', async () => {
         mockGeolocationSuccess();
+        let finishRefresh!: (response: Response) => void;
         vi.mocked(fetch)
             .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
             .mockResolvedValueOnce(createJsonResponse(createStationsResponse()))
-            .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
-            .mockResolvedValueOnce(
-                createJsonResponse(createStationsResponse())
+            .mockImplementationOnce(
+                () =>
+                    new Promise<Response>((resolve) => {
+                        finishRefresh = resolve;
+                    })
             );
 
         const { result } = renderHook(() => useDeparturesApp());
@@ -329,9 +332,23 @@ describe('useDeparturesApp', () => {
 
         expect(result.current.animationKey).toBe(0);
 
-        await act(async () => {
-            await result.current.refresh();
+        const previousGroups = result.current.departureGroups;
+        let refreshResult!: Promise<boolean>;
+        act(() => {
+            refreshResult = result.current.refresh();
         });
+        expect(result.current.isRefreshing).toBe(true);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.departureGroups).toBe(previousGroups);
+        await act(async () => {
+            expect(await result.current.refresh()).toBe(false);
+        });
+        expect(fetch).toHaveBeenCalledTimes(3);
+        await act(async () => {
+            finishRefresh(createJsonResponse(createNearbyResponse()));
+            expect(await refreshResult).toBe(true);
+        });
+        expect(result.current.isRefreshing).toBe(false);
 
         await waitFor(() => {
             expect(result.current.animationKey).toBe(1);
@@ -345,6 +362,27 @@ describe('useDeparturesApp', () => {
                 `/api/stations/${result.current.selectedStation?.stop_id}/departures`
             );
         });
+    });
+
+    it('reports a failed refresh and retains the previous board', async () => {
+        mockGeolocationSuccess();
+        vi.mocked(fetch)
+            .mockResolvedValueOnce(createJsonResponse(createNearbyResponse()))
+            .mockResolvedValueOnce(createJsonResponse(createStationsResponse()))
+            .mockRejectedValueOnce(new Error('Unable to refresh departures'));
+        const { result } = renderHook(() => useDeparturesApp());
+        await waitFor(() => expect(result.current.isLoading).toBe(false));
+        const previousGroups = result.current.departureGroups;
+        await act(async () => {
+            expect(await result.current.refresh()).toBe(false);
+        });
+        expect(result.current.departureGroups).toBe(previousGroups);
+        expect(result.current.isRefreshing).toBe(false);
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.error?.message).toBe(
+            'Unable to refresh departures'
+        );
+        expect(result.current.animationKey).toBe(0);
     });
 
     it('surfaces API errors and clears them on demand', async () => {

@@ -44,17 +44,16 @@ vi.mock('./components/DeparturesTable', () => ({
 }));
 
 vi.mock('./components/Footer', () => ({
-    Footer: ({
-        lastUpdated,
-        onRefresh,
-    }: {
-        lastUpdated: Date | null;
-        onRefresh: () => void;
-    }) => (
+    Footer: ({ onRefresh }: { onRefresh: () => void }) => (
         <button type="button" onClick={onRefresh}>
-            Footer:{lastUpdated ? 'dated' : 'empty'}
+            Refresh departures
         </button>
     ),
+}));
+
+vi.mock('./components/ui/toast', () => ({
+    toast: { add: vi.fn(), close: vi.fn() },
+    Toaster: () => null,
 }));
 
 vi.mock('./components/theme-provider', () => ({
@@ -63,6 +62,7 @@ vi.mock('./components/theme-provider', () => ({
 
 import { App, mountApp } from './main.js';
 import { useDeparturesApp } from './hooks/useDeparturesApp';
+import { toast } from './components/ui/toast';
 
 const baseStation: Station = {
     stop_id: 'station-1',
@@ -90,7 +90,7 @@ function mockHookState(
     overrides: Partial<ReturnType<typeof useDeparturesApp>> = {}
 ) {
     const clearError = vi.fn();
-    const refresh = vi.fn();
+    const refresh = vi.fn().mockResolvedValue(true);
     const selectStation = vi.fn();
 
     vi.mocked(useDeparturesApp).mockReturnValue({
@@ -100,8 +100,8 @@ function mockHookState(
         error: null,
         hasError: false,
         isLoading: false,
+        isRefreshing: false,
         isStationsLoading: false,
-        lastUpdated: new Date('2026-03-03T12:34:56.000Z'),
         departureGroups: baseDepartureGroups,
         refresh,
         selectedStation: baseStation,
@@ -122,6 +122,7 @@ function mockHookState(
 describe('App', () => {
     beforeEach(() => {
         document.head.innerHTML = '';
+        vi.clearAllMocks();
     });
 
     afterEach(() => {
@@ -132,7 +133,6 @@ describe('App', () => {
     it('renders the loading state', () => {
         mockHookState({
             isLoading: true,
-            lastUpdated: null,
             selectedStation: undefined,
             departureGroups: [],
             stations: [],
@@ -165,10 +165,49 @@ describe('App', () => {
         expect(screen.getByText('Something went wrong')).toBeTruthy();
 
         fireEvent.click(screen.getByText('Dismiss'));
-        fireEvent.click(screen.getByText('Footer:dated'));
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Refresh departures' })
+        );
 
         expect(clearError).toHaveBeenCalledTimes(1);
         expect(refresh).toHaveBeenCalledTimes(1);
+    });
+
+    it('confirms a refresh only after it succeeds', async () => {
+        let finishRefresh!: (success: boolean) => void;
+        const refresh = vi.fn(
+            () =>
+                new Promise<boolean>((resolve) => {
+                    finishRefresh = resolve;
+                })
+        );
+        mockHookState({ refresh });
+        render(<App />);
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Refresh departures' })
+        );
+        expect(toast.add).not.toHaveBeenCalled();
+        finishRefresh(true);
+        await waitFor(() => {
+            expect(toast.add).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    title: 'Departures refreshed.',
+                    type: 'success',
+                    timeout: 3000,
+                })
+            );
+        });
+    });
+
+    it('does not confirm a failed refresh', async () => {
+        const refresh = vi.fn().mockResolvedValue(false);
+        mockHookState({ refresh });
+        render(<App />);
+        fireEvent.click(
+            screen.getByRole('button', { name: 'Refresh departures' })
+        );
+        await waitFor(() => expect(refresh).toHaveResolvedWith(false));
+        expect(toast.add).not.toHaveBeenCalled();
     });
 
     it('injects the analytics script only once', () => {

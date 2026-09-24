@@ -3,7 +3,7 @@ import {
     useState,
     useSyncExternalStore,
 } from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Info } from 'lucide-react';
 import { cn } from '@/components/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -85,17 +85,14 @@ function AboutTrigger({
     return (
         <Button
             {...props}
-            variant="plain"
-            className={cn(
-                'flex h-full min-h-12 flex-col items-start justify-center gap-0.5 rounded-none px-4.5 py-2 text-sm font-bold tracking-[-0.3px] [@media(max-width:360px)]:px-3',
-                className
-            )}
+            variant="footer"
+            size="footer-label"
+            className={cn('border-r border-l-0', className)}
             aria-label={ariaLabel ?? triggerLabel}
+            title={triggerLabel}
         >
             <span>Headway</span>
-            <span className="text-[10px] font-medium tracking-normal text-muted-foreground">
-                {triggerLabel}
-            </span>
+            <Info data-icon="inline-end" aria-hidden="true" />
         </Button>
     );
 }
@@ -198,7 +195,7 @@ export function AboutDialog({
     website,
     github,
     note,
-    triggerLabel = 'About',
+    triggerLabel = 'About Headway',
     className,
 }: AboutDialogProps) {
     const [open, setOpen] = useState(false);

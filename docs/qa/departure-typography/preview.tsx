@@ -27,7 +27,6 @@ const groups = [
         heading: 'Northbound',
         destinations: [],
         departures: [
-            train('Metro', -2, 'NAIT Blatchford Market'),
             train('Capital', 9, 'Clareview'),
             train('Metro', 13, 'NAIT Blatchford Market'),
             train('Capital', 24, 'Clareview'),
@@ -41,7 +40,6 @@ const groups = [
         heading: 'Southbound',
         destinations: [],
         departures: [
-            train('Capital', -8, 'Century Park'),
             train('Metro', 3, 'Health Sciences'),
             train('Capital', 7, 'Century Park'),
             train('Metro', 18, 'Health Sciences'),

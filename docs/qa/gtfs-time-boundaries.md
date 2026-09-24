@@ -16,7 +16,7 @@ a real in-memory SQLite database. Cases cover:
 
 - Late-night and morning services sharing one four-hour window.
 - Arrival before the window with departure still ahead.
-- The three-minute recent-departure boundary across 05:00.
+- Excluding past departures immediately after the scheduled instant across 05:00.
 - Service durations longer than 48 hours and repeated daily trip IDs.
 - Calendar removals and added service dates, including exceptions-only feeds.
 - Untimed intermediate stops.

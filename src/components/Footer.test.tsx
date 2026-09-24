@@ -17,35 +17,41 @@ afterEach(cleanup);
 
 describe('Footer', () => {
     it('keeps controls available before the first successful load', () => {
-        const { container } = render(
-            <Footer lastUpdated={null} onRefresh={vi.fn()} />
-        );
+        const { container } = render(<Footer onRefresh={vi.fn()} />);
 
-        expect(container.textContent).toContain('Scheduled times');
+        expect(container.querySelector('time')).toBeNull();
+        expect(screen.queryByText('Scheduled times')).toBeNull();
         expect(
             screen.getByRole('button', { name: 'Refresh departures' })
         ).toBeTruthy();
     });
 
-    it('renders the about trigger, timestamp, and refresh action', () => {
+    it('renders the about and theme controls and refresh action', () => {
         const onRefresh = vi.fn();
-        const lastUpdated = new Date('2026-03-03T12:34:56.000Z');
-        const expectedTime = lastUpdated.toLocaleTimeString('en-CA', {
-            timeZone: 'America/Edmonton',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false,
-        });
 
-        render(<Footer lastUpdated={lastUpdated} onRefresh={onRefresh} />);
+        render(<Footer onRefresh={onRefresh} />);
 
         expect(screen.getByText('about-dialog')).toBeTruthy();
-        expect(screen.getByText(`Updated ${expectedTime}`)).toBeTruthy();
+        expect(
+            screen.getByRole('button', { name: 'Toggle theme' })
+        ).toBeTruthy();
 
         fireEvent.click(
             screen.getByRole('button', { name: 'Refresh departures' })
         );
 
         expect(onRefresh).toHaveBeenCalledTimes(1);
+    });
+
+    it('disables refresh while a request is running', () => {
+        const onRefresh = vi.fn();
+        render(<Footer onRefresh={onRefresh} isRefreshing />);
+        const button = screen.getByRole('button', {
+            name: 'Refresh departures',
+        });
+        expect(button.hasAttribute('disabled')).toBe(true);
+        expect(button.getAttribute('aria-busy')).toBe('true');
+        fireEvent.click(button);
+        expect(onRefresh).not.toHaveBeenCalled();
     });
 });

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TEST_COORDS } from '../config.js';
 import { createDepartureGroups } from '../lib/departure-display.js';
 import { departureClockTime } from '../lib/scheduled-time.js';
@@ -129,8 +129,9 @@ function buildStationsUrl(location?: LocationCoordinates): string {
 export function useDeparturesApp() {
     const [nextServiceAt, setNextServiceAt] = useState<string>();
     const [departures, setDepartures] = useState<Departure[][]>([]);
-    const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const refreshInFlight = useRef(false);
     const [isStationsLoading, setIsStationsLoading] = useState(true);
     const [selectedStation, setSelectedStation] = useState<Station>();
     const [stations, setStations] = useState<Station[]>([]);
@@ -156,7 +157,6 @@ export function useDeparturesApp() {
             setDepartures(
                 response.platforms.map((platform) => platform.departures)
             );
-            setLastUpdated(new Date(response.timestamp));
 
             if (options.location) {
                 setUserLocation(options.location);
@@ -191,8 +191,10 @@ export function useDeparturesApp() {
                     refresh,
                     location,
                 });
+                return true;
             } catch (error) {
                 setError(normalizeError(error));
+                return false;
             } finally {
                 if (!refresh) {
                     setIsLoading(false);
@@ -236,7 +238,7 @@ export function useDeparturesApp() {
 
     const selectStation = useCallback(
         async (station: Station, refresh = false) => {
-            setIsLoading(true);
+            if (!refresh) setIsLoading(true);
             clearError();
 
             try {
@@ -248,22 +250,31 @@ export function useDeparturesApp() {
                 );
 
                 applyDeparturesResponse(response, { refresh });
+                return true;
             } catch (error) {
                 setError(normalizeError(error));
+                return false;
             } finally {
-                setIsLoading(false);
+                if (!refresh) setIsLoading(false);
             }
         },
         [applyDeparturesResponse, clearError]
     );
 
     const refresh = useCallback(async () => {
-        if (selectedStation) {
-            await selectStation(selectedStation, true);
-            return;
+        if (refreshInFlight.current) return false;
+        refreshInFlight.current = true;
+        setIsRefreshing(true);
+        try {
+            if (selectedStation) {
+                return await selectStation(selectedStation, true);
+            }
+            const location = userLocation ?? getFallbackLocation();
+            return await loadNearbyDepartures(location, { refresh: true });
+        } finally {
+            refreshInFlight.current = false;
+            setIsRefreshing(false);
         }
-        const location = userLocation ?? getFallbackLocation();
-        await loadNearbyDepartures(location);
     }, [loadNearbyDepartures, selectedStation, selectStation, userLocation]);
 
     useEffect(() => {
@@ -317,8 +328,8 @@ export function useDeparturesApp() {
         error,
         hasError: error !== null,
         isLoading,
+        isRefreshing,
         isStationsLoading,
-        lastUpdated,
         refresh,
         selectedStation,
         selectStation,

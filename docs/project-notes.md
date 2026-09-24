@@ -1,7 +1,42 @@
 # Headway project notes
 
-Updated 2026-09-20. This records the current design decisions and session results;
+Updated 2026-09-24. This records the current design decisions and session results;
 older mockups and QA captures are historical references, not the current specification.
+
+## Footer and refresh feedback — 2026-09-24
+
+- Removed the scheduled-times/updated-at footer block. The countdown clock runs
+  every second against the loaded schedule; the old fetch timestamp could make
+  valid departures appear stale. The schedule-only explanation remains in About.
+- Headway and a small information icon form one About button at the left,
+  labelled “About Headway” for assistive technology. Its bordered cell and hover
+  and focus feedback reinforce the interaction. Theme and refresh remain at the
+  right, using shared 48px-wide footer button styles.
+- Refresh preserves the visible departure board, spins and disables the refresh
+  button while fetching, and confirms success with a three-second
+  “Departures refreshed.” toast. Failed requests retain the board and existing
+  error feedback without showing a success toast. Duplicate requests are blocked.
+- Added the official shadcn Base UI toast, with square corners and placement
+  above the footer and phone safe area. Verified mobile light/dark appearance,
+  About opening, success feedback, all 160 tests, and the production build.
+
+## Scroll fade and drawer follow-up — 2026-09-24
+
+- Departure viewports now use the official `shadcn/tailwind.css` utilities:
+  `scroll-fade-b scroll-fade-8`, replacing the custom bottom mask. The fade is
+  disabled for reduced motion. `ScrollArea` accepts `viewportClassName` so the
+  utility applies to the actual scroller. Shadcn is a development dependency;
+  only its generated CSS ships to the browser.
+- The bottom drawer adopts the current shadcn exit safeguards: a 3D transform,
+  an imperceptible opacity transition for exit detection, and an ending-state
+  duration that takes precedence over the zero-duration swipe state. Outside
+  dismissal takes 400 ms; drag dismissal scales with swipe strength.
+- Verified locally: all 156 tests, production build, 390px outside-click and
+  Escape exit transitions, handle drag dismissal, focus return, search expansion,
+  independent departure scrolling, zero fade at the list end and without
+  overflow, and the desktop dialog at 900px. The originally reported abrupt
+  outside-tap close did not reproduce in the in-app browser before the change;
+  physical iPhone/Safari confirmation is still needed. These changes are local.
 
 ## Product and design direction
 
@@ -26,8 +61,8 @@ closure. That was session context, not a permanent restriction or inferred UI bu
   HTML preloads reference the same Vite-hashed assets as CSS; `font-display: swap`
   keeps text visible during loading. Font responses have one-year immutable
   caching, and the existing PWA precaches both files. No external font requests.
-  Keep natural letter spacing on time/countdown text and a 68px countdown
-  column; the 96px overnight column remains. The standalone offline fallback
+  Keep natural letter spacing on time/countdown text and shared content-sized
+  clock/countdown columns. The standalone offline fallback
   retains its system fonts. Build and all 155 tests passed; live desktop/mobile
   browser checks covered 320px and 390px rows, dark mode, and the station picker.
   First upcoming clocks and countdowns use medium weight (500), reduced from
@@ -41,19 +76,18 @@ closure. That was session context, not a permanent restriction or inferred UI bu
   Upcoming countdowns use `12mins` with no space; zero minutes displays `Now`.
   There are no redundant “at” and “in” labels.
 - Visible direction headings/rails were removed to reclaim vertical space;
-  accessible headings remain. Direction arrows were subsequently removed from
-  the local preview. Destination names now lead each row, followed by the line
-  badge with an 8px gap and adjusted optical alignment. This follows the user's
-  observation that Edmonton riders read terminal destinations first, as on ETS
-  station boards. Filled circles and diamond-framed arrows were also rejected.
+  accessible headings remain. Direction arrows were subsequently removed.
+  A line badge sits in a fixed column to the left of the destination, keeping
+  destination names aligned across the board.
 - The board abbreviates “NAIT Blatchford Market” to “NAIT / Blatchford”. The full
   destination remains available as a title; schedule identity is unchanged.
 - Line filter buttons occupy simple rectangular header cells. Both lines are
   shown by default; selecting one isolates it and toggling it off restores both.
   There is no separate All button.
-- Footer controls use an aligned grid, with a strong top rule and a thin bottom
-  border above the phone's safe-area space. The About surface and station picker
-  follow the same compact, square-edged treatment.
+- Footer shows a Headway information button on the left and theme and refresh
+  icon buttons on the right. A strong top rule and thin bottom border sit above
+  the phone's safe-area space. The About surface and station picker follow the
+  same compact, square-edged treatment.
 - Station picker: aligned names on the left, line monograms beside the favourite
   control on the right, and a line-name legend beneath search. Current selection
   uses a check rather than an extra text subtitle. Favourites precede stations
@@ -65,10 +99,15 @@ closure. That was session context, not a permanent restriction or inferred UI bu
 
 ## Schedule behaviour and safeguards
 
-- Times are scheduled, not live predictions. Show the latest past departure
-  subtly for up to ten minutes (inclusive), clearly distinct from upcoming trains.
-  Recent labels are `Now`, `-1 min`, `-2 mins`, etc. Keep this recent context
-  when the upcoming board falls back to the next service window.
+- Times are scheduled, not live predictions. Show only departures whose
+  scheduled time has not passed. On 2026-09-24, removed the recent-departure
+  window and its smaller, dimmed rows: Headway supports planning before leaving,
+  rather than interpreting whether a train has left the platform. The proposed
+  Due grace period was not adopted. Existing countdowns remain; `Now` uses sans
+  at the exact scheduled instant, then the row disappears on the next clock
+  update. The next upcoming train receives the usual emphasis. Server queries
+  and the next-service fallback also exclude past departures. This supersedes
+  historical recent-row styling and retention notes below.
 - The normal lookahead is four hours. When the whole station has no upcoming
   trains in that window, search through the end of the next configured service
   day and show four hours from the earliest actual departure. This can include

@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 @import './fonts.css';
 @source "src/**/*.{ts,tsx,js,jsx}";
 @custom-variant dark (&:is(.dark *));
@@ -100,26 +101,6 @@
     }
 }
 
-/* Keep the mask in place and shorten the fade as the last row approaches.
-   Switching the mask on/off at the edge makes the end of a flick abrupt. */
-.departure-scroll [data-slot='scroll-area-viewport'] {
-    overscroll-behavior: none;
-    --departure-fade: min(
-        32px,
-        max(0px, var(--scroll-area-overflow-y-end, 0px))
-    );
-    -webkit-mask-image: linear-gradient(
-        to bottom,
-        #000 calc(100% - var(--departure-fade)),
-        transparent
-    );
-    mask-image: linear-gradient(
-        to bottom,
-        #000 calc(100% - var(--departure-fade)),
-        transparent
-    );
-}
-
 /* Global accessibility policy also covers portal content and pseudo-elements. */
 @media (prefers-reduced-motion: reduce) {
     *,
@@ -147,9 +128,6 @@
     /* Centre the capital's height rather than the font's ascender/descender box.
        Older browsers retain ordinary flex centring when trim is unsupported. */
     text-box: trim-both cap alphabetic;
-}
-[data-emphasis='recent'] .line-badge-proportional > span {
-    font-size: 9px;
 }
 .line-badge-proportional > svg {
     width: 0.85em;

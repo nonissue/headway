@@ -102,6 +102,9 @@ describe('AboutDialog', () => {
         );
 
         expect(screen.getByRole('button', { name: 'Info' })).toBeTruthy();
+        expect(screen.getByRole('button', { name: 'Info' }).textContent).toBe(
+            'Headway'
+        );
         expect(
             screen
                 .getByRole('button', { name: 'Info' })
@@ -130,10 +133,12 @@ describe('AboutDialog', () => {
 
         expect(screen.getByTestId('drawer-content')).toBeTruthy();
         expect(screen.queryByTestId('dialog-content')).toBeNull();
-        expect(screen.getByRole('button', { name: 'About' })).toBeTruthy();
+        expect(
+            screen.getByRole('button', { name: 'About Headway' })
+        ).toBeTruthy();
         expect(
             screen
-                .getByRole('button', { name: 'About' })
+                .getByRole('button', { name: 'About Headway' })
                 .getAttribute('data-trigger-probe')
         ).toBe('drawer');
         expect(screen.getByRole('button', { name: 'Close' })).toBeTruthy();

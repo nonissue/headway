@@ -5,10 +5,12 @@ import { cn } from '@/components/lib/utils';
 
 const ScrollArea = ({
     className,
+    viewportClassName,
     children,
     ...props
 }: Omit<ScrollAreaPrimitive.Root.Props, 'className'> & {
     className?: string;
+    viewportClassName?: string;
 }) => (
     <ScrollAreaPrimitive.Root
         className={cn('relative overflow-hidden', className)}
@@ -16,7 +18,7 @@ const ScrollArea = ({
     >
         <ScrollAreaPrimitive.Viewport
             data-slot="scroll-area-viewport"
-            className="h-full w-full rounded-[inherit]"
+            className={cn('h-full w-full rounded-[inherit]', viewportClassName)}
         >
             <ScrollAreaPrimitive.Content>
                 {children}

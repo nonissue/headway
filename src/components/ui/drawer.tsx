@@ -52,7 +52,7 @@ function DrawerOverlay({
         <DrawerPrimitive.Backdrop
             data-slot="drawer-overlay"
             className={cn(
-                'fixed inset-0 z-50 min-h-dvh bg-background/25 backdrop-blur-md transition-opacity duration-300 data-ending-style:opacity-0 data-ending-style:duration-200 data-starting-style:opacity-0 supports-[-webkit-touch-callout:none]:absolute dark:bg-background/75',
+                'fixed inset-0 z-50 min-h-dvh bg-background/25 backdrop-blur-md transition-opacity duration-300 data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*400ms)] data-starting-style:opacity-0 supports-[-webkit-touch-callout:none]:absolute dark:bg-background/75',
                 className
             )}
             {...props}
@@ -75,7 +75,8 @@ function DrawerContent({
                 <DrawerPrimitive.Popup
                     data-slot="drawer-content"
                     className={cn(
-                        'relative flex max-h-[92dvh] min-h-0 w-full [transform:translateY(calc(var(--drawer-snap-point-offset,0px)+var(--drawer-swipe-movement-y,0px)))] flex-col rounded-t-[1.5rem] border bg-background transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] outline-none data-ending-style:[transform:translateY(calc(100%+2px))] data-ending-style:duration-200 data-starting-style:[transform:translateY(calc(100%+2px))] data-swiping:duration-0',
+                        // Match shadcn's exit detection and let release timing win over swiping.
+                        'relative flex max-h-[92dvh] min-h-0 w-full [transform:translate3d(0,calc(var(--drawer-snap-point-offset,0px)+var(--drawer-swipe-movement-y,0px)),0)] flex-col rounded-t-[1.5rem] border bg-background transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform outline-none data-ending-style:[transform:translate3d(0,calc(100%+2px),0)] data-ending-style:opacity-[0.9999] data-ending-style:duration-[calc(var(--drawer-swipe-strength,1)*400ms)] data-starting-style:[transform:translate3d(0,calc(100%+2px),0)] data-swiping:duration-0 data-ending-style:data-swiping:duration-[calc(var(--drawer-swipe-strength,1)*400ms)]',
                         className
                     )}
                     {...props}

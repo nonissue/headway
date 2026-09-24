@@ -8,7 +8,6 @@ import {
     DEFAULT_LOOK_AHEAD_IN_MINS,
     DEFAULT_STOP_COUNT_LIMIT,
     DEFAULT_TIMEZONE,
-    RECENT_DEPARTURE_MINS,
     SERVICE_DAY_START_HOUR,
 } from '../config.js';
 import {
@@ -153,7 +152,6 @@ export interface StopDepartures {
 export interface GetDeparturesForStopOptions {
     stopId: string | number;
     baseTime?: Date; // Absolute instant; defaults to now.
-    lookbackMins?: number;
     lookaheadMins?: number;
     limit?: number;
     tz?: string;
@@ -234,7 +232,6 @@ function departuresInWindow(
 export async function getDeparturesForStop({
     stopId,
     baseTime = new Date(),
-    lookbackMins = 0,
     lookaheadMins = DEFAULT_LOOK_AHEAD_IN_MINS,
     limit = DEFAULT_STOP_COUNT_LIMIT,
     tz = DEFAULT_TIMEZONE,
@@ -242,7 +239,7 @@ export async function getDeparturesForStop({
 }: GetDeparturesForStopOptions): Promise<StopDepartures[]> {
     const id = String(stopId).trim();
     if (!id) throw new Error('getDeparturesForStop: stopId is required');
-    const start = baseTime.getTime() - lookbackMins * 60000;
+    const start = baseTime.getTime();
     const end = baseTime.getTime() + lookaheadMins * 60000;
     if (debug) console.warn(JSON.stringify({ stopId: id, start, end, tz }));
     const stoptimes = departuresInWindow(id, start, end, tz);
@@ -250,7 +247,7 @@ export async function getDeparturesForStop({
     const { normalizedStationName } = getStopContext(id);
     const departures = filterTerminatingTrips(stoptimes, normalizedStationName);
 
-    // Absolute times keep recent trips ordered correctly across service dates.
+    // Absolute times keep trips ordered correctly across service dates.
     departures.sort(
         (a, b) => Date.parse(a.scheduled_at!) - Date.parse(b.scheduled_at!)
     );
@@ -294,7 +291,6 @@ export async function getDeparturesForStation(
             stop,
             departures: await getDeparturesForStop({
                 stopId: stop.stop_id,
-                lookbackMins: RECENT_DEPARTURE_MINS,
                 baseTime: now,
             }),
         }))
@@ -349,19 +345,14 @@ export async function getDeparturesForStation(
             return {
                 station,
                 nextServiceAt: new Date(first).toISOString(),
-                platforms: nextPlatforms.map((platform, index) => ({
+                platforms: nextPlatforms.map((platform) => ({
                     ...platform,
-                    // Keep recent context even when the upcoming board moves
-                    // to the next service window. Both arrays are chronological.
-                    departures: [
-                        ...platforms[index].departures,
-                        ...platform.departures
-                            .filter(
-                                (departure) =>
-                                    Date.parse(departure.scheduled_at!) <= end
-                            )
-                            .slice(0, DEFAULT_STOP_COUNT_LIMIT),
-                    ],
+                    departures: platform.departures
+                        .filter(
+                            (departure) =>
+                                Date.parse(departure.scheduled_at!) <= end
+                        )
+                        .slice(0, DEFAULT_STOP_COUNT_LIMIT),
                 })),
             };
         }

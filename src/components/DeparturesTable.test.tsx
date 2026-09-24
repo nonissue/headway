@@ -56,13 +56,7 @@ describe('DeparturesTable', () => {
         expect(screen.getAllByTestId('scroll-area')).toHaveLength(2);
         expect(screen.getByText('08:03')).toBeTruthy();
         expect(screen.getByLabelText('In 3 minutes')).toBeTruthy();
-        expect(screen.getByText('Gone').closest('li')?.dataset.recent).toBe(
-            'true'
-        );
-        expect(screen.getByText('Gone').closest('li')?.dataset.emphasis).toBe(
-            'recent'
-        );
-        expect(screen.getByLabelText('Scheduled 1 minute ago')).toBeTruthy();
+        expect(screen.queryByText('Gone')).toBeNull();
         expect(
             screen.getByText('Clareview').closest('li')?.dataset.emphasis
         ).toBe('next');
@@ -123,7 +117,6 @@ describe('DeparturesTable', () => {
                 .map((row) => row.dataset.emphasis);
         for (const heading of ['Northbound', 'Southbound']) {
             expect(states(heading)).toEqual([
-                'recent',
                 'next',
                 'regular',
                 'regular',
@@ -152,7 +145,6 @@ describe('DeparturesTable', () => {
             <DeparturesTable departureGroups={directions} now={now + 90000} />
         );
         expect(states('Northbound')).toEqual([
-            'recent',
             'next',
             'regular',
             'regular',
@@ -162,9 +154,7 @@ describe('DeparturesTable', () => {
         expect(
             screen.getAllByText('Second')[0].closest('li')?.dataset.emphasis
         ).toBe('next');
-        expect(
-            screen.getAllByText('First')[0].closest('li')?.dataset.emphasis
-        ).toBe('recent');
+        expect(screen.queryByText('First')).toBeNull();
     });
     it('shows one board-level empty state when neither direction matches', () => {
         render(
@@ -191,44 +181,47 @@ describe('DeparturesTable', () => {
         expect(screen.getByText('Clareview')).toBeTruthy();
         expect(screen.getAllByTestId('scroll-area')).toHaveLength(2);
     });
-    it.each([
-        [-0.5, 'Now'],
-        [-1, '-1 min'],
-        [-7, '-7 mins'],
-        [-10, '-10 mins'],
-    ])('shows a recent-only board at %s minutes as %s', (minutes, label) => {
-        render(
-            <DeparturesTable
-                departureGroups={[
-                    {
-                        heading: 'Northbound',
-                        destinations: [],
-                        departures: [
-                            train('Capital', minutes, 'Previous train'),
-                        ],
-                    },
-                ]}
-                now={now}
-            />
-        );
-        expect(screen.getByText(label)).toBeTruthy();
-        expect(
-            screen.getByText('Previous train').closest('li')?.dataset.recent
-        ).toBe('true');
-    });
+    it.each([-0.5, -1, -2, -3])(
+        'shows an empty state when the only departure is %s minutes past',
+        (minutes) => {
+            render(
+                <DeparturesTable
+                    departureGroups={[
+                        {
+                            heading: 'Northbound',
+                            destinations: [],
+                            departures: [
+                                train('Capital', minutes, 'Previous train'),
+                            ],
+                        },
+                    ]}
+                    now={now}
+                />
+            );
+            expect(screen.queryByText('Previous train')).toBeNull();
+            expect(screen.getByText('No upcoming departures')).toBeTruthy();
+        }
+    );
     it('renders upcoming countdowns with an adjacent mins unit', () => {
         render(<DeparturesTable departureGroups={groups} now={now} />);
         expect(screen.getByLabelText('In 3 minutes').textContent).toBe('3mins');
     });
-    it('expires the recent row without losing upcoming trains', () => {
+    it('removes a departure as its scheduled time passes and promotes the next train', () => {
         const { rerender } = render(
-            <DeparturesTable departureGroups={groups} now={now} />
+            <DeparturesTable departureGroups={groups} now={now + 600000} />
         );
-        rerender(
-            <DeparturesTable departureGroups={groups} now={now + 540001} />
-        );
-        expect(screen.queryByText('Gone')).toBeNull();
         expect(screen.getByText('Clareview')).toBeTruthy();
+        expect(screen.getAllByText('Now')).toHaveLength(2);
+        rerender(
+            <DeparturesTable departureGroups={groups} now={now + 600001} />
+        );
+        expect(screen.queryByText('Clareview')).toBeNull();
+        expect(screen.queryByText('Now')).toBeNull();
+        expect(
+            screen.getByText('NAIT / Blatchford').closest('li')?.dataset
+                .emphasis
+        ).toBe('next');
+        expect(screen.getByText('No upcoming trains')).toBeTruthy();
     });
     it('offers a recovery path when there are no departures', () => {
         render(<DeparturesTable departureGroups={[]} />);

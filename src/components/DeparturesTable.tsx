@@ -1,4 +1,4 @@
-import { cva } from 'class-variance-authority';
+import { cn } from '@/components/lib/utils';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { DEFAULT_TIMEZONE } from '../config';
 import { TrainFront } from 'lucide-react';
@@ -12,7 +12,7 @@ import {
 import { LineBadge } from './LineBadge';
 import {
     departureMinutes,
-    getDepartureWindow,
+    getUpcomingDepartures,
 } from '../lib/departure-countdown';
 import type { DepartureGroup, ProcessedDeparture } from '../types/departures';
 
@@ -24,19 +24,7 @@ interface DeparturesTableProps {
     nextServiceAt?: string;
 }
 
-// Destinations lead the type scale; countdowns and clocks each sit one step below.
-const rowVariants = cva(
-    'group/row col-span-3 grid grid-cols-subgrid items-center gap-3 border-b px-(--board-gutter) leading-tight font-medium',
-    {
-        variants: {
-            recent: {
-                false: 'min-h-14 text-lg',
-                true: 'min-h-10 text-sm text-foreground/80',
-            },
-        },
-    }
-);
-type RowEmphasis = 'next' | 'regular' | 'recent';
+type RowEmphasis = 'next' | 'regular';
 
 function DepartureRow({
     departure,
@@ -49,77 +37,61 @@ function DepartureRow({
     emphasis?: RowEmphasis;
     nextService?: boolean;
 }) {
-    const recent = emphasis === 'recent';
     const destination = /^NAIT[\s-]+Blatchford Market$/i.test(
         departure.displayHeadsign
     )
         ? 'NAIT / Blatchford'
         : departure.displayHeadsign;
     const minutes = departureMinutes(departure, now);
-    const age = recent
-        ? Math.floor((now - Date.parse(departure.scheduled_at!)) / 60000)
-        : 0;
-    const recentLabel =
-        age === 0 ? 'Now' : `-${age} ${age === 1 ? 'min' : 'mins'}`;
+    const isNow = minutes === 0;
     return (
         <li
-            className={rowVariants({ recent })}
+            className="group/row col-span-3 grid min-h-14 grid-cols-subgrid items-center gap-3 border-b px-(--board-gutter) text-lg leading-tight font-medium"
             data-emphasis={emphasis}
-            data-recent={recent || undefined}
         >
             <span
                 className="flex min-w-0 items-center gap-2 py-3 tracking-tight"
                 title={departure.displayHeadsign}
             >
                 <span className="flex w-6 shrink-0 items-center justify-center">
-                    <LineBadge
-                        line={departure.line}
-                        proportional
-                        className="group-data-recent/row:opacity-70"
-                    />
+                    <LineBadge line={departure.line} proportional />
                 </span>
                 <span className="min-w-0 truncate">{destination}</span>
             </span>
             <time
-                className="text-right font-mono text-sm leading-tight font-normal whitespace-nowrap text-muted-foreground tabular-nums group-data-recent/row:text-xs group-data-recent/row:text-foreground/80"
+                className="text-right font-mono text-sm leading-tight font-normal whitespace-nowrap text-muted-foreground tabular-nums"
                 dateTime={departure.scheduled_at ?? departure.displayTime}
             >
                 {departure.displayTime.slice(0, 5)}
             </time>
             <span
-                className="text-right font-mono text-base leading-tight font-normal whitespace-nowrap tabular-nums group-data-recent/row:text-sm group-data-[emphasis=next]/row:font-medium"
+                className={cn(
+                    'text-right text-base leading-tight font-normal whitespace-nowrap tabular-nums group-data-[emphasis=next]/row:font-medium',
+                    isNow ? 'font-sans' : 'font-mono'
+                )}
                 aria-label={
-                    recent
-                        ? age === 0
-                            ? 'Scheduled less than a minute ago'
-                            : `Scheduled ${age} ${age === 1 ? 'minute' : 'minutes'} ago`
-                        : minutes === undefined
-                          ? 'Countdown unavailable'
-                          : minutes === 0
-                            ? 'Due now'
-                            : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+                    minutes === undefined
+                        ? 'Countdown unavailable'
+                        : minutes === 0
+                          ? 'Due now'
+                          : `In ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
                 }
             >
                 <span className="inline-flex items-baseline">
                     <span>
-                        {recent
-                            ? recentLabel
-                            : minutes === undefined
-                              ? '—'
-                              : minutes === 0
-                                ? 'Now'
-                                : nextService
-                                  ? `${Math.floor(minutes / 60)}h ${minutes % 60}mins`
-                                  : minutes}
+                        {minutes === undefined
+                            ? '—'
+                            : minutes === 0
+                              ? 'Now'
+                              : nextService
+                                ? `${Math.floor(minutes / 60)}h ${minutes % 60}mins`
+                                : minutes}
                     </span>
-                    {!recent &&
-                        !nextService &&
-                        minutes !== 0 &&
-                        minutes !== undefined && (
-                            <span className="font-normal" aria-hidden="true">
-                                mins
-                            </span>
-                        )}
+                    {!nextService && minutes !== 0 && minutes !== undefined && (
+                        <span className="font-normal" aria-hidden="true">
+                            mins
+                        </span>
+                    )}
                 </span>
             </span>
         </li>
@@ -134,11 +106,9 @@ export function DeparturesTable({
 }: DeparturesTableProps) {
     const groups = departureGroups.map((group) => ({
         ...group,
-        ...getDepartureWindow(group.departures, now, lineFilter),
+        upcoming: getUpcomingDepartures(group.departures, now, lineFilter),
     }));
-    const hasVisibleDepartures = groups.some(
-        (group) => group.upcoming.length || group.recent
-    );
+    const hasVisibleDepartures = groups.some((group) => group.upcoming.length);
     if (!hasVisibleDepartures)
         return (
             <Empty
@@ -194,18 +164,11 @@ export function DeparturesTable({
                                 {group.heading}
                             </h2>
                             <ScrollArea
-                                className="departure-scroll min-h-0 min-w-0 flex-1"
+                                className="min-h-0 min-w-0 flex-1"
+                                viewportClassName="scroll-fade-b scroll-fade-8 overscroll-none motion-reduce:scroll-fade-none"
                                 key={lineFilter}
                             >
                                 <ol className="grid grid-cols-[minmax(0,1fr)_max-content_max-content]">
-                                    {group.recent && (
-                                        <DepartureRow
-                                            key={`${group.recent.trip_id}-${group.recent.scheduled_at ?? group.recent.departure_time}`}
-                                            departure={group.recent}
-                                            now={now}
-                                            emphasis="recent"
-                                        />
-                                    )}
                                     {group.upcoming.map((departure, row) => (
                                         <DepartureRow
                                             key={`${departure.trip_id}-${departure.scheduled_at ?? departure.departure_time}`}

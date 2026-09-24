@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertAction } from './components/ui/alert';
 import { Skeleton } from './components/ui/skeleton';
 import { Button } from './components/ui/button';
 import { useNow } from './hooks/useNow';
+import { toast, Toaster } from './components/ui/toast';
 
 const ANALYTICS_SCRIPT_ID = 'headway-analytics';
 const UMAMI_WEBSITE_ID = 'aac8d5e9-5e2d-4107-8844-f484b9e45eb2';
@@ -28,8 +29,8 @@ export function App() {
         error,
         hasError,
         isLoading,
+        isRefreshing,
         isStationsLoading,
-        lastUpdated,
         refresh,
         selectedStation,
         selectStation,
@@ -51,6 +52,17 @@ export function App() {
     }, []);
 
     const now = useNow();
+    async function handleRefresh() {
+        toast.close('departures-refresh');
+        if (await refresh()) {
+            toast.add({
+                id: 'departures-refresh',
+                title: 'Departures refreshed.',
+                type: 'success',
+                timeout: 3000,
+            });
+        }
+    }
     const [filter, setFilter] = useState({ stationId: '', line: 'all' });
     const lines = [
         ...new Set([
@@ -71,7 +83,7 @@ export function App() {
             : 'all';
 
     return (
-        <main className='[font-feature-settings:"tnum"] mx-auto flex h-full w-full max-w-[640px] flex-col overflow-hidden bg-background sm:border-x'>
+        <main className='mx-auto flex h-full w-full max-w-[640px] flex-col overflow-hidden bg-background [font-feature-settings:"tnum"] sm:border-x'>
             <Header
                 stations={stations}
                 selectedStation={selectedStation}
@@ -134,10 +146,10 @@ export function App() {
                 )}
             </div>
             <Footer
-                lastUpdated={lastUpdated}
-                onRefresh={refresh}
-                isRefreshing={isLoading}
+                onRefresh={handleRefresh}
+                isRefreshing={isLoading || isRefreshing}
             />
+            <Toaster />
         </main>
     );
 }

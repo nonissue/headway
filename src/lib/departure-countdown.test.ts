@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { departureMinutes, getDepartureWindow } from './departure-countdown';
+import { departureMinutes, getUpcomingDepartures } from './departure-countdown';
 import type { Departure } from '../types/departures';
 
 const train: Departure = {
@@ -33,7 +33,7 @@ describe('departureMinutes', () => {
     });
 });
 
-describe('getDepartureWindow', () => {
+describe('getUpcomingDepartures', () => {
     const now = Date.parse(train.scheduled_at!);
     const at = (offset: number, line = 'Capital'): Departure => ({
         ...train,
@@ -41,44 +41,37 @@ describe('getDepartureWindow', () => {
         trip_id: String(offset),
         scheduled_at: new Date(now + offset).toISOString(),
     });
-    it('retains only the latest past departure, after applying the line filter', () => {
+    it('excludes all past departures and applies the line filter', () => {
         const capital = at(-120000);
         const metro = at(-60000, 'Metro');
         const next = at(300000);
-        const departures = [capital, metro, at(-150000), next];
-        expect(getDepartureWindow(departures, now)).toEqual({
-            recent: metro,
-            upcoming: [next],
-        });
-        expect(getDepartureWindow(departures, now, 'Capital')).toEqual({
-            recent: capital,
-            upcoming: [next],
-        });
+        const nextMetro = at(360000, 'Metro');
+        const departures = [capital, metro, at(-150000), next, nextMetro];
+        expect(getUpcomingDepartures(departures, now)).toEqual([
+            next,
+            nextMetro,
+        ]);
+        expect(getUpcomingDepartures(departures, now, 'Capital')).toEqual([
+            next,
+        ]);
+        expect(getUpcomingDepartures(departures, now, 'Metro')).toEqual([
+            nextMetro,
+        ]);
     });
-    it('keeps an exact due time upcoming, then moves it to recent', () => {
-        expect(getDepartureWindow([train], now)).toEqual({
-            recent: undefined,
-            upcoming: [train],
-        });
-        expect(getDepartureWindow([train], now + 1)).toEqual({
-            recent: train,
-            upcoming: [],
-        });
+    it('keeps an exact due time and removes it immediately once past', () => {
+        expect(getUpcomingDepartures([train], now)).toEqual([train]);
+        expect(getUpcomingDepartures([train], now + 1)).toEqual([]);
     });
-    it('includes the ten-minute boundary and expires immediately after it', () => {
-        expect(getDepartureWindow([train], now + 600000).recent).toBe(train);
+    it('returns no departures when every scheduled time has passed', () => {
         expect(
-            getDepartureWindow([train], now + 600001).recent
-        ).toBeUndefined();
+            getUpcomingDepartures([at(-1), at(-60000), at(-180000)], now)
+        ).toEqual([]);
     });
-    it('never invents a recent departure from missing or invalid timestamps', () => {
+    it('preserves departures with unknown timestamps without guessing their age', () => {
         const invalid = [
             { ...train, scheduled_at: undefined },
             { ...train, scheduled_at: 'invalid' },
         ];
-        expect(getDepartureWindow(invalid, now)).toEqual({
-            recent: undefined,
-            upcoming: invalid,
-        });
+        expect(getUpcomingDepartures(invalid, now)).toEqual(invalid);
     });
 });
