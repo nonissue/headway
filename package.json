@@ -27,7 +27,7 @@
         "@sentry/node": "^10.63.0",
         "better-sqlite3": "^12.4.6",
         "cn": "^0.3.0",
-        "gtfs": "^4.17.5",
+        "gtfs": "^4.21.0",
         "hono": "^4.13.1",
         "react": "^19.1.0",
         "react-dom": "^19.1.0"
@@ -50,7 +50,7 @@
         "clsx": "^2.1.1",
         "cmdk": "^1.1.1",
         "concurrently": "^9.2.0",
-        "csv-parse": "^6.1.0",
+        "csv-parse": "^7.0.2",
         "eslint": "^9.36.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-plugin-format": "^1.0.2",
